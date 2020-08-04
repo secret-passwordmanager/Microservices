@@ -42,6 +42,10 @@ RUN pipx inject mitmproxy pyodbc \
 
 VOLUME /home/mitmproxy/.mitmproxy
 
+# Copy the mitm script
+COPY mitm_script.py /home/mitmproxy/.mitmproxy/mitm_script.py
+RUN chmod +x /home/mitmproxy/.mitmproxy/mitm_script.py
+
 COPY docker-entrypoint.sh /usr/local/bin/
 
 ENTRYPOINT ["bash","docker-entrypoint.sh"]

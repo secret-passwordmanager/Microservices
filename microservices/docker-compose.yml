@@ -44,8 +44,8 @@ services:
          - 8001:8080 
       stdin_open: true # docker run -i
       tty: true # docker run -t
-      volumes: 
-         - ${docker_dir}/mitm/:/home/mitmproxy/.mitmproxy
+ #     volumes: 
+ #        - ${docker_dir}/mitm/:/home/mitmproxy/.mitmproxy
 
 # By creating a vlan for all of the microservices, we can reference each one by it's
 # container name instead of IP address in all of our code
