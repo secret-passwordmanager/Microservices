@@ -18,6 +18,6 @@ Enter a valid value for `docker_dir`. Try using the example directory of `/Docke
 ## Step 3
 ### Fix MSSQL's permissions.
 1. Open terminal and `cd` to whatever directory you used for `docker_dir`
-2. Now, type `sudo chmod 666`
+2. Now, type `sudo chmod 777`
 3. Retry Step 2
-4. Are there still errors in the docker logs for mssql? Idk try Step 3 with `sudo chmod 777` instead
+
