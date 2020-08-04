@@ -4,7 +4,7 @@
 Make sure you have docker and docker-compose installed
 
 ## Step 1
-### Create a .env file in this directory
+### Create a .env file in the `microservices` directory
 `cp .env-sample .env`
 Enter a valid value for `docker_dir`. Try using the example directory of `/Docker/secret`
 
