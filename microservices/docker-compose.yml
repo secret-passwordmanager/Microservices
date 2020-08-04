@@ -41,7 +41,7 @@ services:
       networks: 
          - secret_net
       ports: 
-         - 8080:8080 
+         - 8001:8080 
       stdin_open: true # docker run -i
       tty: true # docker run -t
       volumes: 
