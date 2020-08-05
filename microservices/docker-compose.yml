@@ -15,7 +15,7 @@ services:
       ports:
          - 1433:1433
       volumes: 
-         - ${docker_dir}/sql/:/var/opt/mssql
+         - secret_mssql
    
    # This container holds the api
    secret_user_api: 
@@ -47,11 +47,11 @@ services:
       stdin_open: true # docker run -i
       tty: true # docker run -t
 
- #     volumes: 
- #        - ${docker_dir}/mitm/:/home/mitmproxy/.mitmproxy
-
 # By creating a vlan for all of the microservices, we can reference each one by it's
 # container name instead of IP address in all of our code
 networks:
    secret_net:
       driver: bridge
+
+volumes: 
+   secret_mssql:
