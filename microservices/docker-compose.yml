@@ -32,6 +32,8 @@ services:
 
    # This container holds mitm-proxy and our python script
    secret_mitm:
+      depends_on:
+         - secret_mssql
       container_name: secret_mitm
       build:
          context: mitm/
@@ -44,6 +46,7 @@ services:
          - 8001:8080 
       stdin_open: true # docker run -i
       tty: true # docker run -t
+
  #     volumes: 
  #        - ${docker_dir}/mitm/:/home/mitmproxy/.mitmproxy
 
