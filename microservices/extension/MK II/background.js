@@ -440,7 +440,7 @@ function handleProxyRequest(requestInfo) {
 	if (requestInfo.method == "POST" && url.hostname != "localhost") {
 		// Write details of the proxied host to the console and return the proxy address
 		console.log(`Proxying: ${url.hostname}`);
-		return { type: "http", host: "localhost", port: 8080 };
+		return { type: "http", host: "localhost", port: 8001 };
 	}
 	// Return instructions to open the requested webpage
 	return { type: "direct" };
