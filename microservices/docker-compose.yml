@@ -21,8 +21,8 @@ services:
          timeout: 3s
          retries: 10
          start_period: 10s
-    #  volumes: 
-  #       - secretmssql
+      volumes: 
+         - secretmssql
    
    # This container holds the api
    secret_user_api: 
@@ -74,3 +74,4 @@ networks:
 
 volumes: 
    secretmssql:
+      driver: local
