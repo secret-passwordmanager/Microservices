@@ -1,4 +1,4 @@
-version: '3.5'
+version: '2.3'
 
 services: 
    # This container holds the database
@@ -14,11 +14,20 @@ services:
          - secret_net
       ports:
          - 1433:1433
-      volumes: 
-         - secret_mssql
+      healthcheck:
+         test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'Anac0nda' -Q 'SELECT 1' || exit 1"]
+         interval: 2s
+         timeout: 3s
+         retries: 10
+         start_period: 10s
+    #  volumes: 
+  #       - secretmssql
    
    # This container holds the api
    secret_user_api: 
+      depends_on:
+         secret_mssql:
+            condition: service_healthy
       container_name: secret_user_api
       build:
          context: user_api/
@@ -29,11 +38,18 @@ services:
          - secret_net
       ports:
          - 8000:80
+      healthcheck:
+         test: ["CMD-SHELL", "curl localhost:80/users || exit 1"]
+         interval: 2s
+         timeout: 3s
+         retries: 10
+         start_period: 10s
 
    # This container holds mitm-proxy and our python script
    secret_mitm:
       depends_on:
-         - secret_mssql
+         secret_user_api:
+            condition: service_healthy
       container_name: secret_mitm
       build:
          context: mitm/
@@ -55,4 +71,4 @@ networks:
       driver: bridge
 
 volumes: 
-   secret_mssql:
+   secretmssql:
