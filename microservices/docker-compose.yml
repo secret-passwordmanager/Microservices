@@ -51,6 +51,7 @@ services:
 # container name instead of IP address in all of our code
 networks:
    secret_net:
+      name: secret_net
       driver: bridge
 
 volumes: 
