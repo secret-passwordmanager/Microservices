@@ -14,7 +14,8 @@ namespace dotnetapi
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<Startup>();
+                    webBuilder.UseUrls("https://*:8081", "http://*:8080"); //TODO: Remove this line
+                    webBuilder.UseStartup<Startup>(); 
                 });
     }
 }
