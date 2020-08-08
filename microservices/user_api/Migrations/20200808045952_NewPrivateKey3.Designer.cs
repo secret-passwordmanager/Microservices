@@ -10,8 +10,8 @@ using dotnetapi.Entities;
 namespace dotnetapi.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20200602051757_requestSwap")]
-    partial class requestSwap
+    [Migration("20200808045952_NewPrivateKey3")]
+    partial class NewPrivateKey3
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -28,6 +28,12 @@ namespace dotnetapi.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<byte[]>("AesIV")
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<byte[]>("AesValue")
+                        .HasColumnType("varbinary(max)");
+
                     b.Property<string>("Domain")
                         .HasColumnType("nvarchar(max)");
 
@@ -39,9 +45,6 @@ namespace dotnetapi.Migrations
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
-
-                    b.Property<string>("ValueHash")
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -147,14 +150,20 @@ namespace dotnetapi.Migrations
                     b.Property<string>("LastName")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<byte[]>("MasterAesKeyEnc")
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<byte[]>("MasterCredIV")
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<byte[]>("MasterCredSalt")
+                        .HasColumnType("varbinary(max)");
+
                     b.Property<byte[]>("PasswordHash")
                         .HasColumnType("varbinary(max)");
 
                     b.Property<byte[]>("PasswordSalt")
                         .HasColumnType("varbinary(max)");
-
-                    b.Property<string>("PublicCredKey")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Role")
                         .HasColumnType("nvarchar(max)");

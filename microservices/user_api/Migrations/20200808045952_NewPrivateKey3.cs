@@ -2,7 +2,7 @@
 
 namespace dotnetapi.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class NewPrivateKey3 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

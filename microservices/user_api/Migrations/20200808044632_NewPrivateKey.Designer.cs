@@ -10,8 +10,8 @@ using dotnetapi.Entities;
 namespace dotnetapi.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20200529070648_ID")]
-    partial class ID
+    [Migration("20200808044632_NewPrivateKey")]
+    partial class NewPrivateKey
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -28,6 +28,12 @@ namespace dotnetapi.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<byte[]>("AesIV")
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<byte[]>("AesValue")
+                        .HasColumnType("varbinary(max)");
+
                     b.Property<string>("Domain")
                         .HasColumnType("nvarchar(max)");
 
@@ -37,17 +43,12 @@ namespace dotnetapi.Migrations
                     b.Property<int?>("Type")
                         .HasColumnType("int");
 
-                    b.Property<int?>("UserId")
+                    b.Property<int>("UserId")
                         .HasColumnType("int");
-
-                    b.Property<string>("ValueHash")
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Credential");
+                    b.ToTable("Credentials");
                 });
 
             modelBuilder.Entity("dotnetapi.Entities.EventLog", b =>
@@ -133,9 +134,7 @@ namespace dotnetapi.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
-
-                    b.ToTable("RequestSwap");
+                    b.ToTable("RequestSwaps");
                 });
 
             modelBuilder.Entity("dotnetapi.Entities.User", b =>
@@ -150,6 +149,15 @@ namespace dotnetapi.Migrations
 
                     b.Property<string>("LastName")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte[]>("MasterAesKeyEnc")
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<byte[]>("MasterCredIV")
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<byte[]>("MasterCredSalt")
+                        .HasColumnType("varbinary(max)");
 
                     b.Property<byte[]>("PasswordHash")
                         .HasColumnType("varbinary(max)");
@@ -168,24 +176,10 @@ namespace dotnetapi.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("dotnetapi.Entities.Credential", b =>
-                {
-                    b.HasOne("dotnetapi.Entities.User", null)
-                        .WithMany("Credentials")
-                        .HasForeignKey("UserId");
-                });
-
             modelBuilder.Entity("dotnetapi.Entities.EventLog", b =>
                 {
                     b.HasOne("dotnetapi.Entities.User", null)
                         .WithMany("Logs")
-                        .HasForeignKey("UserId");
-                });
-
-            modelBuilder.Entity("dotnetapi.Entities.RequestSwap", b =>
-                {
-                    b.HasOne("dotnetapi.Entities.User", null)
-                        .WithMany("RequestSwaps")
                         .HasForeignKey("UserId");
                 });
 #pragma warning restore 612, 618

@@ -26,11 +26,11 @@ namespace dotnetapi.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("AesIV")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<byte[]>("AesIV")
+                        .HasColumnType("varbinary(max)");
 
-                    b.Property<string>("AesValue")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<byte[]>("AesValue")
+                        .HasColumnType("varbinary(max)");
 
                     b.Property<string>("Domain")
                         .HasColumnType("nvarchar(max)");
