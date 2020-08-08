@@ -69,7 +69,7 @@ namespace dotnetapi.Controllers
             }
         }
 
-        [HttpPost]
+/*         [HttpPost]   //TODO: Uncomment later
         public IActionResult Submit([FromBody]SubmitSwapModel model)
         {
             int userId = int.Parse(User.Identity.Name);
@@ -103,7 +103,7 @@ namespace dotnetapi.Controllers
             } catch(Exception e) {
                 return BadRequest(new {Title = e.Message});
             }
-        }
+        } */
 
 
         private static string Decrypt(string textToDecrypt, string privateKeyString)

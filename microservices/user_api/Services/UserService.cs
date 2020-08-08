@@ -1,6 +1,7 @@
 
 using Microsoft.Extensions.Options;
 using System;
+using System.Text;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using System.Collections.Generic;
@@ -84,14 +85,14 @@ namespace dotnetapi.Services
             using (var rng = RandomNumberGenerator.Create())
                 rng.GetBytes(masterKey);
 
-
+            Console.WriteLine("PrivateKey: " + Encoding.Unicode.GetString(masterKey, 0, masterKey.Length));
             /* Hash the password using PKBDF2 so that it can 
             be used as the key to encrypt the private key */
             byte[] masterSalt = new byte[128 / 8];
             using (var rng = RandomNumberGenerator.Create())
                 rng.GetBytes(masterSalt);
 
-            Console.WriteLine("Salt: " + Convert.ToBase64String(masterSalt) + "\n");
+          //  Console.WriteLine("Salt: " + Convert.ToBase64String(masterSalt) + "\n");
 
             byte[] masterPkbdf2 = KeyDerivation.Pbkdf2(
                 password: masterCred,
@@ -100,7 +101,8 @@ namespace dotnetapi.Services
                 iterationCount: 10000,
                 numBytesRequested: 256 / 8
             );
-            Console.WriteLine("Hash: " + masterPkbdf2);
+            user.MasterCredSalt = masterSalt;
+           // Console.WriteLine("Hash: " + masterPkbdf2);
 
 
             /* Encrypt the private key with AES using masterPkbdf2 as the key */
@@ -110,8 +112,9 @@ namespace dotnetapi.Services
                 aes.GenerateIV();
 
                 using (var cryptoTransform = aes.CreateEncryptor()) {
+
                     user.MasterCredIV = aes.IV;
-                    user.MasterCredKeyHash = cryptoTransform.TransformFinalBlock(masterKey, 0, masterKey.Length);
+                    user.MasterAesKeyEnc = cryptoTransform.TransformFinalBlock(masterKey, 0, masterKey.Length);
                 }
             }
 

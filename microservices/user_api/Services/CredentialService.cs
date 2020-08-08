@@ -2,6 +2,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Text;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace dotnetapi.Services
 {
     public interface ICredentialService
     {
-        Credential Create(Credential credential, string masterCred, byte[] masterCredKeyHash, byte[] masterCredSalt);
+        Credential Create(Credential credential, string masterCred, byte[] masterCredKeyHash, byte[] masterCredSalt, byte[] masterCredIV);
         List<Credential> Read(Credential credential);
         void Update(Credential credential);
         void Delete(Credential credential);
@@ -29,7 +30,7 @@ namespace dotnetapi.Services
             _context = context;
         }
 
-        public Credential Create(Credential cred, string masterCred, byte[] masterCredKeyHash, byte[] masterCredSalt) 
+        public Credential Create(Credential cred, string masterCred, byte[] masterCredKeyHash, byte[] masterCredSalt, byte[] masterCredIV) 
         {            
             /* Make sure credential hint isn't already in use */
             if (_context.Credentials.Any(c => c.UserId == cred.UserId && c.Hint == cred.Hint)) {
@@ -39,23 +40,43 @@ namespace dotnetapi.Services
             /* Convert masterCred into PKBDF2 */
             byte[] masterPkbdf2 = KeyDerivation.Pbkdf2(
                 password: masterCred,
-                salt: masterSalt,
+                salt: masterCredSalt,
                 prf: KeyDerivationPrf.HMACSHA1,
                 iterationCount: 10000,
                 numBytesRequested: 256 / 8
             );
+            Console.WriteLine("Hash: " + masterPkbdf2);
 
+
+            /* Decrypt the aes key using hashed masterCred */
+            byte[] masterKey;
             using (var aes = Aes.Create()) {
-
-
+                aes.Mode = CipherMode.CBC;
+                aes.Key = masterPkbdf2;
+                aes.IV = masterCredIV;
+                
+                using (var cryptoTransform = aes.CreateDecryptor()) {
+                    masterKey = cryptoTransform.TransformFinalBlock(masterCredKeyHash, 0, masterCredKeyHash.Length);
+                    Console.WriteLine("PrivateKey: " + Encoding.Unicode.GetString(masterKey, 0, masterKey.Length));
+                }
             }
+
+            /* Encrypt the new credential using the aes key */
+            using (var aes = Aes.Create()) {
+                aes.Mode = CipherMode.CBC;
+                aes.Key = masterPkbdf2;
+                aes.GenerateIV();
+
+                using (var cryptoTransform = aes.CreateEncryptor()) {
+                    byte[] credEncrpt = cryptoTransform.TransformFinalBlock(masterKey, 0, masterKey.Length);
+                }
+            }
+
+
 
 
             /* Make sure credential's domain is lowercase */
             cred.Domain = cred.Domain.ToLower();
-
-
-
 
             _context.Credentials.Add(cred);
             _context.SaveChanges();
