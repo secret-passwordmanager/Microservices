@@ -69,7 +69,7 @@ namespace dotnetapi.Controllers
             }
         }
 
-/*         [HttpPost]   //TODO: Uncomment later
+        [HttpPost] 
         public IActionResult Submit([FromBody]SubmitSwapModel model)
         {
             int userId = int.Parse(User.Identity.Name);
@@ -103,10 +103,10 @@ namespace dotnetapi.Controllers
             } catch(Exception e) {
                 return BadRequest(new {Title = e.Message});
             }
-        } */
+        }
 
 
-        private static string Decrypt(string textToDecrypt, string privateKeyString)
+       /*  private static string Decrypt(string textToDecrypt, string privateKeyString)
         {
             var bytesToDescrypt = Encoding.UTF8.GetBytes(textToDecrypt);
 
@@ -127,7 +127,7 @@ namespace dotnetapi.Controllers
                     rsa.PersistKeyInCsp = false;
                 }
             }
-        }
+        } */
 
     }
 }

@@ -14,8 +14,8 @@ namespace dotnetapi.Entities
         public int UserId {get; set; }
         public int? Type { get; set; }
         public string Hint { get; set; }
-        public string AesValue { get; set; }
-        public string AesIV { get; set; }
+        public byte[] AesValue { get; set; }
+        public byte[] AesIV { get; set; }
         public string Domain { get; set; }
     }
 }

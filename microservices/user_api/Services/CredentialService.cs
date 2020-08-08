@@ -37,6 +37,7 @@ namespace dotnetapi.Services
                 throw new AppException("This credential hint is already used by another of your credentials");
             }
 
+
             /* Convert masterCred into PKBDF2 */
             byte[] masterPkbdf2 = KeyDerivation.Pbkdf2(
                 password: masterCred,
@@ -61,6 +62,7 @@ namespace dotnetapi.Services
                 }
             }
 
+
             /* Encrypt the new credential using the aes key */
             using (var aes = Aes.Create()) {
                 aes.Mode = CipherMode.CBC;
@@ -69,18 +71,21 @@ namespace dotnetapi.Services
 
                 using (var cryptoTransform = aes.CreateEncryptor()) {
                     byte[] credEncrpt = cryptoTransform.TransformFinalBlock(masterKey, 0, masterKey.Length);
+
+                    /* Save values to the credential */
+                    cred.AesIV = aes.IV;
+                    cred.AesValue = credEncrpt;
                 }
             }
-
-
 
 
             /* Make sure credential's domain is lowercase */
             cred.Domain = cred.Domain.ToLower();
 
+
+            /* Save changes and return */
             _context.Credentials.Add(cred);
             _context.SaveChanges();
-
             return cred;
         }
 
