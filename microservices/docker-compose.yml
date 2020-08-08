@@ -30,8 +30,7 @@ services:
          secret_mssql:
             condition: service_healthy
       container_name: secret_user_api
-      build:
-         context: user_api/
+      image: patricka3125/secret-repo:api-latest
       environment: 
          - PUID=1000
          - PGID=1000
@@ -53,8 +52,7 @@ services:
          secret_user_api:
             condition: service_healthy
       container_name: secret_mitm
-      build:
-         context: mitm/
+      image: patricka3125/secret-repo:mitm-latest
       environment: 
          - PUID=1000
          - PGID=1000
