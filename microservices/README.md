@@ -11,7 +11,7 @@ Currently, there are 3 docker containers within the docker-compose file.
 ## Prereqs
 Make sure you have **docker** and **docker-compose** installed
 
-### Getting Docker to run without root
+## Getting Docker to run without root
 You can follow these instructions so that you do not have to add `sudo` to every docker 
 command. 
 1. sudo groupadd docker
@@ -34,4 +34,4 @@ can simply run the following: `docker-compose up -d`
 # Debugging Problems
 If something is not working as expected, you can run `docker container ls` to see which containers
 are currently running. If any of the 3 containers are not running you can run `docker logs {container_name}`
-(remove the {}, and replace container_name)
+(remove the {}, and replace container_name). Then fix the problem or something idk
