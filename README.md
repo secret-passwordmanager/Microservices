@@ -8,7 +8,7 @@ Our goal is to create a password manager that can keep a user's credentials unto
 
 ## Getting Started
 1. [Here](https://github.com/secret-passwordmanager/Legacy/tree/master/microservices) is the documentation for how to install the Secret Microservices onto your computer.
-2. After you have installed them, you can go to our [firefox extension](https://github.com/secret-passwordmanager/Extension) and follow the instruction on the README to install it.
+2. After you have installed the microservices, you can go to our firefox extension [repo](https://github.com/secret-passwordmanager/Extension) and follow the instruction on the README to install it.
 3. Next, you can either install our mobile application that can be found [here](https://github.com/secret-passwordmanager/Picasso), or you can read [this](https://github.com/secret-passwordmanager/Legacy/tree/master/Documentation/Postman-Demo.md) documentation to simulate our phone app using **Postman**
 
 ## Repository Outline 
