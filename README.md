@@ -11,9 +11,7 @@ Our goal is to create a password manager that can keep a user's credentials unto
 All of our code can be found within our microservices folder. Each subfolder is an independent service that can be successfully launched without any other code outside its folder. Within each subfolder there should be a README that contains information about the relevant parts of the code, though our core logic is mostly contained in our [API](https://github.com/ECS153/final-project-group-0-/blob/master/microservices/dotnetapi/README.md)
 
 ### Root Directory
-  - Meetings: Quick notes we took while we were in our meetings
   - Microservices: Folder containing all of our microservices.
+  - Documentation: Files related to documentation for using and testing SECRET
   - ReadMe.md: You're reading it
-  - design_docs.md: Contains a detailed explanation of the "microservices" we made, as well as how they interact with each other
-  - milestones.md: Contains a summary of our weekly progress on the project
-  - proposal.md: Contains our updated proposal for what our
+
