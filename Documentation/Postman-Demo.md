@@ -57,6 +57,12 @@ Now, make a POST request to `http://localhost/credential/new` with the following
 ```
 **Make sure that you use your ebay username for `Value`**
 
-## Using Secret to replace Ebay Username
-Now that you have a Secret account, 
+## Log In To Secret Extension
+Now that you have a Secret account, click on the Secret Extension, and log in with the same credentials. You should see a "Server Ready" message.
+
+## Making a Request to Swap a Credential
+In firefox, go to the ebay [login](https://signin.ebay.com/signin/)
+Now, with your mouse over the username field, right click and select the Secret option, and then select "generate username".
+
+### Finding the Credential Id for your ebay username
 
