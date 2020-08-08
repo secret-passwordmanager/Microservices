@@ -36,8 +36,7 @@ namespace dotnetapi.Controllers
             Credential cred = _mapper.Map<Credential>(model);
             cred.UserId = user.Id;   
             try {
-                cred.ValueHash = Encrypt(model.Value, user.PublicCredKey);
-                _credService.Create(cred);
+                _credService.Create(cred, model.MasterKey, user.MasterCredKeyHash);
                 return Ok();
             }
             catch (AppException e) {
@@ -85,7 +84,7 @@ namespace dotnetapi.Controllers
             }
         }
 
-        private static string Encrypt(string textToEncrypt, string publicKeyString)
+   /*      private static string Encrypt(string textToEncrypt, string publicKeyString)
         {
             var bytesToEncrypt = Encoding.UTF8.GetBytes(textToEncrypt);
 
@@ -100,7 +99,7 @@ namespace dotnetapi.Controllers
                     rsa.PersistKeyInCsp = false;
                 }
             }
-        }
+        } */
     }
 }
 

@@ -31,7 +31,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                _userService.Create(_mapper.Map<User>(model), model.Password, "Admin");
+                _userService.Create(_mapper.Map<User>(model), model.Password, model.MasterCred, "Admin");
                 return Ok();
             }
             catch (AppException ex)

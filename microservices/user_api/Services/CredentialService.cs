@@ -1,8 +1,9 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-
+using System.Security.Cryptography;
 using System.Linq;
 
 using dotnetapi.Entities;
@@ -12,7 +13,7 @@ namespace dotnetapi.Services
 {
     public interface ICredentialService
     {
-        Credential Create(Credential credential);
+        Credential Create(Credential credential, string masterCred, byte[] masterCredKeyHash, byte[] masterCredSalt);
         List<Credential> Read(Credential credential);
         void Update(Credential credential);
         void Delete(Credential credential);
@@ -28,13 +29,34 @@ namespace dotnetapi.Services
             _context = context;
         }
 
-        public Credential Create(Credential cred) 
+        public Credential Create(Credential cred, string masterCred, byte[] masterCredKeyHash, byte[] masterCredSalt) 
         {            
+            /* Make sure credential hint isn't already in use */
             if (_context.Credentials.Any(c => c.UserId == cred.UserId && c.Hint == cred.Hint)) {
                 throw new AppException("This credential hint is already used by another of your credentials");
             }
 
+            /* Convert masterCred into PKBDF2 */
+            byte[] masterPkbdf2 = KeyDerivation.Pbkdf2(
+                password: masterCred,
+                salt: masterSalt,
+                prf: KeyDerivationPrf.HMACSHA1,
+                iterationCount: 10000,
+                numBytesRequested: 256 / 8
+            );
+
+            using (var aes = Aes.Create()) {
+
+
+            }
+
+
+            /* Make sure credential's domain is lowercase */
             cred.Domain = cred.Domain.ToLower();
+
+
+
+
             _context.Credentials.Add(cred);
             _context.SaveChanges();
 

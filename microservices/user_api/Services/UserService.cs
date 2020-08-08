@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using System;
 using System.Security.Cryptography;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -15,7 +16,7 @@ namespace dotnetapi.Services
     {
         User Authenticate(UserAuthenticateModel model);
         IEnumerable<User> ReadAll();
-        String Create(User model, string password, string Role);
+        void Create(User model, string password, string masterCred, string Role);
         User Read(int id);
         void Update(User model, string password);
         void Delete(int id);
@@ -45,21 +46,25 @@ namespace dotnetapi.Services
             return user;
         }
 
-        public String Create(User user, string password, string role)
+        public void Create(User user, string password, string masterCred, string role)
         {
+            /* Make sure that password is not empty */
             if (string.IsNullOrWhiteSpace(password))
                 throw new AppException("Password is required");
 
+            /* Make sure that username is not taken */
             if (_context.Users.Any(x => x.Username == user.Username))
                 throw new AppException("Username \"" + user.Username + "\" is already taken");
 
+
+            /* Hash the password */
             byte[] passwordHash, passwordSalt;
             CreatePasswordHash(password, out passwordHash, out passwordSalt);
             user.Role = role;
             user.PasswordHash = passwordHash;
             user.PasswordSalt = passwordSalt;
 
-
+            /*
             // Generating public and private key for credential encryption
             var cryptoServiceProvider = new RSACryptoServiceProvider(2048);
             var privateKey = cryptoServiceProvider.ExportParameters(true); 
@@ -70,10 +75,50 @@ namespace dotnetapi.Services
 
             user.PublicCredKey = publicKeyString;
 
+
+
+            return privateKeyString; */
+
+            /* Generate AES key randomly */
+            byte[] masterKey = new byte[128 / 8];
+            using (var rng = RandomNumberGenerator.Create())
+                rng.GetBytes(masterKey);
+
+
+            /* Hash the password using PKBDF2 so that it can 
+            be used as the key to encrypt the private key */
+            byte[] masterSalt = new byte[128 / 8];
+            using (var rng = RandomNumberGenerator.Create())
+                rng.GetBytes(masterSalt);
+
+            Console.WriteLine("Salt: " + Convert.ToBase64String(masterSalt) + "\n");
+
+            byte[] masterPkbdf2 = KeyDerivation.Pbkdf2(
+                password: masterCred,
+                salt: masterSalt,
+                prf: KeyDerivationPrf.HMACSHA1,
+                iterationCount: 10000,
+                numBytesRequested: 256 / 8
+            );
+            Console.WriteLine("Hash: " + masterPkbdf2);
+
+
+            /* Encrypt the private key with AES using masterPkbdf2 as the key */
+            using (var aes = Aes.Create()) {
+                aes.Mode = CipherMode.CBC;
+                aes.Key = masterPkbdf2;
+                aes.GenerateIV();
+
+                using (var cryptoTransform = aes.CreateEncryptor()) {
+                    user.MasterCredIV = aes.IV;
+                    user.MasterCredKeyHash = cryptoTransform.TransformFinalBlock(masterKey, 0, masterKey.Length);
+                }
+            }
+
+            /* Save changes in the database and return */
             _context.Users.Add(user);
             _context.SaveChanges();
-
-            return privateKeyString;
+            return;
         }
 
         public IEnumerable<User> ReadAll()

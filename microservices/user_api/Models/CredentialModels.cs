@@ -12,6 +12,9 @@ namespace dotnetapi.Models.Credentials
         [Required]
         public string Value { get; set; }
         public string Domain { get; set; } = "";
+        [Required]
+        public string MasterKey { get; set; }
+
     }
     public class CredentialReadModel {
         public int? Id { get; set; }

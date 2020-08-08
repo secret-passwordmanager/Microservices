@@ -65,8 +65,8 @@ namespace dotnetapi.Controllers
             try
             {
                 var user = _mapper.Map<User>(model);
-                string privateKey = _userService.Create(_mapper.Map<User>(model), model.Password, "User");
-                return Ok(privateKey);
+                _userService.Create(_mapper.Map<User>(model), model.Password, model.MasterCred, "User");
+                return Ok();
             }
             catch (AppException ex)
             {

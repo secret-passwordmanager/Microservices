@@ -35,6 +35,6 @@ namespace dotnetapi.Models.Requests
         [Required]
         public int CredentialId { get; set; }
         [Required]
-        public string PrivateKey { get; set; }
+        public string MasterCred { get; set; }
     }
 }

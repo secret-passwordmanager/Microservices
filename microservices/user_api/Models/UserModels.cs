@@ -20,6 +20,8 @@ namespace dotnetapi.Models.Users
         public string Username { get; set; }
         [Required]
         public string Password { get; set; }
+        [Required]
+        public string MasterCred { get; set; }
     }
     public class UserReadModel
     {
