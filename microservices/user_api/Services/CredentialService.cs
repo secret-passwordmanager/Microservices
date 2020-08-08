@@ -24,7 +24,6 @@ namespace dotnetapi.Services
     {
         private DatabaseContext _context;
 
-
         public CredentialService(DatabaseContext context)
         {
             _context = context;
@@ -46,7 +45,6 @@ namespace dotnetapi.Services
                 iterationCount: 10000,
                 numBytesRequested: 256 / 8
             );
-            Console.WriteLine("Hash: " + masterPkbdf2);
 
 
             /* Decrypt the masterKey using hashed masterCred */
@@ -58,7 +56,6 @@ namespace dotnetapi.Services
                 
                 using (var cryptoTransform = aes.CreateDecryptor()) {
                     masterKey = cryptoTransform.TransformFinalBlock(masterAesKeyEnc, 0, masterAesKeyEnc.Length);
-                    Console.WriteLine("PrivateKey: " + Encoding.Unicode.GetString(masterKey, 0, masterKey.Length));
                 }
             }
 

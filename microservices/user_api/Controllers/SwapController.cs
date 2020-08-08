@@ -75,9 +75,8 @@ namespace dotnetapi.Controllers
         [HttpPost] 
         public IActionResult Submit([FromBody]SubmitSwapModel model)
         {
+            /* Grab the user */
             User user = _userService.Read(int.Parse(User.Identity.Name));
-
-
 
             /* Grab the top request Swap */
             RequestSwap reqSwap = _swapService.Front(user.Id);
@@ -108,6 +107,7 @@ namespace dotnetapi.Controllers
                 numBytesRequested: 256 / 8
             );
 
+
             /* Decrypt the aes key using hashed masterCred */
             byte[] masterKey;
             using (var aes = Aes.Create()) {
@@ -121,6 +121,7 @@ namespace dotnetapi.Controllers
                 }
             }
 
+
             /* Decrypt the credential using the masterKey */
             using (var aes = Aes.Create()) {
                 aes.Mode = CipherMode.CBC;
@@ -133,47 +134,12 @@ namespace dotnetapi.Controllers
                     _swapService.Swap(user.Id, Encoding.ASCII.GetString(credVal, 0, credVal.Length));
                 }
             }
+
+            
             return Ok();
 
-        /*     try {
-                String valueHash = Decrypt(cred.ValueHash, model.PrivateKey);
-                _swapService.Swap(userId, valueHash);
-                return Ok();
-            }
-            catch (AppException e) {
-                return BadRequest(new { Title = e.Message });
-
-            // If private key is not correct, this exception will trigger
-            } catch(FormatException e) {
-                return BadRequest(new { Title = e.Message });
-            } catch(Exception e) {
-                return BadRequest(new {Title = e.Message});
-            } */
+     
         }
-
-
-       /*  private static string Decrypt(string textToDecrypt, string privateKeyString)
-        {
-            var bytesToDescrypt = Encoding.UTF8.GetBytes(textToDecrypt);
-
-            using (var rsa = new RSACryptoServiceProvider(2048))
-            {
-                try
-                {
-                    // server decrypting data with private key                    
-                    rsa.FromXmlString(privateKeyString);
-
-                    var resultBytes = Convert.FromBase64String(textToDecrypt);
-                    var decryptedBytes = rsa.Decrypt(resultBytes, true);
-                    var decryptedData = Encoding.UTF8.GetString(decryptedBytes);
-                    return decryptedData.ToString();
-                }
-                finally
-                {
-                    rsa.PersistKeyInCsp = false;
-                }
-            }
-        } */
 
     }
 }
