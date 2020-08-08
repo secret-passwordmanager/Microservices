@@ -22,14 +22,18 @@ command.
 ## After Pulling From Master
 To make sure that docker installs the newest versions of the containers, it is recommended to
 run the following command any time you pull from master, especially when there are major changes
-such as new columns in the database.
+such as new columns in the database:
+
  `docker-compose build --no-cache`
+ 
 This command will rebuild all of the containers from the dockerfiles, and not use any
 cache that docker may have stored. Afterwards, proceed to Step 1
 
 ## Starting Containers
 If you have not pulled from master since the last time you ran the `docker-compose` command, you 
-can simply run the following: `docker-compose up -d`
+can simply run the following: 
+
+`docker-compose up -d`
 
 # Debugging Problems
 If something is not working as expected, you can run `docker container ls` to see which containers
