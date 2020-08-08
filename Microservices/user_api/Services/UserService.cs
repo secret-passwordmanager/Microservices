@@ -65,34 +65,18 @@ namespace dotnetapi.Services
             user.PasswordHash = passwordHash;
             user.PasswordSalt = passwordSalt;
 
-            /*
-            // Generating public and private key for credential encryption
-            var cryptoServiceProvider = new RSACryptoServiceProvider(2048);
-            var privateKey = cryptoServiceProvider.ExportParameters(true); 
-            var publicKey = cryptoServiceProvider.ExportParameters(false); 
-
-            string publicKeyString = GetKeyString(publicKey);
-            string privateKeyString = GetKeyString(privateKey);
-
-            user.PublicCredKey = publicKeyString;
-
-
-
-            return privateKeyString; */
 
             /* Generate AES key randomly */
             byte[] masterKey = new byte[128 / 8];
             using (var rng = RandomNumberGenerator.Create())
                 rng.GetBytes(masterKey);
 
-            Console.WriteLine("PrivateKey: " + Encoding.Unicode.GetString(masterKey, 0, masterKey.Length));
+
             /* Hash the password using PKBDF2 so that it can 
             be used as the key to encrypt the private key */
             byte[] masterSalt = new byte[128 / 8];
             using (var rng = RandomNumberGenerator.Create())
                 rng.GetBytes(masterSalt);
-
-          //  Console.WriteLine("Salt: " + Convert.ToBase64String(masterSalt) + "\n");
 
             byte[] masterPkbdf2 = KeyDerivation.Pbkdf2(
                 password: masterCred,
@@ -102,7 +86,6 @@ namespace dotnetapi.Services
                 numBytesRequested: 256 / 8
             );
             user.MasterCredSalt = masterSalt;
-           // Console.WriteLine("Hash: " + masterPkbdf2);
 
 
             /* Encrypt the private key with AES using masterPkbdf2 as the key */
@@ -112,7 +95,6 @@ namespace dotnetapi.Services
                 aes.GenerateIV();
 
                 using (var cryptoTransform = aes.CreateEncryptor()) {
-
                     user.MasterCredIV = aes.IV;
                     user.MasterAesKeyEnc = cryptoTransform.TransformFinalBlock(masterKey, 0, masterKey.Length);
                 }
@@ -197,10 +179,14 @@ namespace dotnetapi.Services
 
         private static bool VerifyPasswordHash(string password, byte[] storedHash, byte[] storedSalt)
         {
-            if (password == null) throw new ArgumentNullException("password");
-            if (string.IsNullOrWhiteSpace(password)) throw new ArgumentException("Value cannot be empty or whitespace only string.", "password");
-            if (storedHash.Length != 64) throw new ArgumentException("Invalid length of password hash (64 bytes expected).", "passwordHash");
-            if (storedSalt.Length != 128) throw new ArgumentException("Invalid length of password salt (128 bytes expected).", "passwordHash");
+            if (password == null) 
+                throw new ArgumentNullException("password");
+            if (string.IsNullOrWhiteSpace(password)) 
+                throw new ArgumentException("Value cannot be empty or whitespace only string.", "password");
+            if (storedHash.Length != 64) 
+                throw new ArgumentException("Invalid length of password hash (64 bytes expected).", "passwordHash");
+            if (storedSalt.Length != 128) 
+                throw new ArgumentException("Invalid length of password salt (128 bytes expected).", "passwordHash");
 
             using (var hmac = new System.Security.Cryptography.HMACSHA512(storedSalt))
             {
