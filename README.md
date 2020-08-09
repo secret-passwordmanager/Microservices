@@ -1,5 +1,6 @@
 # SECRET- Secure Credential Transportation
 
+
 ## Collaborators
 Roy Dey, Patrick Liao, Martin Petrov, Marty Macalalad, Raza Ahmed
 
@@ -19,3 +20,10 @@ Within each subfolder there should be a README that contains information about t
   - Microservices: Folder containing all of our microservices.
   - Documentation: Markdown files describe how Secret works
   - ReadMe.md: You're reading it
+
+### Root Directory
+  - Microservices: Folder containing all of our microservices.
+  - Documentation: Files related to documentation for using and testing SECRET
+  - ReadMe.md: You're reading it
+
+
