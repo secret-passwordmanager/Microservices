@@ -6,6 +6,7 @@ familiar with the topic. (Even watching the first 10-15 minutes can help a lot)
 
 # API Endpoints
 
+
 ## `POST/login`
 Make a request to this url to log in a user. On success, it will return a 
 `refreshToken` that can then be used to authenticate the user. (See `/auth`)
@@ -16,7 +17,6 @@ endpoint
 |----------|------|----------|-------------|
 | `username` | String | Yes | The user's username |
 | `password` | String | Yes | The user's password |
-
 ### Response
 | Status Code | Body Type | Body | Description |
 |-------------|-----------|------|-------------|
@@ -30,7 +30,8 @@ endpoint
     - `refreshToken` is simply a long random string
  - After 1 week, if user has not manually logged out, invalidate `refreshToken`
     - Just delete it from the database
-    
+   
+
 ## `POST/Logout`
 Make a request to this url to log out the user with the user's `refreshToken`
 in the request body
@@ -52,6 +53,7 @@ in the request body
   - (Optionally) Create an end point for all other api's to make sure that the
   user's JWT's are invalidated
 
+
 ## `POST/auth`
 When provided with a `refreshToken`, issue a new `accessToken` that is valid for 5 minutes.
 After 5 minutes, you will have to make a new request to `/auth`
@@ -70,11 +72,12 @@ After 5 minutes, you will have to make a new request to `/auth`
   - Generate a new JWT Token signed with the `authPrivateKey`
   - The token contains the user's Role, etc
   
+  
 ## `GET/publickey`
 This endpoint allows the other microservices to get the `authPublicKey` so that they can verify
 that users trying to connect to them have successfully been authenticated.
-## Request Body (None)
-## Response (JSON)
+### Request Body (None)
+### Response (JSON)
 | Status Code | Body Type | Body | Description |
 |-------------|-----------|------|-------------|
 | 200 | JSON | `authPublicKey` | Can use this key to verify users are authenticated |
