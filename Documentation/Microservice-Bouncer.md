@@ -8,8 +8,8 @@ familiar with the topic. (Even watching the first 10-15 minutes can help a lot)
 
 ## `POST/login`
 Make a request to this url to log in a user. On success, it will return a 
-`refreshToken` that can then be used to authenticate the user with this 
-[endpoint](#`POST/auth`). 
+`refreshToken` that can then be used to authenticate the user. (See `/auth`)
+endpoint
 
 ### Request Body (JSON)
 | Variable | Type | Required | Description |
@@ -20,7 +20,7 @@ Make a request to this url to log in a user. On success, it will return a
 ### Response
 | Status Code | Body Type | Body | Description |
 |-------------|-----------|------|-------------|
-| 200 | JSON | `refreshToken` | Returns a refresh token which can be used to generate new access tokens for up to 2 days |
+| 200 | JSON | `refreshToken` | Returns a refresh token which can be used to generate new `accessTokens` for up to 2 days |
 | 404 | JSON | `errorMessage` | User not found |
 
 ### Implementation
