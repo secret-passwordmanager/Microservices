@@ -17,7 +17,7 @@ endpoint
 |----------|------|----------|-------------|
 | `username` | String | Yes | The user's username |
 | `password` | String | Yes | The user's password |
-### Response
+### Response (JSON)
 | Status Code | Body Type | Body | Description |
 |-------------|-----------|------|-------------|
 | 200 | JSON | `refreshToken` | Returns a refresh token which can be used to generate new `accessTokens` for up to 2 days |
@@ -40,7 +40,7 @@ in the request body
 | Variable | Type | Required | Description |
 |----------|------|----------|-------------|
 | `refreshToken` | JSON | Yes | The user's refresh token |
-### Response
+### Response (JSON)
 | Status Code | Body Type | Body | Description |
 |-------------|-----------|------|-------------|
 | 200 | JSON | `null` | Successfully logged the user out |
