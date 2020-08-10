@@ -39,6 +39,7 @@ in the request body
 ### Request Body (JSON)
 | Variable | Type | Required | Description |
 |----------|------|----------|-------------|
+| `username` | String | Yes | The user's username |
 | `refreshToken` | JSON | Yes | The user's refresh token |
 ### Response (JSON)
 | Status Code | Body Type | Body | Description |
