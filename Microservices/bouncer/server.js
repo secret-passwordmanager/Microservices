@@ -24,7 +24,7 @@ var RefreshTokens = new Map();
 /////////////////// Config ///////////////////
 //////////////////////////////////////////////
 App.use(BodyParser.json());
-App.listen(process.env.PORT);
+App.listen(process.env.BOUNCER_PORT);
 
 
 
@@ -37,7 +37,9 @@ App.post('/auth',
         Check('username').isAlphanumeric(),
         Check('refreshToken').isBase64()
     ],
-    (req, res) => {
+    (req, res) => 
+    {
+        /* Make sure request body is valid */
         const errors = Validate(req);
         if (!errors.isEmpty()) {
             return res.status(422).json({ errors: errors.array() });
@@ -56,8 +58,8 @@ App.post('/auth',
             return res.status(403).json({errors: 'Token not found for user'});
         }
     
-       
-        res.json({token: jwtToken});
+        /* Generate a JWT and return it */
+        return res.json(genJwtToken(username));
     }
 );
 
@@ -68,6 +70,7 @@ App.post('/login',
     ],
     (req, res) => 
     {
+        /* Make sure request body is valid */
         const errors = Validate(req);
         if (!errors.isEmpty()) {
             return res.status(422).json({ errors: errors.array() });
@@ -78,7 +81,7 @@ App.post('/login',
 
         /* Lol make request to user_api for now 
         to check if credentials are valid */
-        Http.post('http://localhost:8000/user/authenticate', {
+        Http.post(process.env.USER_API_URL + 'user/authenticate', {
             Username: username,
             Password: password
         })
@@ -112,23 +115,36 @@ App.post('/login',
     }
 );
 
-App.post('/verify', (req, res) => {
-    var token = req.body.token;
+App.post('/verify',[
+    Check('username').isAlphanumeric(),
+    Check('jwtToken')
+],
+(req, res) => 
+{
+    /* Make sure request body is valid */
+    const errors = Validate(req);
+    if (!errors.isEmpty()) {
+        return res.status(422).json({ errors: errors.array() });
+    }
+    
+    var token = req.body.jwtToken;
 
     var verifyOptions = {
-        /* issuer:  i,
-        subject:  s,
-        audience:  a, */
-        expiresIn:  '12h',
+        issuer:  process.env.JWT_ISSUER,
+        subject:  req.body.username,
+        audience:  req.body.username,
+        expiresIn:  '5m',
         algorithm:  ['RS256']
-       };
-       var legit = Jwt.verify(token, RsaKey.publicKey, verifyOptions);
-       console.log(JSON.stringify(legit));
-})
+    };
+    var legit = Jwt.verify(token, RsaKey.publicKey, verifyOptions);
+    console.log(JSON.stringify(legit));
+    
+    res.json(legit);
+});
 
 App.get('/publickey', (req, res) => {
     res.json(RsaKey).publicKey;
-})
+});
 
 //////////////////////////////////////////////
 ///////////// Helper Functions ///////////////
@@ -138,7 +154,7 @@ App.get('/publickey', (req, res) => {
     Generates a jwt for the user that is valid 
     for 5 minutes 
 */
-function genJwt(username)
+function genJwtToken(username)
 {
     var payload = {
         data1: 'Data 1',
@@ -146,7 +162,6 @@ function genJwt(username)
         data3: 'Data 3',
         data4: 'Data 4',
     };
-
     var signOpts = {
         issuer: process.env.JWT_ISSUER,
         subject: username,
@@ -154,11 +169,10 @@ function genJwt(username)
         expiresIn: '5m',
         algorithm: 'RS256'
     }
-   
     return {
         jwtToken: Jwt.sign(payload, RsaKey.privateKey, signOpts)
-    }
-}
+    };
+};
 
 /* 
     Generates a random string of 64 bytes 
@@ -166,7 +180,7 @@ function genJwt(username)
 function genRefreshToken() 
 {
     return Crypto.randomBytes(64).toString('base64');
-}
+};
 
 /* 
     This function generates an RSA private and public key  
@@ -184,5 +198,5 @@ function genRsaKey()
             format: 'pem',
         }
     });
-}
+};
 
