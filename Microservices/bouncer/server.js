@@ -8,6 +8,12 @@ const app = express();
 const jwt = require("jsonwebtoken");
 const rsaKeys = generateRandomToken();
 
+var  = new Map();
+
+//Bind connection to error event (to get notification of connection errors)
+db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+
+
 //////////////////////////////////////////////
 /////////////////// Config ///////////////////
 //////////////////////////////////////////////
@@ -24,7 +30,7 @@ app.get('/', (req, res) => {
   res.send('Hello World!')
 });
 
-app.post('/login', (req, res) => {
+app.post('/auth', (req, res) => {
     var jwtToken = jwt.sign({ foo: 'bar' }, rsaKeys.privateKey, { algorithm: 'RS256'});
     res.json(jwtToken);
 });
