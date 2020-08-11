@@ -23,11 +23,9 @@ var RefreshTokens = new Map();
 //////////////////////////////////////////////
 /////////////////// Config ///////////////////
 //////////////////////////////////////////////
+
 App.use(BodyParser.json());
 App.listen(process.env.BOUNCER_PORT);
-
-
-
 //////////////////////////////////////////////
 ///////////////// Routes  ////////////////////
 //////////////////////////////////////////////
@@ -45,12 +43,12 @@ App.post('/auth',
             return res.status(422).json({ errors: errors.array() });
         }
 
+        /* Grab variables from request body */
         var username = req.body.username;
         var refreshToken = req.body.refreshToken;
-
-        var userTokens = RefreshTokens.get(username);
-        
+    
         /* Check if refreshToken is valid */
+        var userTokens = RefreshTokens.get(username);
         if (userTokens === undefined) {
             return res.status(403).json({errors: 'User is not logged in'});
         } 
@@ -76,45 +74,70 @@ App.post('/login',
             return res.status(422).json({ errors: errors.array() });
         }
 
+        /* Grab variables from request body */
         var username = req.body.username;
         var password = req.body.password;
 
-        /* Lol make request to user_api for now 
-        to check if credentials are valid */
-        Http.post(process.env.USER_API_URL + 'user/authenticate', {
-            Username: username,
-            Password: password
-        })
-        .then(apiRes => {
-        
+        /* Check if user exists on secret_user_api */
+        verifyUser(username,password).then(apiRes => {
             if (apiRes.status == 200) {
-
+                
                 var userTokens = RefreshTokens.get(username);
-
-                /* If user was not found, 
-                set userTokens as array */
                 if (userTokens === undefined) {
                     userTokens = [];
                 }
                 var newToken = genRefreshToken();
                 userTokens.push(newToken);
                 RefreshTokens.set(username, userTokens);
-                
+                console.log(RefreshTokens.get(username));            
                 res.json({
                     refreshToken: newToken
                 });
-            } else {
-                return res.status(apiRes.status).json(apiRes.body);
             }
-        }) 
-        .catch(apiErr => {
-            return res.status(apiErr.response.status).json( apiErr.response.data);
+        })
+        .catch(() => {
+            res.status(404).json({errors: 'Incorrect username or password'});
         });
-
-
     }
 );
 
+App.post('/logout', 
+    [
+        Check('username').isAlphanumeric(),
+        Check('refreshToken').isBase64()
+    ],
+    (req, res) => 
+    {
+        /* Make sure request body is valid */
+        const errors = Validate(req);
+        if (!errors.isEmpty()) {
+            return res.status(422).json({ errors: errors.array() });
+        }
+
+        /* Grab variables from request body */
+        var username = req.body.username;
+        var refreshToken = req.body.refreshToken;
+
+        /* Grab user's refresh tokens */
+        var userTokens = RefreshTokens.get(username);
+        if (userTokens === undefined) { 
+            return res.status(400).json({errors: 'User is not currently logged in'});
+        }
+
+        /* Find and delete this refresh token from user */
+        var thisTokenIndex = userTokens.indexOf(refreshToken);
+        if (thisTokenIndex > -1) {
+            userTokens.splice(thisTokenIndex, 1);
+            RefreshTokens.set(username, userTokens);
+            return res.status(200).end();
+        } else {
+            return res.status(404).json({errors: 'Incorrect username or refreshToken'});
+        }
+    }
+);
+
+
+/* Temp route just for debugging */
 App.post('/verify',[
     Check('username').isAlphanumeric(),
     Check('jwtToken')
@@ -142,14 +165,13 @@ App.post('/verify',[
     res.json(legit);
 });
 
-App.get('/publickey', (req, res) => {
+App.get('/verifykey', (req, res) => {
     res.json(RsaKey).publicKey;
 });
 
 //////////////////////////////////////////////
 ///////////// Helper Functions ///////////////
 //////////////////////////////////////////////
-
 /* 
     Generates a jwt for the user that is valid 
     for 5 minutes 
@@ -173,7 +195,6 @@ function genJwtToken(username)
         jwtToken: Jwt.sign(payload, RsaKey.privateKey, signOpts)
     };
 };
-
 /* 
     Generates a random string of 64 bytes 
 */
@@ -181,7 +202,6 @@ function genRefreshToken()
 {
     return Crypto.randomBytes(64).toString('base64');
 };
-
 /* 
     This function generates an RSA private and public key  
 */
@@ -199,4 +219,14 @@ function genRsaKey()
         }
     });
 };
-
+/* 
+    This function returns true if the user exists
+    on the secret_user_api
+*/
+function verifyUser(username, password)
+{
+    return Http.post(process.env.USER_API_URL + 'user/authenticate', {
+        Username: username,
+        Password: password
+    })
+}

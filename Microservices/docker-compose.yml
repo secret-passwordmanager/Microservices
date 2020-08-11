@@ -36,8 +36,8 @@ services:
          - PGID=1000
       networks: 
          - secret_net
-      ports:
-         - 8000:80
+     # ports: Removed since we now are using nginx
+     #    - 8000:80
       healthcheck:
       # User API will only be marked as "healthy" after it can make a request to itself
          test: ["CMD-SHELL", "curl localhost:80/users || exit 1"]
@@ -62,6 +62,26 @@ services:
          - 8001:8080 
       stdin_open: true # docker run -i
       tty: true # docker run -t
+
+   secret_bouncer:
+      build:
+         context: bouncer/
+      container_name: secret_bouncer
+      networks:
+         - secret_net
+         
+   # This container routes all other services
+   secret_nginx:
+      build:
+         context: nginx/
+      container_name: secret_nginx
+      environment: 
+         - NGINX_DOMAIN=localhost
+      networks:
+         - secret_net
+      ports:
+         - 8080:80
+    
 
 # By creating a vlan for all of the microservices, we can reference each one by it's
 # container name instead of IP address in all of our code

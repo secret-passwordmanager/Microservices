@@ -31,7 +31,7 @@ namespace dotnetapi.Controllers
             _AppSettings = appSettings.Value;
         }
 
-        [AllowAnonymous]
+        /* [AllowAnonymous]
         [HttpPost("authenticate")]
         public IActionResult Authenticate([FromBody]UserAuthenticateModel model)
         {
@@ -56,7 +56,7 @@ namespace dotnetapi.Controllers
             var tokenString = tokenHandler.WriteToken(token);
             
             return Ok(new{Token = tokenString});
-        }
+        } */
 
         [AllowAnonymous]
         [HttpPost("new")]
