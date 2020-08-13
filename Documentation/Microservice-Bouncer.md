@@ -2,10 +2,13 @@
 Bouncer is Secret's authentication microservice that is based on JWT Tokens.
 [Here](https://youtu.be/SLc3cTlypwM) is a great talk that discusses exactly
 how JWT can allow microservices to authenticate users, if you are not already
-familiar with the topic. (Even watching the first 10-15 minutes can help a lot)
+familiar with the topic. (Even watching the first 10-15 minutes can help a lot).
+Here are some other excellent readings:
+  - [JWT Intro](https://jwt.io/introduction/)
+  - [JWT Playground](https://jwt.io/#debugger-io)
+  - [How to Implement JWT in NodeJS](https://medium.com/@siddharthac6/json-web-token-jwt-the-right-way-of-implementing-with-node-js-65b8915d550e)
 
 # API Endpoints
-
 
 ## `POST/login`
 Make a request to this url to log in a user. On success, it will return a 

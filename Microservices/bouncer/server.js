@@ -13,7 +13,7 @@ const Http = require('axios');
 
 const Check = require('express-validator').check;
 const Validate = require('express-validator').validationResult;
-
+const Body = require('express-validator').body;
 /* Key that will sign and verify JWT tokens */
 const RsaKey = genRsaKey();
 
@@ -30,13 +30,15 @@ App.listen(process.env.BOUNCER_PORT);
 ///////////////// Routes  ////////////////////
 //////////////////////////////////////////////
 
-App.post('/auth',
+App.post('/auth/reauth',
     [
         Check('username').isAlphanumeric(),
         Check('refreshToken').isBase64()
     ],
     (req, res) => 
     {
+        var ts = new Date();
+        console.log(ts.toUTCString());
         /* Make sure request body is valid */
         const errors = Validate(req);
         if (!errors.isEmpty()) {
@@ -61,7 +63,7 @@ App.post('/auth',
     }
 );
 
-App.post('/login', 
+App.post('/auth/login', 
     [
         Check('username').isAlphanumeric(),
         Check('password').isAlphanumeric()
@@ -77,9 +79,10 @@ App.post('/login',
         /* Grab variables from request body */
         var username = req.body.username;
         var password = req.body.password;
-
         /* Check if user exists on secret_user_api */
+        console.log("hererere")
         verifyUser(username,password).then(apiRes => {
+            
             if (apiRes.status == 200) {
                 
                 var userTokens = RefreshTokens.get(username);
@@ -95,13 +98,15 @@ App.post('/login',
                 });
             }
         })
-        .catch(() => {
+        .catch((apiErr) => {
+            
+            console.log(apiErr.response.status);
             res.status(404).json({errors: 'Incorrect username or password'});
         });
     }
 );
 
-App.post('/logout', 
+App.post('/auth/logout', 
     [
         Check('username').isAlphanumeric(),
         Check('refreshToken').isBase64()
@@ -138,7 +143,7 @@ App.post('/logout',
 
 
 /* Temp route just for debugging */
-App.post('/verify',[
+App.post('/auth/verify',[
     Check('username').isAlphanumeric(),
     Check('jwtToken')
 ],
@@ -165,8 +170,11 @@ App.post('/verify',[
     res.json(legit);
 });
 
-App.get('/verifykey', (req, res) => {
-    res.json(RsaKey).publicKey;
+//TODO: when there is bad JSON in body (even w/ just get request), it crashes
+App.get('/auth/jwk', [
+],
+(req, res) => {
+    res.send(RsaKey.publicKey);
 });
 
 //////////////////////////////////////////////
@@ -179,11 +187,11 @@ App.get('/verifykey', (req, res) => {
 function genJwtToken(username)
 {
     var payload = {
-        data1: 'Data 1',
-        data2: 'Data 2',
-        data3: 'Data 3',
-        data4: 'Data 4',
-    };
+        "unique_name": "5",
+        "role": "User",
+        "nbf": 1597298663,
+        "iat": Math.floor(Date.now() / 1000)
+      }
     var signOpts = {
         issuer: process.env.JWT_ISSUER,
         subject: username,
@@ -225,7 +233,7 @@ function genRsaKey()
 */
 function verifyUser(username, password)
 {
-    return Http.post(process.env.USER_API_URL + 'user/authenticate', {
+    return Http.post(process.env.USER_API_URL + 'user/verify', {
         Username: username,
         Password: password
     })

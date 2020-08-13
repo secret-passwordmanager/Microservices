@@ -17,6 +17,10 @@ namespace dotnetapi.Helpers
 			AuthServerUrl = serverUrl;
 		}
 
+		/*
+			This is just a helper function just grabs the PEM key 
+			from secret_bouncer
+		*/
 		private async Task<string> getPublicKeyString()
 		{
 			using var response = await Client.GetAsync(AuthServerUrl, HttpCompletionOption.ResponseHeadersRead);
@@ -33,10 +37,13 @@ namespace dotnetapi.Helpers
 			}
 		}
 
+		/*
+			This function converts the PEM key we get from secret_bouncer 
+			into a der key.
+		*/
 		public byte[] GenerateDer() 
 		{
 			string pemContents = getPublicKeyString().Result;
-			Console.WriteLine(pemContents);
 			const string RsaSpkiHeader = "-----BEGIN PUBLIC KEY-----";
 			const string RsaSpkiFooter = "-----END PUBLIC KEY-----";
 

@@ -42,39 +42,34 @@ namespace dotnetapi
             var appSettingsSection = Configuration.GetSection("AppSettings");
             services.Configure<AppSettings>(appSettingsSection);
 
-            var JwkGetter = new JwkGetter("http://localhost:8080/auth/jwk");
+            var JwkGetter = new JwkGetter("http://localhost:8002/auth/jwk");
             byte[] der = JwkGetter.GenerateDer();
             Console.WriteLine("hi");
-            
-            
-            
-            
-            
-            
-          /*   byte[] jwkBytes = Encoding.ASCII.GetBytes(jwk.jwk);
-            //var jwkBytes = Convert.FromBase64String(jwk.jwk);
-            Console.WriteLine(jwkBytes.ToString());
-            using var rsa = RSA.Create();
-            rsa.ImportSubjectPublicKeyInfo(jwkBytes, out _);
 
-            var key2 = new RsaSecurityKey(rsa);
- */
+            RSA rsa = RSA.Create();
+            rsa.ImportSubjectPublicKeyInfo(der, out _);
+            
+
             // configure jwt authentication
             var appSettings = appSettingsSection.Get<AppSettings>();
             var key = Encoding.ASCII.GetBytes(appSettings.Secret);
+
+           
             services.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-            /* .AddJwtBearer(options => {
-               options.TokenValidationParameters = new TokenValidationParameters {
-                   ValidateIssuer = false,
-                   ValidateAudience = false,
-                   ValidateLifetime = false,
-                   ValidateIssuerSigningKey = false,
-                   IssuerSigningKey = new RsaSecurityKey(jwkBytes);
-               } 
+/*             .AddJwtBearer(options => {
+                
+                options.TokenValidationParameters = new TokenValidationParameters {
+                    ValidateIssuer = true,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    ValidIssuer = "Secret Password Manager",
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new RsaSecurityKey(rsa),
+                }; 
             }); */
             .AddJwtBearer(x =>
             {
@@ -83,11 +78,13 @@ namespace dotnetapi
                     OnTokenValidated = context =>
                     {
                         var userService = context.HttpContext.RequestServices.GetRequiredService<IUserService>();
+                        Console.WriteLine(context.Principal.Identity.Name);
                         var userId = int.Parse(context.Principal.Identity.Name);
                         var user = userService.Read(userId);
                         if (user == null)
                         {
                             // return unauthorized if user no longer exists
+                            Console.WriteLine(context.Principal.Identity.Name);
                             context.Fail("Unauthorized");
                         }
                         return Task.CompletedTask;
@@ -98,7 +95,7 @@ namespace dotnetapi
                 x.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    IssuerSigningKey = new RsaSecurityKey(rsa),
                     ValidateIssuer = false,
                     ValidateAudience = false
                 };

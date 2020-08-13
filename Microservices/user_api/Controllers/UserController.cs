@@ -31,15 +31,15 @@ namespace dotnetapi.Controllers
             _AppSettings = appSettings.Value;
         }
 
-        /* [AllowAnonymous]
-        [HttpPost("authenticate")]
+        [AllowAnonymous]
+        [HttpPost("verify")]
         public IActionResult Authenticate([FromBody]UserAuthenticateModel model)
         {
             var user = _userService.Authenticate(model);
             if (user == null)
                 return BadRequest(new { message = "Username or password is incorrect" });
 
-            // Issue Auth Token
+            /* // Issue Auth Token
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_AppSettings.Secret);
             var tokenDescriptor = new SecurityTokenDescriptor
@@ -54,9 +54,9 @@ namespace dotnetapi.Controllers
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var tokenString = tokenHandler.WriteToken(token);
-            
-            return Ok(new{Token = tokenString});
-        } */
+             */
+            return Ok(user); //TODO: make the response only return userid
+        }
 
         [AllowAnonymous]
         [HttpPost("new")]
