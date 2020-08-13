@@ -11,6 +11,8 @@ using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Threading.Tasks;
 using System.Text;
+using System.Xml;
+using System.Security.Cryptography;
 
 using dotnetapi.Helpers;
 using dotnetapi.Services;
@@ -40,6 +42,23 @@ namespace dotnetapi
             var appSettingsSection = Configuration.GetSection("AppSettings");
             services.Configure<AppSettings>(appSettingsSection);
 
+            var JwkGetter = new JwkGetter("http://localhost:8080/auth/jwk");
+            byte[] der = JwkGetter.GenerateDer();
+            Console.WriteLine("hi");
+            
+            
+            
+            
+            
+            
+          /*   byte[] jwkBytes = Encoding.ASCII.GetBytes(jwk.jwk);
+            //var jwkBytes = Convert.FromBase64String(jwk.jwk);
+            Console.WriteLine(jwkBytes.ToString());
+            using var rsa = RSA.Create();
+            rsa.ImportSubjectPublicKeyInfo(jwkBytes, out _);
+
+            var key2 = new RsaSecurityKey(rsa);
+ */
             // configure jwt authentication
             var appSettings = appSettingsSection.Get<AppSettings>();
             var key = Encoding.ASCII.GetBytes(appSettings.Secret);
@@ -48,6 +67,15 @@ namespace dotnetapi
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
+            /* .AddJwtBearer(options => {
+               options.TokenValidationParameters = new TokenValidationParameters {
+                   ValidateIssuer = false,
+                   ValidateAudience = false,
+                   ValidateLifetime = false,
+                   ValidateIssuerSigningKey = false,
+                   IssuerSigningKey = new RsaSecurityKey(jwkBytes);
+               } 
+            }); */
             .AddJwtBearer(x =>
             {
                 x.Events = new JwtBearerEvents
@@ -76,11 +104,7 @@ namespace dotnetapi
                 };
             });
             
-          /*  services.AddHttpsRedirection(opts => {
-                opts.RedirectStatusCode = StatusCodes.Status308PermanentRedirect;
-                opts.HttpsPort = 443;
-            });
-*/
+
             // These classes will receive a new instance of themselves on each new request
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ISwapService, SwapService>();
@@ -102,11 +126,12 @@ namespace dotnetapi
                 .AllowAnyMethod()
                 .AllowAnyHeader());
 
-            // app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints => endpoints.MapControllers());
         }
     }
+
+
 }
