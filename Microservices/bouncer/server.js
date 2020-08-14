@@ -23,11 +23,12 @@ const App = Express();
 /* Generate a new Jwk on startup */
 var MyJwk = genJwk();
 
-/* 
-    Stores all users Refresh Tokens 
-    Map key is userId, Map value is 
-    an array of all refresh tokens
-    that the user currently has
+/*  
+    @RefreshTokens: Stores all users'
+    refreshtokens. Map key is @userId,
+    map value is an array of all 
+    refresh tokens that the user 
+    currently has
 */
 var RefreshTokens = new Map();
 
@@ -69,7 +70,7 @@ App.post('/auth/login',
         /* Make sure request body is valid */
         const errors = Validate(req);
         if (!errors.isEmpty()) {
-            return res.status(422).json({ errors: errors.array() });
+            return res.status(422).json({ 'errors': errors.array() });
         }
 
         /* Grab variables from request body */
@@ -78,7 +79,6 @@ App.post('/auth/login',
 
         /* Check if user exists on secret_user_api */
         var userId = await getUserId(username, password);
-        console.log(userId);
         if (userId < 0) {
             return res.status(404).json({'errors': 'Invalid password or username'});
         }
@@ -93,12 +93,11 @@ App.post('/auth/login',
         var newToken = genRefreshToken();
         userRefreshTokens.push(newToken);
         RefreshTokens.set(userId, userRefreshTokens);
-        console.log(RefreshTokens.get(userId));
 
         /* Return the user's Id and new refresh token */
         return res.json({
-            id: userId,
-            refreshToken: newToken
+            'userId': userId,
+            'refreshToken': newToken
         });
     }
 );
@@ -123,24 +122,34 @@ App.post('/auth/logout',
         }
 
         /* Grab variables from request body */
-        var userId = req.body.username;
+        var userId = req.body.userId;
         var refreshToken = req.body.refreshToken;
 
         /* Grab user's refresh tokens */
         var userTokens = RefreshTokens.get(userId);
         if (userTokens === undefined) { 
-            return res.status(400).json({errors: 'User is not currently logged in'});
+            return res.status(400).json({'errors': 'User is not currently logged in'});
         }
 
-        /* Find and delete this refresh token from user */
-        var thisTokenIndex = userTokens.indexOf(refreshToken);
-        if (thisTokenIndex > -1) {
-            userTokens.splice(thisTokenIndex, 1);
-            RefreshTokens.set(userId, userTokens);
-            return res.status(200).end();
-        } else {
-            return res.status(404).json({errors: 'Incorrect username or refreshToken'});
+        /* Find index of refresh token from user */
+        var tokenIndex = userTokens.indexOf(refreshToken);
+
+        /* If token was not found in array */
+        if (tokenIndex == -1) {
+            return res.status(404).json({'errors': 'Incorrect username or refreshToken'});
         }
+
+        /* Remove value from array */
+        userTokens.splice(tokenIndex, 1);
+
+        /* If array is now empty, delete it */
+        if (userTokens.length == 0) {
+            RefreshTokens.delete(userId);
+        } else {
+            RefreshTokens.set(userId, userTokens);
+        }
+        /* Return a 200 OK status */
+        return res.status(200).end();
     }
 );
 
@@ -159,7 +168,7 @@ App.post('/auth/refresh',
         /* Make sure request body is valid */
         const errors = Validate(req);
         if (!errors.isEmpty()) {
-            return res.status(422).json({ errors: errors.array() });
+            return res.status(422).json({ 'errors': errors.array() });
         }
 
         /* Grab variables from request body */
@@ -169,10 +178,10 @@ App.post('/auth/refresh',
         /* Check if refreshToken is valid */
         var userTokens = RefreshTokens.get(userId);
         if (userTokens === undefined) {
-            return res.status(403).json({errors: 'User is not logged in'});
+            return res.status(403).json({'errors': 'User is not logged in'});
         } 
         else if (userTokens.find(x => x == refreshToken) === undefined) {
-            return res.status(403).json({errors: 'Token not found for user'});
+            return res.status(403).json({'errors': 'Token not found for user'});
         }
     
         return res.json({'jwt': genJwt(userId, 'User')});    
@@ -189,7 +198,7 @@ App.post('/auth/verify',[
     /* Make sure request body is valid */
     const errors = Validate(req);
     if (!errors.isEmpty()) {
-        return res.status(422).json({ errors: errors.array() });
+        return res.status(422).json({ 'errors': errors.array() });
     }
 
     var token = req.body.jwtToken;
@@ -255,7 +264,6 @@ async function  getUserId(username, password)
         Username: username,
         Password: password
     }).then(res => {
-        console.log(res.data);
         return res.data.id;
     }).catch(() => {
         return -1;
