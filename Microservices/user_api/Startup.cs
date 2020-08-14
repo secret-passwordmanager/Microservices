@@ -27,50 +27,36 @@ namespace dotnetapi
             Configuration = configuration; 
         }
         public IConfiguration Configuration { get; }
-
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<DatabaseContext>();
             services.AddMvcCore().AddDataAnnotations();
             services.AddCors();
-
             services.AddControllers();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-            // configure strongly typed settings objects
-            var appSettingsSection = Configuration.GetSection("AppSettings");
-            services.Configure<AppSettings>(appSettingsSection);
+            /* These classes will receive a new instance of themselves on each new request */
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<ISwapService, SwapService>();
+            services.AddScoped<ICredentialService, CredentialService>();
+            services.AddScoped<ILogService, LogService>();
 
-            var JwkGetter = new JwkGetter("http://localhost:8002/auth/jwk");
-            byte[] der = JwkGetter.GenerateDer();
-            Console.WriteLine("hi");
-
-            RSA rsa = RSA.Create();
-            rsa.ImportSubjectPublicKeyInfo(der, out _);
+            /* configure strongly typed settings objects */
+            var microserviceConfigSection = Configuration.GetSection("Services");
+            services.Configure<Microservice[]>(microserviceConfigSection);
+            var microservicesConfig = microserviceConfigSection.Get<Microservice[]>();
             
+            /* Get the JWK from our Auth Server */
+            var authServer = Array.Find(microservicesConfig, x => x.Name == "AuthService");
+            var JwkGetter = new JwkGetter(authServer.Url);
+            JsonWebKey jwk = JwkGetter.getJwK().Result;
 
-            // configure jwt authentication
-            var appSettings = appSettingsSection.Get<AppSettings>();
-            var key = Encoding.ASCII.GetBytes(appSettings.Secret);
-
-           
+            /* Configure jwt authentication */
             services.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-/*             .AddJwtBearer(options => {
-                
-                options.TokenValidationParameters = new TokenValidationParameters {
-                    ValidateIssuer = true,
-                    ValidateAudience = false,
-                    ValidateLifetime = true,
-                    ValidIssuer = "Secret Password Manager",
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new RsaSecurityKey(rsa),
-                }; 
-            }); */
             .AddJwtBearer(x =>
             {
                 x.Events = new JwtBearerEvents
@@ -95,18 +81,11 @@ namespace dotnetapi
                 x.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new RsaSecurityKey(rsa),
+                    IssuerSigningKey = jwk,
                     ValidateIssuer = false,
                     ValidateAudience = false
                 };
             });
-            
-
-            // These classes will receive a new instance of themselves on each new request
-            services.AddScoped<IUserService, UserService>();
-            services.AddScoped<ISwapService, SwapService>();
-            services.AddScoped<ICredentialService, CredentialService>();
-            services.AddScoped<ILogService, LogService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

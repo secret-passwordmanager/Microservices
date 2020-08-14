@@ -22,40 +22,23 @@ namespace dotnetapi.Controllers
     {
         private IUserService _userService;
         private IMapper _mapper;
-        private readonly AppSettings _AppSettings;
 
-        public UserController(IUserService userService, IMapper mapper, IOptions<AppSettings> appSettings)
+
+        public UserController(IUserService userService, IMapper mapper)
         {
             _userService = userService;
             _mapper = mapper;
-            _AppSettings = appSettings.Value;
         }
 
         [AllowAnonymous]
         [HttpPost("verify")]
-        public IActionResult Authenticate([FromBody]UserAuthenticateModel model)
+        public IActionResult Verify([FromBody]UserAuthenticateModel model)
         {
             var user = _userService.Authenticate(model);
             if (user == null)
                 return BadRequest(new { message = "Username or password is incorrect" });
 
-            /* // Issue Auth Token
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_AppSettings.Secret);
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new Claim[]
-                {
-                    new Claim(ClaimTypes.Name, user.Id.ToString()),
-                    new Claim(ClaimTypes.Role, user.Role)
-                }),
-                Expires = DateTime.UtcNow.AddDays(1),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            var tokenString = tokenHandler.WriteToken(token);
-             */
-            return Ok(user); //TODO: make the response only return userid
+            return Ok(user.Id);
         }
 
         [AllowAnonymous]

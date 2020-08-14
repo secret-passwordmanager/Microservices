@@ -17,13 +17,12 @@ namespace WebApi.Controllers
     {
         private IUserService _userService;
         private IMapper _mapper;
-        private readonly AppSettings _AppSettings;
 
-        public AdminController(IUserService userService, IMapper mapper ,IOptions<AppSettings> appSettings)
+        public AdminController(IUserService userService, IMapper mapper)
         {
             _userService = userService;
             _mapper = mapper;
-            _AppSettings = appSettings.Value;
+          
         }
 
         [HttpPost("new")]

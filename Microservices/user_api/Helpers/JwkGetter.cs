@@ -1,15 +1,17 @@
 using System.Text;
 using System;
-using System.Security.Cryptography;
+using Microsoft.IdentityModel.Tokens;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Microsoft.Extensions.Options;
 namespace dotnetapi.Helpers 
 {
 	public class JwkGetter 
 	{
 		public HttpClient Client { get; set; }
 		public string PublicKeyString { get; set; }
-		public string AuthServerUrl {get; set; }
+		public string AuthServerUrl { get; set; }
 
 		public JwkGetter(string serverUrl)
 		{
@@ -21,19 +23,20 @@ namespace dotnetapi.Helpers
 			This is just a helper function just grabs the PEM key 
 			from secret_bouncer
 		*/
-		private async Task<string> getPublicKeyString()
+		public async Task<JsonWebKey> getJwK()
 		{
-			using var response = await Client.GetAsync(AuthServerUrl, HttpCompletionOption.ResponseHeadersRead);
+			using var response = await Client.GetAsync(AuthServerUrl + "/auth/jwk", HttpCompletionOption.ResponseHeadersRead);
 
 			response.EnsureSuccessStatusCode();
 			try {
 				
-				return await response.Content.ReadAsStringAsync();
+				var jsonString =  await response.Content.ReadAsStringAsync();
+				return JsonConvert.DeserializeObject<JsonWebKey>(jsonString);
 
 			}
 			catch {
 				System.Console.WriteLine("Http Response could not be deserialized");
-				return "";
+				return new JsonWebKey();
 			}
 		}
 
@@ -41,14 +44,14 @@ namespace dotnetapi.Helpers
 			This function converts the PEM key we get from secret_bouncer 
 			into a der key.
 		*/
-		public byte[] GenerateDer() 
+	/* 	public byte[] GenerateDer() 
 		{
 			string pemContents = getPublicKeyString().Result;
 			const string RsaSpkiHeader = "-----BEGIN PUBLIC KEY-----";
 			const string RsaSpkiFooter = "-----END PUBLIC KEY-----";
 
 			/* Remove the Header and Footers*/
-			if (pemContents.StartsWith(RsaSpkiHeader)) {
+		/* 	if (pemContents.StartsWith(RsaSpkiHeader)) {
 				int endIdx = pemContents.IndexOf(
 					RsaSpkiFooter,
 					RsaSpkiHeader.Length,
@@ -64,7 +67,7 @@ namespace dotnetapi.Helpers
 			}
 			throw new InvalidOperationException();
 		}
-		
+		 */
 	}
 
 }

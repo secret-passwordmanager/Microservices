@@ -27,12 +27,10 @@ namespace dotnetapi.Services
     {
         private DatabaseContext _context;
        
-        private readonly AppSettings _appSettings;
 
-        public UserService(DatabaseContext context, IOptions<AppSettings> appSettings)
+        public UserService(DatabaseContext context)
         {
             _context = context;
-            _appSettings = appSettings.Value;
         }
 
         public User Authenticate(UserAuthenticateModel model)

@@ -6,69 +6,60 @@
 require('dotenv').config();
 const Express = require('express');
 const BodyParser = require('body-parser');
-const App = Express();
-const Jwt = require('jsonwebtoken')
-const Crypto = require('crypto');
 const Http = require('axios');
 
+/* JSON body validator */
 const Check = require('express-validator').check;
 const Validate = require('express-validator').validationResult;
-const Body = require('express-validator').body;
-/* Key that will sign and verify JWT tokens */
-const RsaKey = genRsaKey();
 
-/* Stores all users Refresh Tokens */
-var RefreshTokens = new Map();
-
+/* JWK/JWT */
+const Crypto = require('crypto');
+const Jose = require('jose');
 //////////////////////////////////////////////
 /////////////////// Config ///////////////////
 //////////////////////////////////////////////
+const App = Express();
 
-App.use(BodyParser.json());
+/* Generate a new Jwk on startup */
+var MyJwk = genJwk();
+
+/* 
+    Stores all users Refresh Tokens 
+    Map key is userId, Map value is 
+    an array of all refresh tokens
+    that the user currently has
+*/
+var RefreshTokens = new Map();
+
+/* Use Body parser, and catch errors */
+App.use((req, res, next) => {
+    BodyParser.json({
+        verify: addRawBody,
+    })(req, res, (err) => {
+        if (err) {
+            console.log(err);
+            res.sendStatus(400);
+            return;
+        }
+        next();
+    });
+});
+
+/* 
+    Start Server on port specified 
+    in the env file 
+*/
 App.listen(process.env.BOUNCER_PORT);
 //////////////////////////////////////////////
 ///////////////// Routes  ////////////////////
 //////////////////////////////////////////////
-
-App.post('/auth/reauth',
-    [
-        Check('username').isAlphanumeric(),
-        Check('refreshToken').isBase64()
-    ],
-    (req, res) => 
-    {
-        var ts = new Date();
-        console.log(ts.toUTCString());
-        /* Make sure request body is valid */
-        const errors = Validate(req);
-        if (!errors.isEmpty()) {
-            return res.status(422).json({ errors: errors.array() });
-        }
-
-        /* Grab variables from request body */
-        var username = req.body.username;
-        var refreshToken = req.body.refreshToken;
-    
-        /* Check if refreshToken is valid */
-        var userTokens = RefreshTokens.get(username);
-        if (userTokens === undefined) {
-            return res.status(403).json({errors: 'User is not logged in'});
-        } 
-        else if (userTokens.find(x => x == refreshToken) === undefined) {
-            return res.status(403).json({errors: 'Token not found for user'});
-        }
-    
-        /* Generate a JWT and return it */
-        return res.json(genJwtToken(username));
-    }
-);
 
 App.post('/auth/login', 
     [
         Check('username').isAlphanumeric(),
         Check('password').isAlphanumeric()
     ],
-    (req, res) => 
+    async (req, res) => 
     {
         /* Make sure request body is valid */
         const errors = Validate(req);
@@ -79,29 +70,28 @@ App.post('/auth/login',
         /* Grab variables from request body */
         var username = req.body.username;
         var password = req.body.password;
+
         /* Check if user exists on secret_user_api */
-        console.log("hererere")
-        verifyUser(username,password).then(apiRes => {
-            
-            if (apiRes.status == 200) {
-                
-                var userTokens = RefreshTokens.get(username);
-                if (userTokens === undefined) {
-                    userTokens = [];
-                }
-                var newToken = genRefreshToken();
-                userTokens.push(newToken);
-                RefreshTokens.set(username, userTokens);
-                console.log(RefreshTokens.get(username));            
-                res.json({
-                    refreshToken: newToken
-                });
-            }
-        })
-        .catch((apiErr) => {
-            
-            console.log(apiErr.response.status);
-            res.status(404).json({errors: 'Incorrect username or password'});
+        var userId = await getUserId(username, password)
+        if (userId < 0) {
+            return res.status(404).json({'errors': 'Invalid password or username'});
+        }
+
+        /* See if User already has a userTokens array */
+        var userRefreshTokens = RefreshTokens.get(userId);
+        if (userRefreshTokens === undefined) {
+            userRefreshTokens = [];
+        }
+
+        /* Create a new Refresh Token and add it to the map */
+        var newToken = genRefreshToken();
+        userRefreshTokens.push(newToken);
+        RefreshTokens.set(userId, userRefreshTokens);
+        
+        /* Return the user's Id and new refresh token */
+        return res.json({
+            id: userId,
+            refreshToken: newToken
         });
     }
 );
@@ -141,6 +131,40 @@ App.post('/auth/logout',
     }
 );
 
+/*
+    This endpoint returns a JWT that will be
+    valid for 5 minutes if given a proper userid
+    and refreshToken
+ */
+App.post('/auth/refresh',
+    [
+        Check('userId').isNumeric(),
+        Check('refreshToken').isBase64()
+    ],
+    (req, res) => 
+    {
+        /* Make sure request body is valid */
+        const errors = Validate(req);
+        if (!errors.isEmpty()) {
+            return res.status(422).json({ errors: errors.array() });
+        }
+
+        /* Grab variables from request body */
+        var userId = req.body.userId;
+        var refreshToken = req.body.refreshToken;
+    
+        /* Check if refreshToken is valid */
+        var userTokens = RefreshTokens.get(userId);
+        if (userTokens === undefined) {
+            return res.status(403).json({errors: 'User is not logged in'});
+        } 
+        else if (userTokens.find(x => x == refreshToken) === undefined) {
+            return res.status(403).json({errors: 'Token not found for user'});
+        }
+    
+        return res.json({'jwt': genJwt(userId, "User")});    
+    }
+);
 
 /* Temp route just for debugging */
 App.post('/auth/verify',[
@@ -164,44 +188,50 @@ App.post('/auth/verify',[
         expiresIn:  '5m',
         algorithm:  ['RS256']
     };
-    var legit = Jwt.verify(token, RsaKey.publicKey, verifyOptions);
-    console.log(JSON.stringify(legit));
-    
-    res.json(legit);
+    var legit = Jose.JWT.verify(token, MyJwk.toJWK());
+    return res.json(legit);
 });
 
 //TODO: when there is bad JSON in body (even w/ just get request), it crashes
 App.get('/auth/jwk', [
 ],
 (req, res) => {
-    res.send(RsaKey.publicKey);
+    res.send( MyJwk.toJWK());
 });
 
 //////////////////////////////////////////////
 ///////////// Helper Functions ///////////////
 //////////////////////////////////////////////
+/*
+    Generates ad returns an RS256 JWK
+*/
+function genJwk()
+{
+    var opts = {
+        alg: 'RS256',
+    }
+    return Jose.JWK.generateSync('RSA', 2048, opts)
+};
 /* 
-    Generates a jwt for the user that is valid 
+    Generates a JWT for the user that is valid 
     for 5 minutes 
 */
-function genJwtToken(username)
+function genJwt(userId, role)
 {
     var payload = {
-        "unique_name": "5",
-        "role": "User",
-        "nbf": 1597298663,
-        "iat": Math.floor(Date.now() / 1000)
+        "unique_name": userId.toString(),
+        "role": role,
       }
     var signOpts = {
-        issuer: process.env.JWT_ISSUER,
-        subject: username,
-        audience: username,
+        algorithm: 'RS256',
+        audience: process.env.JWT_ISSUER,
         expiresIn: '5m',
-        algorithm: 'RS256'
+        iat: true,
+        issuer: process.env.JWT_ISSUER,
+        subject: userId.toString(),
+        audience: userId.toString(),
     }
-    return {
-        jwtToken: Jwt.sign(payload, RsaKey.privateKey, signOpts)
-    };
+    return Jose.JWT.sign(payload, MyJwk.toJWK(true), signOpts);
 };
 /* 
     Generates a random string of 64 bytes 
@@ -211,30 +241,30 @@ function genRefreshToken()
     return Crypto.randomBytes(64).toString('base64');
 };
 /* 
-    This function generates an RSA private and public key  
+    This function returns the user's userId if 
+    username and password were valid. Returns -1
+    if user_api response was not 200 OK
 */
-function genRsaKey() 
-{
-    return { publicKey, privateKey } = Crypto.generateKeyPairSync('rsa', {
-        modulusLength: 2048,
-        publicKeyEncoding: {
-            type: 'spki',
-            format: 'pem'
-        },
-        privateKeyEncoding: {
-            type: 'pkcs8',
-            format: 'pem',
-        }
-    });
-};
-/* 
-    This function returns true if the user exists
-    on the secret_user_api
-*/
-function verifyUser(username, password)
+function getUserId(username, password)
 {
     return Http.post(process.env.USER_API_URL + 'user/verify', {
         Username: username,
         Password: password
-    })
+    }).then(res => {
+        return res.data.id;
+    }).catch(err => {
+        return -1;
+    });
+};
+
+function logErrors (err, req, res, next) {
+    console.error(err.stack)
+    next(err)
+};
+/*
+  This function prints the error into 
+  the console log
+*/
+function addRawBody(req, res, buf, encoding) {
+    req.rawBody = buf.toString();
 }

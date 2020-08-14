@@ -7,6 +7,7 @@ Here are some other excellent readings:
   - [JWT Intro](https://jwt.io/introduction/)
   - [JWT Playground](https://jwt.io/#debugger-io)
   - [How to Implement JWT in NodeJS](https://medium.com/@siddharthac6/json-web-token-jwt-the-right-way-of-implementing-with-node-js-65b8915d550e)
+  - [How RSA Works](https://www.youtube.com/watch?v=4zahvcJ9glg)
 
 # API Endpoints
 
