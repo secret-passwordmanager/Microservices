@@ -1,12 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
-using System;
-using System.IdentityModel.Tokens.Jwt;
-using System.Text;
+
 
 using dotnetapi.Services;
 using dotnetapi.Entities;
@@ -38,7 +33,7 @@ namespace dotnetapi.Controllers
             if (user == null)
                 return BadRequest(new { message = "Username or password is incorrect" });
 
-            return Ok(user.Id);
+            return Ok(new {Id = user.Id});
         }
 
         [AllowAnonymous]

@@ -2,7 +2,7 @@
 ////////////// Global Variables //////////////
 //////////////////////////////////////////////
 
-/* Node Modules */
+/* Basic Modules */
 require('dotenv').config();
 const Express = require('express');
 const BodyParser = require('body-parser');
@@ -12,7 +12,7 @@ const Http = require('axios');
 const Check = require('express-validator').check;
 const Validate = require('express-validator').validationResult;
 
-/* JWK/JWT */
+/* JWK/JWT Modules */
 const Crypto = require('crypto');
 const Jose = require('jose');
 //////////////////////////////////////////////
@@ -53,7 +53,12 @@ App.listen(process.env.BOUNCER_PORT);
 //////////////////////////////////////////////
 ///////////////// Routes  ////////////////////
 //////////////////////////////////////////////
-
+/*
+    This endpoint creates and stores a 
+    refresh token for the user, assuming
+    that their username and password were
+    valid
+*/
 App.post('/auth/login', 
     [
         Check('username').isAlphanumeric(),
@@ -72,7 +77,8 @@ App.post('/auth/login',
         var password = req.body.password;
 
         /* Check if user exists on secret_user_api */
-        var userId = await getUserId(username, password)
+        var userId = await getUserId(username, password);
+        console.log(userId);
         if (userId < 0) {
             return res.status(404).json({'errors': 'Invalid password or username'});
         }
@@ -87,7 +93,8 @@ App.post('/auth/login',
         var newToken = genRefreshToken();
         userRefreshTokens.push(newToken);
         RefreshTokens.set(userId, userRefreshTokens);
-        
+        console.log(RefreshTokens.get(userId));
+
         /* Return the user's Id and new refresh token */
         return res.json({
             id: userId,
@@ -96,9 +103,15 @@ App.post('/auth/login',
     }
 );
 
+/*
+    This endpoint will delete the user's
+    refresh token that was stored on the 
+    server, thus preventing them from
+    generating more JWT's
+*/
 App.post('/auth/logout', 
     [
-        Check('username').isAlphanumeric(),
+        Check('userId').isNumeric(),
         Check('refreshToken').isBase64()
     ],
     (req, res) => 
@@ -110,11 +123,11 @@ App.post('/auth/logout',
         }
 
         /* Grab variables from request body */
-        var username = req.body.username;
+        var userId = req.body.username;
         var refreshToken = req.body.refreshToken;
 
         /* Grab user's refresh tokens */
-        var userTokens = RefreshTokens.get(username);
+        var userTokens = RefreshTokens.get(userId);
         if (userTokens === undefined) { 
             return res.status(400).json({errors: 'User is not currently logged in'});
         }
@@ -123,7 +136,7 @@ App.post('/auth/logout',
         var thisTokenIndex = userTokens.indexOf(refreshToken);
         if (thisTokenIndex > -1) {
             userTokens.splice(thisTokenIndex, 1);
-            RefreshTokens.set(username, userTokens);
+            RefreshTokens.set(userId, userTokens);
             return res.status(200).end();
         } else {
             return res.status(404).json({errors: 'Incorrect username or refreshToken'});
@@ -245,21 +258,17 @@ function genRefreshToken()
     username and password were valid. Returns -1
     if user_api response was not 200 OK
 */
-function getUserId(username, password)
+async function  getUserId(username, password)
 {
-    return Http.post(process.env.USER_API_URL + 'user/verify', {
+    return await Http.post(process.env.USER_API_URL + 'user/verify', {
         Username: username,
         Password: password
     }).then(res => {
+        console.log(res.data);
         return res.data.id;
     }).catch(err => {
         return -1;
     });
-};
-
-function logErrors (err, req, res, next) {
-    console.error(err.stack)
-    next(err)
 };
 /*
   This function prints the error into 
