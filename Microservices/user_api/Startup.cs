@@ -70,7 +70,6 @@ namespace dotnetapi
                         if (user == null)
                         {
                             // return unauthorized if user no longer exists
-                            Console.WriteLine(context.Principal.Identity.Name);
                             context.Fail("Unauthorized");
                         }
                         return Task.CompletedTask;
@@ -82,7 +81,8 @@ namespace dotnetapi
                 {
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = jwk,
-                    ValidateIssuer = false,
+                    ValidateIssuer = true,
+                    ValidIssuer = "BOUNCER",
                     ValidateAudience = false
                 };
             });

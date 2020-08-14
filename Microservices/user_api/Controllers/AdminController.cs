@@ -57,7 +57,7 @@ namespace WebApi.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody]UserUpdateModel model)
+        public IActionResult Update(int id, [FromBody] UserUpdateModel model)
         {
             model.Id = id;
             try {

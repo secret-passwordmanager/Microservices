@@ -111,7 +111,8 @@ App.post('/auth/login',
 App.post('/auth/logout', 
     [
         Check('userId').isNumeric(),
-        Check('refreshToken').isBase64()
+        Check('refreshToken').isBase64(),
+        Check('global').optional().isBoolean()
     ],
     (req, res) => 
     {
@@ -120,30 +121,29 @@ App.post('/auth/logout',
         if (!errors.isEmpty()) {
             return res.status(422).json({ errors: errors.array() });
         }
-
         /* Grab variables from request body */
         var userId = req.body.userId;
         var refreshToken = req.body.refreshToken;
-
+        var global = req.body.global;
         /* Grab user's refresh tokens */
         var userTokens = RefreshTokens.get(userId);
         if (userTokens === undefined) { 
-            return res.status(400).json({'errors': 'User is not currently logged in'});
+            return res.status(403).json({'errors': 'User is not currently logged in'});
         }
-
         /* Find index of refresh token from user */
         var tokenIndex = userTokens.indexOf(refreshToken);
-
         /* If token was not found in array */
         if (tokenIndex == -1) {
-            return res.status(404).json({'errors': 'Incorrect username or refreshToken'});
+            return res.status(403).json({'errors': 'Incorrect username or refreshToken'});
         }
-
         /* Remove value from array */
         userTokens.splice(tokenIndex, 1);
-
-        /* If array is now empty, delete it */
-        if (userTokens.length == 0) {
+        /* 
+            If array is now empty, or user specified
+            to log out of all devices, delete his 
+            userId from RefreshTokens map
+        */
+        if (userTokens.length == 0 || global) {
             RefreshTokens.delete(userId);
         } else {
             RefreshTokens.set(userId, userTokens);
@@ -260,12 +260,13 @@ function genRefreshToken()
 */
 async function  getUserId(username, password)
 {
-    return await Http.post(process.env.USER_API_URL + 'user/verify', {
+    return await Http.post(process.env.USER_API_URL + '/user/verify', {
         Username: username,
         Password: password
     }).then(res => {
         return res.data.id;
-    }).catch(() => {
+    }).catch((err) => {
+        console.log(err);
         return -1;
     });
 }
