@@ -1,4 +1,10 @@
-# Bouncer
+# Issues/TODO
+1. If a user logs out, the jwt is still valid until it expires
+2. Other services aren't refreshing the JWK if it changes on bouncer
+3. Only using the default dotnet JWT payload
+  - Add authentication for priviledged access (i.e. If masterCred is specified)
+
+# About Bouncer
 Bouncer is Secret's authentication microservice that is based on JWT Tokens.
 [Here](https://youtu.be/SLc3cTlypwM) is a great talk that discusses exactly
 how JWT can allow microservices to authenticate users, if you are not already
