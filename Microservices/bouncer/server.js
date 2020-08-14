@@ -175,7 +175,7 @@ App.post('/auth/refresh',
             return res.status(403).json({errors: 'Token not found for user'});
         }
     
-        return res.json({'jwt': genJwt(userId, "User")});    
+        return res.json({'jwt': genJwt(userId, 'User')});    
     }
 );
 
@@ -191,16 +191,8 @@ App.post('/auth/verify',[
     if (!errors.isEmpty()) {
         return res.status(422).json({ errors: errors.array() });
     }
-    
-    var token = req.body.jwtToken;
 
-    var verifyOptions = {
-        issuer:  process.env.JWT_ISSUER,
-        subject:  req.body.username,
-        audience:  req.body.username,
-        expiresIn:  '5m',
-        algorithm:  ['RS256']
-    };
+    var token = req.body.jwtToken;
     var legit = Jose.JWT.verify(token, MyJwk.toJWK());
     return res.json(legit);
 });
@@ -222,9 +214,9 @@ function genJwk()
 {
     var opts = {
         alg: 'RS256',
-    }
-    return Jose.JWK.generateSync('RSA', 2048, opts)
-};
+    };
+    return Jose.JWK.generateSync('RSA', 2048, opts);
+}
 /* 
     Generates a JWT for the user that is valid 
     for 5 minutes 
@@ -232,9 +224,9 @@ function genJwk()
 function genJwt(userId, role)
 {
     var payload = {
-        "unique_name": userId.toString(),
-        "role": role,
-      }
+        'unique_name': userId.toString(),
+        'role': role,
+    };
     var signOpts = {
         algorithm: 'RS256',
         audience: process.env.JWT_ISSUER,
@@ -242,17 +234,16 @@ function genJwt(userId, role)
         iat: true,
         issuer: process.env.JWT_ISSUER,
         subject: userId.toString(),
-        audience: userId.toString(),
-    }
+    };
     return Jose.JWT.sign(payload, MyJwk.toJWK(true), signOpts);
-};
+}
 /* 
     Generates a random string of 64 bytes 
 */
 function genRefreshToken() 
 {
     return Crypto.randomBytes(64).toString('base64');
-};
+}
 /* 
     This function returns the user's userId if 
     username and password were valid. Returns -1
@@ -266,14 +257,15 @@ async function  getUserId(username, password)
     }).then(res => {
         console.log(res.data);
         return res.data.id;
-    }).catch(err => {
+    }).catch(() => {
         return -1;
     });
-};
+}
 /*
   This function prints the error into 
   the console log
 */
-function addRawBody(req, res, buf, encoding) {
+// eslint-disable-next-line no-unused-vars
+function addRawBody(req, res, buf, _) {
     req.rawBody = buf.toString();
 }

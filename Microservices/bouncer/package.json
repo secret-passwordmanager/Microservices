@@ -15,5 +15,8 @@
     "express": "^4.17.1",
     "express-validator": "^6.6.1",
     "jose": "^1.28.0"
+  },
+  "devDependencies": {
+    "eslint": "^7.6.0"
   }
 }
