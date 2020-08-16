@@ -64,7 +64,6 @@ namespace dotnetapi
                     OnTokenValidated = context =>
                     {
                         var userService = context.HttpContext.RequestServices.GetRequiredService<IUserService>();
-                        Console.WriteLine(context.Principal.Identity.Name);
                         var userId = int.Parse(context.Principal.Identity.Name);
                         var user = userService.Read(userId);
                         if (user == null)
@@ -108,6 +107,4 @@ namespace dotnetapi
             app.UseEndpoints(endpoints => endpoints.MapControllers());
         }
     }
-
-
 }

@@ -19,7 +19,6 @@ const Jose = require('jose');
 /////////////////// Config ///////////////////
 //////////////////////////////////////////////
 const App = Express();
-
 /* Generate a new Jwk on startup */
 var MyJwk = genJwk();
 
