@@ -13,7 +13,7 @@ We will be trying to login to [ebay](ebay.com), so also have an account, and kno
 
 
 ## Registering a new Secret Account
-Open Postman, and make a new POST request to `http://localhost/user/new`. In the body add the following:
+Open Postman, and make a new POST request to `http://localhost:8080/user/new`. In the body add the following:
 ```json
 {
     "username":"myUsername",
@@ -26,7 +26,7 @@ Open Postman, and make a new POST request to `http://localhost/user/new`. In the
 `MasterCred` is a password that we will indirectly use to encrypt all credentials that you add to Secret
 
 ## Authenticating 
-Next, we need to log in to Secret. We can do this by making a POST request to `http://localhost/user/authenticate`. 
+Next, we need to log in to Secret. We can do this by making a POST request to `http://localhost:8080/auth/login`. 
 In the body, add the following: 
 ```json
 {
@@ -45,7 +45,7 @@ Now, go to the Authorization tab in Postman, and select "Bearer Token" and copy 
 **For all subsequent requests, make sure that you add that token, otherwise you will receive a 401 unauthorized response**
 
 ## Adding a credential to Secret
-Now, make a POST request to `http://localhost:8000/credential/new` with the following in the body:
+Now, make a POST request to `http://localhost:8080/credential/new` with the following in the body:
 ```json
 {
     "Type": 2,
@@ -65,14 +65,14 @@ In firefox, go to the ebay [login](https://signin.ebay.com/signin/)
 Now, with your mouse over the username field, right click and select the Secret option, and then select "generate username".
 
 ### Finding the Credential Id for your ebay username
-Using Postman, make a GET request to `http://localhost:8000/credential`
+Using Postman, make a GET request to `http://localhost:8080/credential`
 In the reponse, you should get a JSON. Make not of the `Id` field number.
 
 ### Finding the Request Swap Id
-Using Postman, now make a GET request to `http://localhost:8000/swap`. You should get a response that shows a pending request, as well as its `Id`. Make note of the id.
+Using Postman, now make a GET request to `http://localhost:8080/swap`. You should get a response that shows a pending request, as well as its `Id`. Make note of the id.
 
 ### Approving the Request Swap
-Using Postman, finally make a POST request to `http://localhost:8000/swap` with the following request body:
+Using Postman, finally make a POST request to `http://localhost:8080/swap` with the following request body:
 ```json
 {
     "SwapId": 1,
