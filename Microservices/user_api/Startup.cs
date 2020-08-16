@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Text;
 using System.Xml;
@@ -41,6 +42,7 @@ namespace dotnetapi
             services.AddScoped<ICredentialService, CredentialService>();
             services.AddScoped<ILogService, LogService>();
 
+            services.AddScoped<IJwtService, JwtService>();
             /* configure strongly typed settings objects */
             var microserviceConfigSection = Configuration.GetSection("Services");
             services.Configure<Microservice[]>(microserviceConfigSection);
@@ -69,6 +71,14 @@ namespace dotnetapi
                         if (user == null)
                         {
                             // return unauthorized if user no longer exists
+                            context.Fail("Unauthorized");
+                        }
+
+                        /* Check if token has been blacklisted */
+                        var jwtService = context.HttpContext.RequestServices.GetRequiredService<IJwtService>();
+                        var refreshToken = context.Principal.FindFirstValue("refreshToken");
+                       
+                        if (jwtService.Read(refreshToken)) {
                             context.Fail("Unauthorized");
                         }
                         return Task.CompletedTask;

@@ -29,6 +29,8 @@ services:
       depends_on:
          secret_mssql:
             condition: service_healthy
+         secret_bouncer:
+            condition: service_healthy
       container_name: secret_user_api
       build:
          context: user_api/
@@ -71,6 +73,13 @@ services:
       container_name: secret_bouncer
       networks:
          - secret_net
+      healthcheck:
+         # User API will only be marked as "healthy" after it can make a request to itself
+            test: ["CMD-SHELL", "curl localhost:80/auth/jwk || exit 1"]
+            interval: 2s
+            timeout: 3s
+            retries: 10
+            start_period: 10s
          
    # This container routes all other services
    secret_nginx:

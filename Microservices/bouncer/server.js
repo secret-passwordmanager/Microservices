@@ -137,6 +137,11 @@ App.post('/auth/logout',
         }
         /* Remove value from array */
         userTokens.splice(tokenIndex, 1);
+
+        /* Send webhook to other services to blacklist the token  */
+        if (!blacklistJwt(refreshToken)) {
+            console.log('Error blacklisting token');
+        }
         /* 
             If array is now empty, or user specified
             to log out of all devices, delete his 
@@ -173,7 +178,7 @@ App.post('/auth/refresh',
         /* Grab variables from request body */
         var userId = req.body.userId;
         var refreshToken = req.body.refreshToken;
-    
+
         /* Check if refreshToken is valid */
         var userTokens = RefreshTokens.get(userId);
         if (userTokens === undefined) {
@@ -183,7 +188,8 @@ App.post('/auth/refresh',
             return res.status(403).json({'errors': 'Token not found for user'});
         }
     
-        return res.json({'jwt': genJwt(userId, 'User')});    
+        
+        return res.json({'jwt': genJwt(userId, 'User', refreshToken)});    
     }
 );
 
@@ -229,10 +235,11 @@ function genJwk()
     Generates a JWT for the user that is valid 
     for 5 minutes 
 */
-function genJwt(userId, role)
+function genJwt(userId, role, refreshToken)
 {
     var payload = {
         'unique_name': userId.toString(),
+        'refreshToken': refreshToken,
         'role': role,
     };
     var signOpts = {
@@ -257,16 +264,28 @@ function genRefreshToken()
     username and password were valid. Returns -1
     if user_api response was not 200 OK
 */
-async function  getUserId(username, password)
+async function getUserId(username, password)
 {
     return await Http.post(process.env.USER_API_URL + '/user/verify', {
-        Username: username,
-        Password: password
+        'Username': username,
+        'Password': password
     }).then(res => {
         return res.data.id;
     }).catch((err) => {
         console.log(err);
         return -1;
+    });
+}
+
+async function blacklistJwt(refreshToken)
+{
+    return await Http.post(process.env.USER_API_URL + '/internal/blacklistJwt', {
+        'refreshToken': refreshToken
+    }).then(() => {
+        return true;
+    }).catch((err) => {
+        console.log(err);
+        return false;
     });
 }
 /*
