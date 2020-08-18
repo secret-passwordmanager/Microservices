@@ -1,5 +1,5 @@
 # Issues/TODO
-1. If a user logs out, the jwt is still valid until it expires
+1. ~~If a user logs out, the jwt is still valid until it expires
 2. Other services aren't refreshing the JWK if it changes on bouncer
 3. Only using the default dotnet JWT payload
    - Add authentication for priviledged access (i.e. If masterCred is specified)
