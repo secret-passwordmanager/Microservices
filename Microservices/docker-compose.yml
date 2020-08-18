@@ -14,21 +14,17 @@ services:
          - secret_net
       ports:
          - 1433:1433
-     # healthcheck:
-      # Database will only be marked as healthy after it passes this
-     #    test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'Anac0nda' -Q 'SELECT 1' || exit 1"]
-     #    interval: 2s
-     #    timeout: 3s
-     #    retries: 10
-     #    start_period: 10s
+      healthcheck:
+         test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'Anac0nda' -Q 'SELECT 1' || exit 1"]
+         interval: 2s
+         timeout: 3s
+         retries: 10
+         start_period: 10s
       volumes: 
          - secretmssql
    
    # This container holds the api
    secret_user_api: 
-      depends_on:
-         secret_bouncer:
-            condition: service_healthy
       container_name: secret_user_api
       build:
          context: user_api/
@@ -38,11 +34,9 @@ services:
          - PGID=1000
       networks: 
          - secret_net
-     # ports: Removed since we now are using nginx
-     #    - 8000:80
       healthcheck:
       # User API will only be marked as "healthy" after it can make a request to itself
-         test: ["CMD-SHELL", "curl localhost:80/users || exit 1"]
+         test: ["CMD-SHELL", "curl localhost:80/users/ || exit 1"]
          interval: 2s
          timeout: 3s
          retries: 10
@@ -90,7 +84,6 @@ services:
          - secret_net
       ports:
          - 8080:80
-    
 
 # By creating a vlan for all of the microservices, we can reference each one by it's
 # container name instead of IP address in all of our code

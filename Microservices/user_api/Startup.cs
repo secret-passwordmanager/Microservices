@@ -11,6 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using System.Threading;
 using System.Text;
 using System.Xml;
 using System.Security.Cryptography;
@@ -108,8 +109,8 @@ namespace dotnetapi
                     Context.Database.Migrate();
                     initialized = true;
                 } catch {
-                    Console.WriteLine("Database inaccessible... pausing for 1 sec...");
-                    System.Threading.Thread.Sleep(1000);
+                    Console.WriteLine("Database inaccessible... pausing for 2 secs...");
+                    System.Threading.Thread.Sleep(2000);
                 }
             }
 

@@ -3,7 +3,7 @@
 //////////////////////////////////////////////
 
 /* Basic Modules */
-require('dotenv').config();
+require('dotenv').config({path: '.env'});
 const Express = require('express');
 const BodyParser = require('body-parser');
 const Http = require('axios');

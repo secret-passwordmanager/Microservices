@@ -8,6 +8,8 @@ RUN dotnet restore
 
 # Copy everything else and build
 COPY . ./
+EXPOSE 80
+
 RUN dotnet publish -c Debug -o out
 
 # Build runtime image
