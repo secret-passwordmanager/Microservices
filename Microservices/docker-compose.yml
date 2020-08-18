@@ -14,21 +14,19 @@ services:
          - secret_net
       ports:
          - 1433:1433
-      healthcheck:
+     # healthcheck:
       # Database will only be marked as healthy after it passes this
-         test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'Anac0nda' -Q 'SELECT 1' || exit 1"]
-         interval: 2s
-         timeout: 3s
-         retries: 10
-         start_period: 10s
+     #    test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'Anac0nda' -Q 'SELECT 1' || exit 1"]
+     #    interval: 2s
+     #    timeout: 3s
+     #    retries: 10
+     #    start_period: 10s
       volumes: 
          - secretmssql
    
    # This container holds the api
    secret_user_api: 
       depends_on:
-         secret_mssql:
-            condition: service_healthy
          secret_bouncer:
             condition: service_healthy
       container_name: secret_user_api
