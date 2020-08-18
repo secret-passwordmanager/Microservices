@@ -69,8 +69,8 @@ in the request body
   
 
 ## `POST/auth/refresh`
-When provided with a `userId` and `refreshToken`, issue a new `Jwt` that will
-authorize the user for all other microservices for 5 minutes. After 5 minutes, a new 
+When provided with a `userId` and `refreshToken`, issue a new `jwt` that will
+authorize the user on all other microservices for 5 minutes. After 5 minutes, a new 
 request must be made, but can reuse `refreshToken` if it is still valid. 
 
 ### Request Body (JSON)
@@ -80,7 +80,7 @@ request must be made, but can reuse `refreshToken` if it is still valid.
 ### Response (JSON)
 | Status Code | Objects | Body | Description |
 |-------------|-----------|------|-------------|
-| 200 | JSON | `Jwt` | Can use this token to authenticate on all other microservices |
+| 200 | JSON | `jwt` | Can use this token to authenticate on all other microservices |
 | 403 | JSON | `errors` | `refreshToken` not found on server |
 
 ### Implementation
