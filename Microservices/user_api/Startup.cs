@@ -41,8 +41,8 @@ namespace dotnetapi
             services.AddScoped<ISwapService, SwapService>();
             services.AddScoped<ICredentialService, CredentialService>();
             services.AddScoped<ILogService, LogService>();
-
             services.AddScoped<IJwtService, JwtService>();
+
             /* configure strongly typed settings objects */
             var microserviceConfigSection = Configuration.GetSection("Services");
             services.Configure<Microservice[]>(microserviceConfigSection);
@@ -77,7 +77,7 @@ namespace dotnetapi
                         /* Check if token has been blacklisted */
                         var jwtService = context.HttpContext.RequestServices.GetRequiredService<IJwtService>();
                         var refreshToken = context.Principal.FindFirstValue("refreshToken");
-                       
+
                         if (jwtService.Read(refreshToken)) {
                             context.Fail("Unauthorized");
                         }
@@ -100,8 +100,18 @@ namespace dotnetapi
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, DatabaseContext Context)
         {
-            // migrate any database changes on startup
-            Context.Database.Migrate();
+            /* Wait for database to be up */
+            var initialized = false;
+            while (!initialized) {
+                try {
+                    // migrate any database changes on startup
+                    Context.Database.Migrate();
+                    initialized = true;
+                } catch {
+                    Console.WriteLine("Database inaccessible... pausing for 1 sec...");
+                    System.Threading.Thread.Sleep(1000);
+                }
+            }
 
             app.UseRouting();
 

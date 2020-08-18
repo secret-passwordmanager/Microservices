@@ -63,14 +63,11 @@ namespace dotnetapi.Services
             proxySwap.RandToken = reqSwap.RandToken;
             proxySwap.UserId = reqSwap.UserId;
             proxySwap.Credential = credVal;
- 
+            
             // Add to ProxySwap Database, remove from RequestSwap Database
             _context.ProxySwaps.Add(proxySwap);
             _context.RequestSwaps.Remove(reqSwap);
             _context.SaveChanges();
         }
-
-        
-        
     }
 }

@@ -62,7 +62,8 @@ App.listen(process.env.BOUNCER_PORT);
 App.post('/auth/login', 
     [
         Check('username').isAlphanumeric(),
-        Check('password').isAlphanumeric()
+        Check('password').isAlphanumeric(),
+        Check('masterCred').optional().isAlphanumeric()
     ],
     async (req, res) => 
     {
@@ -75,6 +76,7 @@ App.post('/auth/login',
         /* Grab variables from request body */
         var username = req.body.username;
         var password = req.body.password;
+        var masterCred = req.body.masterCred;
 
         /* Check if user exists on secret_user_api */
         var userId = await getUserId(username, password);
@@ -228,6 +230,7 @@ function genJwk()
 {
     var opts = {
         alg: 'RS256',
+        use: 'sig'
     };
     return Jose.JWK.generateSync('RSA', 2048, opts);
 }
