@@ -18,7 +18,7 @@ Here are some other excellent readings:
 
 ## `POST/auth/login`
 Make a request to this url to log in a user. On success, it will return a 
-`refreshToken` that can then be used to authenticate the user. (See `/auth`)
+`refreshToken` as well as a `userId` that can then be used to authenticate the user. (See `/auth/refresh`)
 endpoint
 
 ### Request Body (JSON)
@@ -29,7 +29,7 @@ endpoint
 ### Response (JSON)
 | Status Code | Objects | Body | Description |
 |-------------|-----------|------|-------------|
-| 200 | JSON | {`userId`, `refreshToken`} | Returns  the user's Id as well as a refresh token which can be used to generate new `accessTokens` for up to 2 days |
+| 200 | JSON | {`userId`, `refreshToken`} | Returns  the user's Id as well as a refresh token which can be used to generate new `jwt` for up to 2 days |
 | 404 | JSON | `errors` | User not found |
 
 ### Implementation
@@ -69,7 +69,7 @@ in the request body
   
 
 ## `POST/auth/refresh`
-When provided with a `userId` and `refreshToken`, issue a new `accessToken` that will
+When provided with a `userId` and `refreshToken`, issue a new `Jwt` that will
 authorize the user for all other microservices for 5 minutes. After 5 minutes, a new 
 request must be made, but can reuse `refreshToken` if it is still valid. 
 
@@ -80,7 +80,7 @@ request must be made, but can reuse `refreshToken` if it is still valid.
 ### Response (JSON)
 | Status Code | Objects | Body | Description |
 |-------------|-----------|------|-------------|
-| 200 | JSON | `jwt` | Can use this token to authenticate on all other microservices |
+| 200 | JSON | `Jwt` | Can use this token to authenticate on all other microservices |
 | 403 | JSON | `errors` | `refreshToken` not found on server |
 
 ### Implementation
