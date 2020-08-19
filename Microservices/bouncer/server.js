@@ -77,11 +77,12 @@ App.post('/auth/login',
         var username = req.body.username;
         var password = req.body.password;
         var masterCred = req.body.masterCred;
+    
 
         /* Check if user exists on secret_user_api */
-        var userId = await getUserId(username, password);
+        var userId = await getUserId(username, password, );
         if (userId < 0) {
-            return res.status(404).json({'errors': 'Invalid password or username'});
+            return res.status(401).json({'errors': 'Invalid password or username'});
         }
 
         /* See if User already has a userTokens array */
@@ -91,7 +92,16 @@ App.post('/auth/login',
         }
 
         /* Create a new Refresh Token and add it to the map */
-        var newToken = genRefreshToken();
+        var newToken = {
+            priv: false,
+            refresh: genRefreshToken()
+        };
+
+        /* If masterCred was specified, make it a priviledged user */
+        if (masterCred != undefined) {
+            newToken.priv = true;
+        }
+        /* Add refreshToken to the refreshTokens map */
         userRefreshTokens.push(newToken);
         RefreshTokens.set(userId, userRefreshTokens);
 
@@ -135,20 +145,32 @@ App.post('/auth/logout',
         var tokenIndex = userTokens.indexOf(refreshToken);
         /* If token was not found in array */
         if (tokenIndex == -1) {
-            return res.status(403).json({'errors': 'Incorrect username or refreshToken'});
+            return res.status(403).json({'errors': 'Incorrect userId or refreshToken'});
         }
         /* Remove value from array */
         userTokens.splice(tokenIndex, 1);
 
-        /* Send webhook to other services to blacklist the token  */
-        if (!blacklistJwt(refreshToken)) {
-            console.log('Error blacklisting token');
+        /* If user wants to be logged out globally, blacklist all tokens */
+        if (global) {
+            userTokens.forEach(t => {
+                if(!blacklistJwt(t)) {
+                    console.error('Error blacklisting one of the user tokens');
+                }
+            });
+        }
+        /* Otherwise, just blacklist this one */
+        else {
+            if (!blacklistJwt(refreshToken)) {
+                console.error('Error blacklisting token');
+            }
         }
         /* 
             If array is now empty, or user specified
             to log out of all devices, delete his 
             userId from RefreshTokens map
         */
+
+
         if (userTokens.length == 0 || global) {
             RefreshTokens.delete(userId);
         } else {
