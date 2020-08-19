@@ -22,15 +22,16 @@ Here are some other excellent readings:
 3. On requests you wish to make on any of our microservice endpoints, add a header called 
 `Authorization`, and its value should be "Bearer:+ " `jwt`
 
+
 ## Secret Authorization Roles
-Currently, we are planning on having 2 seperate "roles" for each user. A user can be `unpriviledged`
-or `priviledged`. If you do not add the optional `masterCred` value when making a request to `/auth/login`,
-a user will only be able to generate `unpriviledged` jwt's, and if you do add it, in the response for 
-`/auth/refresh`, there will be both an `unprivileged` and `priviledged` jwt. A `priviledged` jwt has an
-extra field that is a hashed version of their `masterCred`. Generally, you must use a `priviledged` jwt 
+Currently, we are planning on having 2 seperate "roles" for each user. A user can be **unpriviledged**
+or **priviledged**. If you do not add the optional `masterCred` value when making a request to `/auth/login`,
+a user will only be able to generate unpriviledged jwt's, and if you do add it, in the response for 
+`/auth/refresh`, there will be both an unprivileged and priviledged jwt. A priviledged jwt has an
+extra field that is a hashed version of their `masterCred`. Generally, you must use a priviledged jwt 
 any time the backend needs to decrypt any of your credentials, since the `masterCred` is required for
-that. To limit how often the hashed version of the user's credential is sent out, `priviledged` jwt's
-cannot be substited for `unpriviledged` jwt's. In other words, both have limitations in where they
+that. To limit how often the hashed version of the user's credential is sent out, priviledged jwt's
+cannot be substited for unpriviledged jwt's. In other words, both have limitations in where they
 are authorized to be used. Here is a table that gives a more in depth overview of exactly what requests
 require a priviledged or unpriviledged jwt.
 
@@ -40,8 +41,6 @@ require a priviledged or unpriviledged jwt.
 
 
 # Bouncer API Endpoints
-
-
 ## `POST/auth/login`
 Make a request to this url to log in a user. On success, it will return a 
 `refreshToken` as well as a `userId` that can then be used to authenticate the user. 
@@ -66,7 +65,6 @@ If a request is made with the optional parameter `masterCred`, then the response
  - After 1 week, if user has not manually logged out, invalidate `refreshToken`
     - Just delete it from the database
    
-
 ## `POST/auth/logout`
 Make a request to this url to log out the user with the user's `refreshToken`
 in the request body
@@ -91,7 +89,6 @@ in the request body
   - If this was the user's only access token stored, or request had `global` set to true,
   remove user from the global map that contains the refresh tokens
   
-
 ## `POST/auth/refresh`
 When provided with a `userId` and `refreshToken`, issue a new `jwt` that will
 authorize the user on all other microservices for 5 minutes. After 5 minutes, a new 
@@ -115,8 +112,7 @@ throughout all microservices
 ### Implementation
   - Generate a new JWT Token signed with the `JWK`
   - The token contains the user's Role, etc
-  
-  
+
 ## `GET/auth/jwk`
 This endpoint allows the other microservices to get the `JWK` so that they can verify
 that users trying to connect to them have successfully been authenticated.
@@ -125,4 +121,3 @@ that users trying to connect to them have successfully been authenticated.
 | Status Code | Objects | Body | Description |
 |-------------|-----------|------|-------------|
 | 200 | JSON | `{e,n,kty,kid,alg}` | This is a jwk that can be used to verify users are authenticated |
-
