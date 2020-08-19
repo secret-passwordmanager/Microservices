@@ -14,24 +14,50 @@ Here are some other excellent readings:
   - [How to Implement JWT in NodeJS](https://medium.com/@siddharthac6/json-web-token-jwt-the-right-way-of-implementing-with-node-js-65b8915d550e)
   - [How RSA Works](https://www.youtube.com/watch?v=4zahvcJ9glg)
 
-# API Endpoints
+
+# Authenticating on other microservices
+## How to "login" in a nutshell
+1. Make request to `/auth/login` to generate a `refreshToken`
+2. Use that refreshToken to make a request to `/auth/refresh` to generate a `jwt`
+3. On requests you wish to make on any of our microservice endpoints, add a header called 
+`Authorization`, and its value should be "Bearer:+ " `jwt`
+
+## Secret Authorization Roles
+Currently, we are planning on having 2 seperate "roles" for each user. A user can be `unpriviledged`
+or `priviledged`. If you do not add the optional `masterCred` value when making a request to `/auth/login`,
+a user will only be able to generate `unpriviledged` jwt's, and if you do add it, in the response for 
+`/auth/refresh`, there will be both an `unprivileged` and `priviledged` jwt. A `priviledged` jwt has an
+extra field that is a hashed version of their `masterCred`. Generally, you must use a `priviledged` jwt 
+any time the backend needs to decrypt any of your credentials, since the `masterCred` is required for
+that. To limit how often the hashed version of the user's credential is sent out, `priviledged` jwt's
+cannot be substited for `unpriviledged` jwt's. In other words, both have limitations in where they
+are authorized to be used. Here is a table that gives a more in depth overview of exactly what requests
+require a priviledged or unpriviledged jwt.
+
+| Microservice Name | Require Priviledged JWT | Require Unpriviledged JWT | No Authorization Required |
+|-------------------|-------------------------|---------------------------|---------------------------|
+| user_api   | `POST /user/`, `POST /swap/`, `POST /credential` | `GET /user/`, `GET /credential`, `POST /swap/new` | `POST /user/new`|
+
+
+# Bouncer API Endpoints
+
 
 ## `POST/auth/login`
 Make a request to this url to log in a user. On success, it will return a 
-`refreshToken` as well as a `userId` that can then be used to authenticate the user. (See `/auth/refresh`)
-endpoint
-
+`refreshToken` as well as a `userId` that can then be used to authenticate the user. 
+If a request is made with the optional parameter `masterCred`, then the response's
+`refreshToken` will be a **priviledged** refresh token. (See `/auth/refresh` endpoint)
 ### Request Body (JSON)
 | Variable | Type | Required | Description |
 |----------|------|----------|-------------|
 | `username` | String | Yes | The user's username |
 | `password` | String | Yes | The user's password |
+| `masterCred` | String | No | The user's master credential |
 ### Response (JSON)
 | Status Code | Objects | Body | Description |
 |-------------|-----------|------|-------------|
 | 200 | JSON | {`userId`, `refreshToken`} | Returns  the user's Id as well as a refresh token which can be used to generate new `jwt` for up to 2 days |
-| 404 | JSON | `errors` | User not found |
-
+| 401 | JSON | `errors` | Invalid password or username |
 ### Implementation
  - Make a request to user_api microservice to see if user exists
  - If user does not exist, return an `errorMessage` with status 404
@@ -44,7 +70,6 @@ endpoint
 ## `POST/auth/logout`
 Make a request to this url to log out the user with the user's `refreshToken`
 in the request body
-
 ### Request Body (JSON)
 | Variable | Type | Required | Description |
 |----------|------|----------|-------------|
@@ -57,7 +82,6 @@ in the request body
 | 200 | JSON | `null` | Successfully logged the user out |
 | 403 | JSON | `errors` | `refreshToken` is invalid, and not on server |
 | 403 | JSON | `errors` | User is not currently logged in | 
-
 ### Implementation
   - Check if user is found on the server.
   - If he doesn't, respond with 403 error
@@ -71,8 +95,13 @@ in the request body
 ## `POST/auth/refresh`
 When provided with a `userId` and `refreshToken`, issue a new `jwt` that will
 authorize the user on all other microservices for 5 minutes. After 5 minutes, a new 
-request must be made, but can reuse `refreshToken` if it is still valid. 
+request must be made, to get a new valid `jwt`. 
 
+Additionally, if a **priviledged** `refreshToken` was given in the request body, 
+the server will respond with a `jwt` as well as a `jwtPriv`. (See `/auth/login`
+for additional details on creating priviledge refresh tokens). the `jwt` and
+`jwtPriv` tokens both have certain restrictions on what endpoints you can access 
+throughout all microservices
 ### Request Body (JSON)
 | Variable | Type | Required | Description |
 |----------|------|----------|-------------|
@@ -81,8 +110,8 @@ request must be made, but can reuse `refreshToken` if it is still valid.
 | Status Code | Objects | Body | Description |
 |-------------|-----------|------|-------------|
 | 200 | JSON | `jwt` | Can use this token to authenticate on all other microservices |
+| 200 | JSON | `{jwt, jwtPriv}` | 
 | 403 | JSON | `errors` | `refreshToken` not found on server |
-
 ### Implementation
   - Generate a new JWT Token signed with the `JWK`
   - The token contains the user's Role, etc
@@ -96,3 +125,4 @@ that users trying to connect to them have successfully been authenticated.
 | Status Code | Objects | Body | Description |
 |-------------|-----------|------|-------------|
 | 200 | JSON | `{e,n,kty,kid,alg}` | This is a jwk that can be used to verify users are authenticated |
+
