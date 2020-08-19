@@ -5,18 +5,16 @@ using System.Linq;
 
 namespace dotnetapi.Services
 {
-    public interface IJwtService
+    public interface IJwtMiddlewareService
     {
-        void Create(string refreshToken);
-        bool Read(string refreshToken);
-        bool Delete(string refreshtoken);
+        public void Create(string token);
+        public bool Read(string token);
     }
-
-    public class JwtService: IJwtService
+    public class JwtMiddlewareService : IJwtMiddlewareService
     {
         private DatabaseContext _context;
 
-        public JwtService(DatabaseContext context) 
+        public JwtMiddlewareService(DatabaseContext context) 
         {
             _context = context;
         }
@@ -32,10 +30,6 @@ namespace dotnetapi.Services
         public bool Read(string token) 
         {
             return (_context.BlacklistJwts.Any(t => t.RefreshToken == token));
-        }
-        public bool Delete(string token)
-        {
-            return false;
         }
     }
 }

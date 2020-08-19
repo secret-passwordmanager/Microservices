@@ -14,7 +14,7 @@ namespace dotnetapi.Services
 {
     public interface ICredentialService
     {
-        Credential Create(Credential credential, string masterCred, string credVal, byte[] masterCredKeyHash, byte[] masterCredSalt, byte[] masterCredIV);
+        Credential Create(Credential cred, User user, string masterCred, string credVal);
         List<Credential> Read(Credential credential);
         void Update(Credential credential);
         void Delete(Credential credential);
@@ -28,57 +28,22 @@ namespace dotnetapi.Services
         {
             _context = context;
         }
+        public Credential Create(Credential cred, User user, string masterCred, string credVal) 
+        {    
+            /* Make sure masterCred is not empty */        
+            if (string.IsNullOrWhiteSpace(masterCred))
+                throw new AppException("MasterCred is required");
 
-        public Credential Create(Credential cred, string masterCred, string credVal, byte[] masterAesKeyEnc, byte[] masterCredSalt, byte[] masterCredIV) 
-        {            
             /* Make sure credential hint isn't already in use */
             if (_context.Credentials.Any(c => c.UserId == cred.UserId && c.Hint == cred.Hint)) {
                 throw new AppException("This credential hint is already used by another of your credentials");
             }
 
-
-            /* Convert masterCred into PKBDF2 */
-            byte[] masterPkbdf2 = KeyDerivation.Pbkdf2(
-                password: masterCred,
-                salt: masterCredSalt,
-                prf: KeyDerivationPrf.HMACSHA1,
-                iterationCount: 10000,
-                numBytesRequested: 256 / 8
-            );
-
-
-            /* Decrypt the masterKey using hashed masterCred */
-            byte[] masterKey;
-            using (var aes = Aes.Create()) {
-                aes.Mode = CipherMode.CBC;
-                aes.Key = masterPkbdf2;
-                aes.IV = masterCredIV;
-                
-                using (var cryptoTransform = aes.CreateDecryptor()) {
-                    masterKey = cryptoTransform.TransformFinalBlock(masterAesKeyEnc, 0, masterAesKeyEnc.Length);
-                }
-            }
-
-
-            /* Encrypt the new credential using the masterKey */
-            using (var aes = Aes.Create()) {
-                aes.Mode = CipherMode.CBC;
-                aes.Key = masterKey;
-                aes.GenerateIV();
-
-                using (var cryptoTransform = aes.CreateEncryptor()) {
-                    byte[] credEncrypt = cryptoTransform.TransformFinalBlock(Encoding.ASCII.GetBytes(credVal), 0, Encoding.ASCII.GetBytes(credVal).Length);
-
-                    /* Save values to the credential */
-                    cred.AesIV = aes.IV;
-                    cred.AesValue = credEncrypt;
-                }
-            }
-
-
+            MasterCredHelper masterCredHelper = new MasterCredHelper();
+            cred = masterCredHelper.EncryptCredential(user, cred, masterCred, credVal);
+            
             /* Make sure credential's domain is lowercase */
             cred.Domain = cred.Domain.ToLower();
-
 
             /* Save changes and return */
             _context.Credentials.Add(cred);

@@ -20,7 +20,7 @@ namespace dotnetapi.Helpers
 		}
 
 		/*
-			This is just a helper function just grabs the PEM key 
+			This is just a helper function just grabs the JWK 
 			from secret_bouncer
 		*/
 		public async Task<JsonWebKey> getJwK()
@@ -30,7 +30,6 @@ namespace dotnetapi.Helpers
 			HttpResponseMessage response;
 			while (!authServerUp) {
                 try {
-                    // migrate any database changes on startup
 					response = await Client.GetAsync(AuthServerUrl + "/auth/jwk", HttpCompletionOption.ResponseHeadersRead);
                     response.EnsureSuccessStatusCode();
                     authServerUp = true;

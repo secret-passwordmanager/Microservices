@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace dotnetapi.Models.Requests
 {
-    public class SubmitRequestModel 
+    public class SubmitRequestSwapModel 
     {
         [Required]
         public string FieldId { get; set; }  

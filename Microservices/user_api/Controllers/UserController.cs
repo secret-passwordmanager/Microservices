@@ -26,17 +26,6 @@ namespace dotnetapi.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost("verify")]
-        public IActionResult Verify([FromBody]UserAuthenticateModel model)
-        {
-            var user = _userService.Authenticate(model);
-            if (user == null)
-                return BadRequest(new { message = "Username or password is incorrect" });
-
-            return Ok(new {Id = user.Id});
-        }
-
-        [AllowAnonymous]
         [HttpPost("new")]
         public IActionResult New([FromBody]UserCreateModel model)
         {
@@ -46,9 +35,9 @@ namespace dotnetapi.Controllers
                 _userService.Create(_mapper.Map<User>(model), model.Password, model.MasterCred, "User");
                 return Ok();
             }
-            catch (AppException ex)
+            catch (AppException e)
             {
-                return BadRequest(new { Title = ex.Message });
+                return BadRequest(new { Error = e.Message });
             }
         }
 
@@ -72,8 +61,20 @@ namespace dotnetapi.Controllers
                 _userService.Update(_mapper.Map<User>(model), model.Password);
                 return Ok();
             }
-            catch (AppException ex) {
-                return BadRequest(new { Title = ex.Message });
+            catch (AppException e) {
+                return BadRequest(new { Error = e.Message });
+            }
+        }
+        [AllowAnonymous]
+        [HttpPost("verify")]
+        public IActionResult Verify([FromBody]UserVerifyModel model)
+        {
+            try {
+                var userId = _userService.Verify(model);
+                return Ok(new {Id = userId});
+            }
+            catch(AppException e) {
+                return BadRequest(new { Error = e.Message});
             }
         }
     }

@@ -36,7 +36,7 @@ namespace dotnetapi.Controllers
         ///////////////////////////// Request Methods //////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////
         [HttpPost("new")]
-        public IActionResult New([FromBody] SubmitRequestModel model)
+        public IActionResult New([FromBody] SubmitRequestSwapModel model)
         {
             int userId = int.Parse(User.Identity.Name);
             var ReqSwap = _mapper.Map<RequestSwap>(model);
@@ -116,7 +116,7 @@ namespace dotnetapi.Controllers
                 aes.IV = user.MasterCredIV;
                 
                 using (var cryptoTransform = aes.CreateDecryptor()) {
-                    masterKey = cryptoTransform.TransformFinalBlock(user.MasterAesKeyEnc, 0, user.MasterAesKeyEnc.Length);
+                    masterKey = cryptoTransform.TransformFinalBlock(user.MasterKeyAesEnc, 0, user.MasterKeyAesEnc.Length);
                     Console.WriteLine("PrivateKey: " + Encoding.Unicode.GetString(masterKey, 0, masterKey.Length));
                 }
             }
@@ -135,10 +135,7 @@ namespace dotnetapi.Controllers
                 }
             }
 
-            
             return Ok();
-
-     
         }
 
     }

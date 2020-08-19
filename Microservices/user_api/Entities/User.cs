@@ -11,10 +11,8 @@ namespace dotnetapi.Entities
         public string Role { get; set; }
         public byte[] PasswordHash { get; set; }
         public byte[] PasswordSalt { get; set; }
-      //  public string PublicCredKey {get; set; }
-        public byte[] MasterAesKeyEnc { get; set; }
+        public byte[] MasterKeyAesEnc { get; set; }
         public byte[] MasterCredSalt { get; set; }
         public byte[] MasterCredIV { get; set; }
-        public ICollection<EventLog> Logs {get; set; }
     }
 }

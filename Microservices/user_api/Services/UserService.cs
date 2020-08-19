@@ -1,10 +1,4 @@
-
-using Microsoft.Extensions.Options;
 using System;
-using System.Text;
-using System.Security.Cryptography;
-using Microsoft.AspNetCore.Cryptography.KeyDerivation;
-using System.Collections.Generic;
 using System.Linq;
 
 using dotnetapi.Entities;
@@ -15,12 +9,11 @@ namespace dotnetapi.Services
 {
     public interface IUserService
     {
-        User Authenticate(UserAuthenticateModel model);
-        IEnumerable<User> ReadAll();
         void Create(User model, string password, string masterCred, string Role);
         User Read(int id);
         void Update(User model, string password);
         void Delete(int id);
+        int Verify(UserVerifyModel model);
     }
 
     public class UserService : IUserService
@@ -32,29 +25,19 @@ namespace dotnetapi.Services
         {
             _context = context;
         }
-
-        public User Authenticate(UserAuthenticateModel model)
-        {
-            var user = _context.Users.SingleOrDefault(x => x.Username == model.Username);   
-            if (user == null)
-                return null;
-            // check if password is correct
-            if (!VerifyPasswordHash(model.Password, user.PasswordHash, user.PasswordSalt))
-                return null;
-
-            return user;
-        }
-
         public void Create(User user, string password, string masterCred, string role)
         {
             /* Make sure that password is not empty */
             if (string.IsNullOrWhiteSpace(password))
                 throw new AppException("Password is required");
 
+            /* Make sure masterCred is not empty */
+            if (string.IsNullOrWhiteSpace(masterCred))
+                throw new AppException("MasterCred is required");
+
             /* Make sure that username is not taken */
             if (_context.Users.Any(x => x.Username == user.Username))
                 throw new AppException("Username \"" + user.Username + "\" is already taken");
-
 
             /* Hash the password */
             byte[] passwordHash, passwordSalt;
@@ -63,50 +46,14 @@ namespace dotnetapi.Services
             user.PasswordHash = passwordHash;
             user.PasswordSalt = passwordSalt;
 
-
-            /* Generate AES key randomly */
-            byte[] masterKey = new byte[128 / 8];
-            using (var rng = RandomNumberGenerator.Create())
-                rng.GetBytes(masterKey);
-
-
-            /* Hash the password using PKBDF2 so that it can 
-            be used as the key to encrypt the private key */
-            byte[] masterSalt = new byte[128 / 8];
-            using (var rng = RandomNumberGenerator.Create())
-                rng.GetBytes(masterSalt);
-
-            byte[] masterPkbdf2 = KeyDerivation.Pbkdf2(
-                password: masterCred,
-                salt: masterSalt,
-                prf: KeyDerivationPrf.HMACSHA1,
-                iterationCount: 10000,
-                numBytesRequested: 256 / 8
-            );
-            user.MasterCredSalt = masterSalt;
-
-
-            /* Encrypt the private key with AES using masterPkbdf2 as the key */
-            using (var aes = Aes.Create()) {
-                aes.Mode = CipherMode.CBC;
-                aes.Key = masterPkbdf2;
-                aes.GenerateIV();
-
-                using (var cryptoTransform = aes.CreateEncryptor()) {
-                    user.MasterCredIV = aes.IV;
-                    user.MasterAesKeyEnc = cryptoTransform.TransformFinalBlock(masterKey, 0, masterKey.Length);
-                }
-            }
-
+            /* Encrypt the master cred  */
+            MasterCredHelper masterCredHelper = new MasterCredHelper();
+            masterCredHelper.CreateUserMasterCred(user, masterCred);
+           
             /* Save changes in the database and return */
             _context.Users.Add(user);
             _context.SaveChanges();
             return;
-        }
-
-        public IEnumerable<User> ReadAll()
-        {
-            return _context.Users;
         }
 
         public User Read(int id)
@@ -114,28 +61,28 @@ namespace dotnetapi.Services
             return _context.Users.Find(id);
         }
 
-        public void Update(User model, string password)
+        public void Update(User newUser, string password)
         {
-            var user = _context.Users.Find(model.Id);
+            var user = _context.Users.Find(newUser.Id);
             if (user == null)
                 throw new AppException("User not found");
 
             // update username if it has changed
-            if (!string.IsNullOrWhiteSpace(model.Username) && model.Username != user.Username)
+            if (!string.IsNullOrWhiteSpace(newUser.Username) && newUser.Username != user.Username)
             {
                 // throw error if the new username is already taken
-                if (_context.Users.Any(x => x.Username == model.Username)) {
-                    throw new AppException("Username " + model.Username + " is already taken");
+                if (_context.Users.Any(x => x.Username == newUser.Username)) {
+                    throw new AppException("Username " + newUser.Username + " is already taken");
                 }
-                user.Username = model.Username;
+                user.Username = newUser.Username;
             }
 
             // update user properties if provided
-            if (!string.IsNullOrWhiteSpace(model.FirstName))
-                user.FirstName = model.FirstName;
+            if (!string.IsNullOrWhiteSpace(newUser.FirstName))
+                user.FirstName = newUser.FirstName;
 
-            if (!string.IsNullOrWhiteSpace(model.LastName))
-                user.LastName = model.LastName;
+            if (!string.IsNullOrWhiteSpace(newUser.LastName))
+                user.LastName = newUser.LastName;
 
             // update password if provided
             if (!string.IsNullOrWhiteSpace(password))
@@ -160,13 +107,36 @@ namespace dotnetapi.Services
             }
         }
 
+        public int Verify(UserVerifyModel model)
+        {
+            var user = _context.Users.SingleOrDefault(x => x.Username == model.Username);   
+            if (user == null)
+                throw new AppException("Username not found");
+            // check if password is correct
+            try {
+                if (!VerifyPasswordHash(model.Password, user.PasswordHash, user.PasswordSalt))
+                    throw new AppException("Invalid password");
+            }
+            catch (ArgumentException) {
+                throw new AppException("Issue parsing Master cred");
+            }
+            
+            MasterCredHelper masterCredHelper = new MasterCredHelper();
+            if (!masterCredHelper.VerifyMasterCred(user, model.MasterCred)) {
+                throw new AppException("Invalid master credential");
+            }
+            return user.Id;
+        }
+
         ////////////////////////////////////////////////////////////////////////////////
         //////////////////////// Private Helper Functions //////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////
         private static void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
         {
-            if (password == null) throw new ArgumentNullException("password");
-            if (string.IsNullOrWhiteSpace(password)) throw new ArgumentException("Value cannot be empty or whitespace only string.", "password");
+            if (password == null) 
+                throw new ArgumentNullException("password");
+            if (string.IsNullOrWhiteSpace(password)) 
+                throw new ArgumentException("Value cannot be empty or whitespace only string.", "password");
 
             using (var hmac = new System.Security.Cryptography.HMACSHA512())
             {
@@ -177,8 +147,6 @@ namespace dotnetapi.Services
 
         private static bool VerifyPasswordHash(string password, byte[] storedHash, byte[] storedSalt)
         {
-            if (password == null) 
-                throw new ArgumentNullException("password");
             if (string.IsNullOrWhiteSpace(password)) 
                 throw new ArgumentException("Value cannot be empty or whitespace only string.", "password");
             if (storedHash.Length != 64) 
@@ -195,14 +163,6 @@ namespace dotnetapi.Services
                 }
             }
             return true;
-        }
-
-        private static string GetKeyString(RSAParameters publicKey)
-        {
-            var stringWriter = new System.IO.StringWriter();
-            var xmlSerializer = new System.Xml.Serialization.XmlSerializer(typeof(RSAParameters));
-            xmlSerializer.Serialize(stringWriter, publicKey);
-            return stringWriter.ToString();
         }
     }
 }

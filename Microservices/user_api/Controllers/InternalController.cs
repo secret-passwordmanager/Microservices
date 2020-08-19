@@ -17,9 +17,9 @@ namespace WebApi.Controllers
     {
 
         private IMapper _mapper;
-        private IJwtService _jwtService;
+        private IJwtMiddlewareService _jwtService;
 
-        public InternalController(IMapper mapper, IJwtService jwtService)
+        public InternalController(IMapper mapper, IJwtMiddlewareService jwtService)
         {
             _mapper = mapper;
             _jwtService = jwtService;
@@ -31,9 +31,7 @@ namespace WebApi.Controllers
         {
             string refreshToken = model.RefreshToken;
             _jwtService.Create(refreshToken);
-            
             return Ok();
-
         }
     }
 

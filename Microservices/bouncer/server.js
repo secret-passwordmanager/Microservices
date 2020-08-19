@@ -78,7 +78,6 @@ App.post('/auth/login',
         var password = req.body.password;
         var masterCred = req.body.masterCred;
     
-
         /* Check if user exists on secret_user_api */
         var userId = await getUserId(username, password, );
         if (userId < 0) {
@@ -94,12 +93,13 @@ App.post('/auth/login',
         /* Create a new Refresh Token and add it to the map */
         var newToken = {
             priv: false,
-            refresh: genRefreshToken()
+            value: genRefreshToken()
         };
 
         /* If masterCred was specified, make it a priviledged user */
         if (masterCred != undefined) {
             newToken.priv = true;
+            newToken.masterCred = masterCred;
         }
         /* Add refreshToken to the refreshTokens map */
         userRefreshTokens.push(newToken);
@@ -108,7 +108,7 @@ App.post('/auth/login',
         /* Return the user's Id and new refresh token */
         return res.json({
             'userId': userId,
-            'refreshToken': newToken
+            'refreshToken': newToken.value
         });
     }
 );
@@ -203,17 +203,27 @@ App.post('/auth/refresh',
         var userId = req.body.userId;
         var refreshToken = req.body.refreshToken;
 
-        /* Check if refreshToken is valid */
+        /* Check if this user has any refreshTokens */
         var userTokens = RefreshTokens.get(userId);
         if (userTokens === undefined) {
             return res.status(403).json({'errors': 'User is not logged in'});
-        } 
-        else if (userTokens.find(x => x == refreshToken) === undefined) {
+        }
+
+        /* Find the refresh token  */
+        var foundToken = userTokens.find(x => x.value == refreshToken);
+        if (foundToken === undefined) {
             return res.status(403).json({'errors': 'Token not found for user'});
         }
-    
-        
-        return res.json({'jwt': genJwt(userId, 'User', refreshToken)});    
+
+        var response = {};
+        response.UnprivJwt = genJwt(userId, 'Unpriviledged', refreshToken);
+
+        /* If the refreshToken was priviledged, add a priviledged Jwt as well */
+        if(foundToken.priv) {
+            response.PrivJwt = genJwt(userId, 'Priviledged', refreshToken);
+        }
+
+        return res.json(response);    
     }
 );
 

@@ -36,7 +36,7 @@ namespace dotnetapi.Controllers
             Credential cred = _mapper.Map<Credential>(model);
             cred.UserId = user.Id;   
             try {
-                _credService.Create(cred, model.MasterCred, model.Value, user.MasterAesKeyEnc, user.MasterCredSalt, user.MasterCredIV);
+                _credService.Create(cred, user, model.MasterCred, model.Value);
                 return Ok();
             }
             catch (AppException e) {

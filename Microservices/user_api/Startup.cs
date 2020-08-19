@@ -3,18 +3,12 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using System.Threading;
-using System.Text;
-using System.Xml;
-using System.Security.Cryptography;
 
 using dotnetapi.Helpers;
 using dotnetapi.Services;
@@ -41,19 +35,11 @@ namespace dotnetapi
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ISwapService, SwapService>();
             services.AddScoped<ICredentialService, CredentialService>();
-            services.AddScoped<ILogService, LogService>();
-            services.AddScoped<IJwtService, JwtService>();
+            services.AddScoped<IJwtMiddlewareService, JwtMiddlewareService>();
 
-            /* configure strongly typed settings objects */
-            var microserviceConfigSection = Configuration.GetSection("Services");
-            services.Configure<Microservice[]>(microserviceConfigSection);
-            var microservicesConfig = microserviceConfigSection.Get<Microservice[]>();
-            
-            /* Get the JWK from our Auth Server */
-            var authServer = Array.Find(microservicesConfig, x => x.Name == "AuthService");
-            var JwkGetter = new JwkGetter(authServer.Url);
-            JsonWebKey jwk = JwkGetter.getJwK().Result;
-
+            /* Grab settings for the Auth Server from appsettings.json */
+            var authServerConfig = Configuration.GetSection("Services").GetSection("AuthServer");
+           
             /* Configure jwt authentication */
             services.AddAuthentication(x =>
             {
@@ -62,29 +48,10 @@ namespace dotnetapi
             })
             .AddJwtBearer(x =>
             {
-                x.Events = new JwtBearerEvents
-                {
-                    OnTokenValidated = context =>
-                    {
-                        var userService = context.HttpContext.RequestServices.GetRequiredService<IUserService>();
-                        var userId = int.Parse(context.Principal.Identity.Name);
-                        var user = userService.Read(userId);
-                        if (user == null)
-                        {
-                            // return unauthorized if user no longer exists
-                            context.Fail("Unauthorized");
-                        }
+                /* Get the JWK from our Auth Server */
+                var JwkGetter = new JwkGetter(authServerConfig.GetSection("Url").Value);
+                JsonWebKey jwk = JwkGetter.getJwK().Result;
 
-                        /* Check if token has been blacklisted */
-                        var jwtService = context.HttpContext.RequestServices.GetRequiredService<IJwtService>();
-                        var refreshToken = context.Principal.FindFirstValue("refreshToken");
-
-                        if (jwtService.Read(refreshToken)) {
-                            context.Fail("Unauthorized");
-                        }
-                        return Task.CompletedTask;
-                    }
-                };
                 x.RequireHttpsMetadata = false;
                 x.SaveToken = true;
                 x.TokenValidationParameters = new TokenValidationParameters
@@ -94,6 +61,27 @@ namespace dotnetapi
                     ValidateIssuer = true,
                     ValidIssuer = "BOUNCER",
                     ValidateAudience = false
+                };
+                x.Events = new JwtBearerEvents
+                {
+                    OnTokenValidated = context =>
+                    {
+                        // return unauthorized if user no longer exists
+                        var userService = context.HttpContext.RequestServices.GetRequiredService<IUserService>();
+                        var userId = int.Parse(context.Principal.Identity.Name);
+                        var user = userService.Read(userId);
+                        if (user == null)
+                        {
+                            context.Fail("Unauthorized");
+                        }
+                        /* Check if token has been blacklisted */
+                        var refreshToken = context.Principal.FindFirstValue("refreshToken");
+                        var jwtService = context.HttpContext.RequestServices.GetRequiredService<IJwtMiddlewareService>();
+                        if (jwtService.Read(refreshToken)) {
+                            context.Fail("Unauthorized");
+                        }
+                        return Task.CompletedTask;
+                    }
                 };
             });
         }
@@ -115,17 +103,16 @@ namespace dotnetapi
             }
 
             app.UseRouting();
-
+            app.UseAuthentication();
+            app.UseAuthorization();
+            app.UseEndpoints(endpoints => endpoints.MapControllers());
             // global cors policy
             app.UseCors(x => x
                 .AllowAnyOrigin()
                 .AllowAnyMethod()
                 .AllowAnyHeader());
 
-            app.UseAuthentication();
-            app.UseAuthorization();
-
-            app.UseEndpoints(endpoints => endpoints.MapControllers());
+            
         }
     }
 }
