@@ -79,28 +79,40 @@ App.post('/auth/login',
         var masterCred = req.body.masterCred;
     
         /* Check if user exists on secret_user_api */
-        var userId = await getUserId(username, password, );
-        if (userId < 0) {
-            return res.status(401).json({'errors': 'Invalid password or username'});
+        var usmanResp = await getUserId(username, password, masterCred);
+        if (usmanResp.status != 200) {
+            return res.status(usmanResp.status).json(usmanResp.data);
         }
 
         /* See if User already has a userTokens array */
+        var userId = usmanResp.data.id;
         var userRefreshTokens = RefreshTokens.get(userId);
         if (userRefreshTokens === undefined) {
             userRefreshTokens = [];
-        }
+        } 
 
         /* Create a new Refresh Token and add it to the map */
         var newToken = {
-            priv: false,
+            trusted: false,
             value: genRefreshToken()
         };
 
-        /* If masterCred was specified, make it a priviledged user */
+        /* If masterCred was specified, make it a trusted user */
         if (masterCred != undefined) {
-            newToken.priv = true;
+            /* If there was a previous trusted token, remove it */
+            var trustTokenIndex = userRefreshTokens.findIndex(t => t.trusted == true);
+            if (trustTokenIndex != -1) {
+                userRefreshTokens.splice(trustTokenIndex, 1);
+
+                /* Blacklist that token globally */
+                if (!blacklistJwt(userRefreshTokens.indexOf(trustTokenIndex))) {
+                    console.error('Error blacklisting token');
+                }
+            }
+            newToken.trusted = true;
             newToken.masterCred = masterCred;
         }
+
         /* Add refreshToken to the refreshTokens map */
         userRefreshTokens.push(newToken);
         RefreshTokens.set(userId, userRefreshTokens);
@@ -215,13 +227,11 @@ App.post('/auth/refresh',
             return res.status(403).json({'errors': 'Token not found for user'});
         }
 
-        var response = {};
-        response.UnprivJwt = genJwt(userId, 'Unpriviledged', refreshToken);
-
-        /* If the refreshToken was priviledged, add a priviledged Jwt as well */
-        if(foundToken.priv) {
-            response.PrivJwt = genJwt(userId, 'Priviledged', refreshToken);
-        }
+        /* Create jwt */
+        var role = foundToken.trusted ? 'trusted' : 'untrusted';
+        var response = {
+            Jwt: genJwt(userId, role, refreshToken)
+        };
 
         return res.json(response);    
     }
@@ -299,16 +309,21 @@ function genRefreshToken()
     username and password were valid. Returns -1
     if user_api response was not 200 OK
 */
-async function getUserId(username, password)
+async function getUserId(username, password, masterCred)
 {
-    return await Http.post(process.env.USER_API_URL + '/user/verify', {
-        'Username': username,
-        'Password': password
-    }).then(res => {
-        return res.data.id;
+    var reqBody = {
+        Username: username,
+        Password: password
+    };
+    if (masterCred != undefined) {
+        reqBody.MasterCred = masterCred;
+    }
+    return Http.post(process.env.USER_API_URL + '/user/verify', 
+        reqBody
+    ).then(response => {
+        return response;
     }).catch((err) => {
-        console.log(err);
-        return -1;
+        return err.response;
     });
 }
 
@@ -318,8 +333,8 @@ async function blacklistJwt(refreshToken)
         'refreshToken': refreshToken
     }).then(() => {
         return true;
-    }).catch((err) => {
-        console.log(err);
+    }).catch(() => {
+        console.error('Error blacklisting token');
         return false;
     });
 }

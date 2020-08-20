@@ -118,12 +118,14 @@ namespace dotnetapi.Services
                     throw new AppException("Invalid password");
             }
             catch (ArgumentException) {
-                throw new AppException("Issue parsing Master cred");
+                throw new AppException("Issue parsing password");
             }
             
             MasterCredHelper masterCredHelper = new MasterCredHelper();
-            if (!masterCredHelper.VerifyMasterCred(user, model.MasterCred)) {
-                throw new AppException("Invalid master credential");
+            if (model.MasterCred != null) {
+                if (!masterCredHelper.VerifyMasterCred(user, model.MasterCred)) {
+                    throw new AppException("Invalid master credential");
+                }
             }
             return user.Id;
         }

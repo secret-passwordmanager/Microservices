@@ -24,10 +24,10 @@ services:
          - secretmssql
    
    # This container holds the api
-   secret_user_api: 
-      container_name: secret_user_api
+   secret_usman: 
+      container_name: secret_usman
       build:
-         context: user_api/
+         context: usman/
       #image: patricka3125/secret-repo:api-latest //TODO: put on dockerhub
       environment: 
          - PUID=1000
@@ -45,7 +45,7 @@ services:
    # This container holds mitm-proxy and our python script
    secret_mitm:
       depends_on:
-         secret_user_api:
+         secret_usman:
             condition: service_healthy
       container_name: secret_mitm
       image: patricka3125/secret-repo:mitm-latest

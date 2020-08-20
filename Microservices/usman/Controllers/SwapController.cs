@@ -13,7 +13,7 @@ using dotnetapi.Models.Requests;
 
 namespace dotnetapi.Controllers
 {
-    [Authorize]
+    [Authorize(Roles="trusted")]
     [ApiController]
     [Route("[controller]")]
     
@@ -117,7 +117,6 @@ namespace dotnetapi.Controllers
                 
                 using (var cryptoTransform = aes.CreateDecryptor()) {
                     masterKey = cryptoTransform.TransformFinalBlock(user.MasterKeyAesEnc, 0, user.MasterKeyAesEnc.Length);
-                    Console.WriteLine("PrivateKey: " + Encoding.Unicode.GetString(masterKey, 0, masterKey.Length));
                 }
             }
 

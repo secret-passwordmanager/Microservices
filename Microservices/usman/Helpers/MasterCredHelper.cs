@@ -42,7 +42,6 @@ namespace dotnetapi.Services
             using (var aes = Aes.Create()) {
                 aes.Mode = CipherMode.CBC;
                 aes.Key = DecryptMasterKey(user, masterCred);
-                System.Console.Write(Encoding.ASCII.GetString(aes.Key, 0, aes.Key.Length));
                 aes.GenerateIV();
 
                 using (var cryptoTransform = aes.CreateEncryptor()) {
@@ -90,7 +89,6 @@ namespace dotnetapi.Services
                     masterKey = cryptoTransform.TransformFinalBlock(user.MasterKeyAesEnc, 0, user.MasterKeyAesEnc.Length);
                 }
             }
-            System.Console.Write(Encoding.ASCII.GetString(masterKey, 0, masterKey.Length));
             return masterKey;
         }
     }

@@ -5,7 +5,7 @@ run the following command any time you pull from master, especially when there a
 such as new columns in the database:
 
  `docker-compose build --no-cache`
- 
+
 This command will rebuild all of the containers from the dockerfiles, and not use any
 cache that docker may have stored. Afterwards, proceed to Step 1
 
