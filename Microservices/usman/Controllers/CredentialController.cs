@@ -13,7 +13,7 @@ using dotnetapi.Services;
 
 namespace dotnetapi.Controllers 
 {
-    [Authorize(Roles="trusted,untrusted")]
+    [Authorize(Roles="Trusted,Untrusted")]
     [ApiController]
     [Route("[controller]")]
     public class CredentialController : ControllerBase

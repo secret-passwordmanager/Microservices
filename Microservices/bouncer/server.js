@@ -37,7 +37,7 @@ App.use((req, res, next) => {
         verify: addRawBody,
     })(req, res, (err) => {
         if (err) {
-            console.log(err);
+            console.error(err);
             res.sendStatus(400);
             return;
         }
@@ -212,7 +212,7 @@ App.post('/auth/refresh',
         }
 
         /* Grab variables from request body */
-        var userId = req.body.userId;
+        var userId = parseInt(req.body.userId);
         var refreshToken = req.body.refreshToken;
 
         /* Check if this user has any refreshTokens */
@@ -228,7 +228,9 @@ App.post('/auth/refresh',
         }
 
         /* Create jwt */
-        var role = foundToken.trusted ? 'trusted' : 'untrusted';
+        console.log(foundToken.trusted);
+        var role = foundToken.trusted ? 'Trusted' : 'Untrusted';
+        console.log(role);
         var response = {
             Jwt: genJwt(userId, role, refreshToken)
         };
@@ -327,6 +329,18 @@ async function getUserId(username, password, masterCred)
     });
 }
 
+/*
+  This function prints the error into 
+  the console log
+*/
+// eslint-disable-next-line no-unused-vars
+function addRawBody(req, res, buf, _) {
+    req.rawBody = buf.toString();
+}
+
+//////////////////////////////////////////////
+////////////////// Webhooks //////////////////
+//////////////////////////////////////////////
 async function blacklistJwt(refreshToken)
 {
     return await Http.post(process.env.USER_API_URL + '/internal/blacklistJwt', {
@@ -338,11 +352,4 @@ async function blacklistJwt(refreshToken)
         return false;
     });
 }
-/*
-  This function prints the error into 
-  the console log
-*/
-// eslint-disable-next-line no-unused-vars
-function addRawBody(req, res, buf, _) {
-    req.rawBody = buf.toString();
-}
+async function 

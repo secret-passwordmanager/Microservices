@@ -13,7 +13,7 @@ using dotnetapi.Models.Requests;
 
 namespace dotnetapi.Controllers
 {
-    [Authorize(Roles="trusted")]
+    [Authorize(Roles="Trusted")]
     [ApiController]
     [Route("[controller]")]
     

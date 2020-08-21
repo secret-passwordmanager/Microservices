@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 
 
 using dotnetapi.Services;
-using dotnetapi.Entities;
 using dotnetapi.Models.Internal;
 using dotnetapi.Helpers;
 
@@ -34,5 +33,4 @@ namespace WebApi.Controllers
             return Ok();
         }
     }
-
 }

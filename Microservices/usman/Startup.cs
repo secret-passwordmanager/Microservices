@@ -64,6 +64,8 @@ namespace dotnetapi
                 };
                 x.Events = new JwtBearerEvents
                 {
+
+                    
                     OnTokenValidated = context =>
                     {
                         // return unauthorized if user no longer exists
@@ -76,6 +78,7 @@ namespace dotnetapi
                         }
                         /* Check if token has been blacklisted */
                         var refreshToken = context.Principal.FindFirstValue("refreshToken");
+                        
                         var jwtService = context.HttpContext.RequestServices.GetRequiredService<IJwtMiddlewareService>();
                         if (jwtService.Read(refreshToken)) {
                             context.Fail("Unauthorized");
