@@ -1,7 +1,5 @@
 # Issues/TODO
 1. Other services aren't refreshing the JWK if it changes on bouncer
-2. Only using the default dotnet JWT payload
-   - Add authentication for priviledged access (i.e. If masterCred is specified)
 
 # About Bouncer
 Bouncer is Secret's authentication microservice that is based on JWT Tokens.
@@ -24,20 +22,17 @@ Here are some other excellent readings:
 
 
 ## Secret Authorization Roles
-Currently, we are planning on having 2 seperate "roles" for each user. A user can be **unpriviledged**
-or **priviledged**. If you do not add the optional `masterCred` value when making a request to `/auth/login`,
-a user will only be able to generate unpriviledged jwt's, and if you do add it, in the response for 
-`/auth/refresh`, there will be both an unprivileged and priviledged jwt. A priviledged jwt has an
-extra field that is a hashed version of their `masterCred`. Generally, you must use a priviledged jwt 
+Currently, we are planning on having 2 seperate "roles" for each user. A user can be **untrusted**
+or **trusted**. If you do not add the optional `masterCred` value when making a request to `/auth/login`,
+a user will only be able to generate untrusted jwt's, and if you do add it, in the response for 
+`/auth/refresh`, there will be both an unprivileged and trusted jwt. A trusted jwt has an
+extra field that is a hashed version of their `masterCred`. Generally, you must use a trusted jwt 
 any time the backend needs to decrypt any of your credentials, since the `masterCred` is required for
-that. To limit how often the hashed version of the user's credential is sent out, priviledged jwt's
-cannot be substited for unpriviledged jwt's. In other words, both have limitations in where they
-are authorized to be used. Here is a table that gives a more in depth overview of exactly what requests
-require a priviledged or unpriviledged jwt.
+that. 
 
-| Microservice Name | Require Priviledged JWT | Require Unpriviledged JWT | No Authorization Required |
-|-------------------|-------------------------|---------------------------|---------------------------|
-| user_api   | `POST /user/`, `POST /swap/`, `POST /credential` | `GET /user/`, `GET /credential`, `POST /swap/new` | `POST /user/new`|
+| Microservice Name | Require Trusted JWT  | No Authorization Required |
+|-------------------|-------------------------|---------------------------|
+| user_api   | `POST /swap/` | `POST /user/new`|
 
 
 # Bouncer API Endpoints
@@ -45,7 +40,7 @@ require a priviledged or unpriviledged jwt.
 Make a request to this url to log in a user. On success, it will return a 
 `refreshToken` as well as a `userId` that can then be used to authenticate the user. 
 If a request is made with the optional parameter `masterCred`, then the response's
-`refreshToken` will be a **priviledged** refresh token. (See `/auth/refresh` endpoint)
+`refreshToken` will be a **trusted** refresh token. (See `/auth/refresh` endpoint)
 ### Request Body (JSON)
 | Variable | Type | Required | Description |
 |----------|------|----------|-------------|
@@ -56,7 +51,7 @@ If a request is made with the optional parameter `masterCred`, then the response
 | Status Code | Objects | Body | Description |
 |-------------|-----------|------|-------------|
 | 200 | JSON | {`userId`, `refreshToken`} | Returns  the user's Id as well as a refresh token which can be used to generate new `jwt` for up to 2 days |
-| 401 | JSON | `errors` | Invalid password or username |
+| 401 | JSON | `errors` | Invalid password, username, or masterCred |
 ### Implementation
  - Make a request to user_api microservice to see if user exists
  - If user does not exist, return an `errorMessage` with status 404
@@ -93,12 +88,6 @@ in the request body
 When provided with a `userId` and `refreshToken`, issue a new `jwt` that will
 authorize the user on all other microservices for 5 minutes. After 5 minutes, a new 
 request must be made, to get a new valid `jwt`. 
-
-Additionally, if a **priviledged** `refreshToken` was given in the request body, 
-the server will respond with a `jwt` as well as a `jwtPriv`. (See `/auth/login`
-for additional details on creating priviledge refresh tokens). the `jwt` and
-`jwtPriv` tokens both have certain restrictions on what endpoints you can access 
-throughout all microservices
 ### Request Body (JSON)
 | Variable | Type | Required | Description |
 |----------|------|----------|-------------|
@@ -107,7 +96,6 @@ throughout all microservices
 | Status Code | Objects | Body | Description |
 |-------------|-----------|------|-------------|
 | 200 | JSON | `jwt` | Can use this token to authenticate on all other microservices |
-| 200 | JSON | `{jwt, jwtPriv}` | 
 | 403 | JSON | `errors` | `refreshToken` not found on server |
 ### Implementation
   - Generate a new JWT Token signed with the `JWK`
