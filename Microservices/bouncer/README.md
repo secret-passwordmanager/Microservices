@@ -51,7 +51,7 @@ If a request is made with the optional parameter `masterCred`, then the response
 | Status Code | Objects | Body | Description |
 |-------------|-----------|------|-------------|
 | 200 | JSON | {`userId`, `refreshToken`} | Returns  the user's Id as well as a refresh token which can be used to generate new `jwt` for up to 2 days |
-| 401 | JSON | `errors` | Invalid password or username |
+| 401 | JSON | `errors` | Invalid password, username, or masterCred |
 ### Implementation
  - Make a request to user_api microservice to see if user exists
  - If user does not exist, return an `errorMessage` with status 404
