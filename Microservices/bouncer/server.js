@@ -61,9 +61,9 @@ App.listen(process.env.BOUNCER_PORT);
 */
 App.post('/auth/login', 
     [
-        Check('username').isAlphanumeric(),
-        Check('password').isAlphanumeric(),
-        Check('masterCred').optional().isAlphanumeric()
+        Check('username').isAscii(),
+        Check('password').isAscii(),
+        Check('masterCred').optional().isAscii()
     ],
     async (req, res) => 
     {
@@ -228,9 +228,7 @@ App.post('/auth/refresh',
         }
 
         /* Create jwt */
-        console.log(foundToken.trusted);
         var role = foundToken.trusted ? 'Trusted' : 'Untrusted';
-        console.log(role);
         var response = {
             Jwt: genJwt(userId, role, refreshToken)
         };
@@ -343,7 +341,7 @@ function addRawBody(req, res, buf, _) {
 //////////////////////////////////////////////
 async function blacklistJwt(refreshToken)
 {
-    return await Http.post(process.env.USER_API_URL + '/internal/blacklistJwt', {
+    return await Http.post(process.env.USER_API_URL + '/internal/blacklistjwt', {
         'refreshToken': refreshToken
     }).then(() => {
         return true;
@@ -352,4 +350,3 @@ async function blacklistJwt(refreshToken)
         return false;
     });
 }
-async function 

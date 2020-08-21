@@ -13,7 +13,7 @@ using dotnetapi.Services;
 
 namespace dotnetapi.Controllers 
 {
-    [Authorize(Roles="Trusted,Untrusted")]
+    
     [ApiController]
     [Route("[controller]")]
     public class CredentialController : ControllerBase
@@ -28,7 +28,7 @@ namespace dotnetapi.Controllers
             _credService = credService;
             _mapper = mapper;
         }
-        
+        [Authorize(Roles="Trusted")]
         [HttpPost("new")]
         public IActionResult New([FromBody]CredentialCreateModel model) 
         {
@@ -43,7 +43,7 @@ namespace dotnetapi.Controllers
                 return BadRequest(new {Title = e.Message});
             }
         }
-
+        [Authorize(Roles="Trusted, Untrusted")]
         [HttpGet]
         public IActionResult Read([FromQuery]CredentialReadModel model)
         {
@@ -53,7 +53,7 @@ namespace dotnetapi.Controllers
             var credentials = _mapper.Map<List<CredentialReadModel>>(_credService.Read(cred));
             return Ok(credentials);
         }
-
+        [Authorize(Roles="Trusted")]
         [HttpPost]
         public IActionResult Update([FromBody]CredentialUpdateModel model)
         {
@@ -68,7 +68,7 @@ namespace dotnetapi.Controllers
                 return BadRequest(new {Title = e.Message});
             }
         }
-
+        [Authorize(Roles="Trusted")]
         [HttpDelete]
         public IActionResult Delete([FromBody]CredentialDeleteModel model)
         {  

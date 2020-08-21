@@ -10,7 +10,7 @@ using dotnetapi.Helpers;
 
 namespace dotnetapi.Controllers
 {
-    [Authorize(Roles="Trusted,Untrusted")]
+    [Authorize(Roles="Trusted, Untrusted")]
     [ApiController]
     [Route("[controller]")]
     public class UserController : ControllerBase
@@ -40,7 +40,7 @@ namespace dotnetapi.Controllers
                 return BadRequest(new { Error = e.Message });
             }
         }
-
+        [Authorize(Roles="Trusted, Untrusted")]
         [HttpGet]
         public IActionResult Read()
         {
@@ -51,7 +51,7 @@ namespace dotnetapi.Controllers
 
             return Ok(user);
         }
-
+        [Authorize(Roles="Trusted")]
         [HttpPost]
         public IActionResult Update([FromBody]UserUpdateModel model)
         {   
