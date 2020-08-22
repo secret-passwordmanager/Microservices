@@ -20,6 +20,13 @@ that bouncer generates based off of random values that change every time you res
 However, if another service, such as the user_api is not restarted, it is still using the
 old key to verify, which wouldn't work
 
+
+# Using the Secret API
+[Here](https://documenter.getpostman.com/view/9830396/T1LV949V?version=latest#d4af5a9d-8704-48df-9053-ef13717cfc07) you can find the tests we run to validate that everything is working properly. You can use this
+documentation to walk through certain scenarios that you may need to do. (Such as logging in, logging out,
+creating a credential, updating it, etc).
+
+
 # Installation Instructions
 ## Prereqs
 Make sure you have **docker** and **docker-compose** installed
@@ -42,11 +49,6 @@ can simply run the following:
 If something is not working as expected, you can run `docker container ls` to see which containers
 are currently running. If any of the 3 containers are not running you can run `docker logs {container_name}`
 (remove the {}, and replace container_name). Then fix the problem or something idk
-
-# Using the Secret API
-[Here](https://documenter.getpostman.com/view/9830396/T1LV949V?version=latest#d4af5a9d-8704-48df-9053-ef13717cfc07) you can find the tests we run to validate that everything is working properly. You can use this
-documentation to walk through certain scenarios that you may need to do. (Such as logging in, logging out,
-creating a credential, updating it, etc).
 
 # API Endpoints
 We are using nginx as a reverse proxy to route all http requests to the proper microservice that will
