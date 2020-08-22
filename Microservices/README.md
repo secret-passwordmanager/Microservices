@@ -1,11 +1,3 @@
-# Microservices
-Currently, there are 3 docker containers within the docker-compose file.
-| Name | Port | Description |
-|------|------|-------------|
-|secret_mssql| 1433 | This is the database that the user_api uses |
-|secret_user_api| 8000 | This is the user api |
-|secret_mitm| 8001| This is the proxy that we use to replace credentials |
-
 # Important Notes
 ## After Pulling From Master
 To make sure that docker installs the newest versions of the containers, it is recommended to
@@ -13,7 +5,7 @@ run the following command any time you pull from master, especially when there a
 such as new columns in the database:
 
  `docker-compose build --no-cache`
- 
+
 This command will rebuild all of the containers from the dockerfiles, and not use any
 cache that docker may have stored. Afterwards, proceed to Step 1
 
@@ -40,8 +32,6 @@ command.
 3. Reboot computer
 4. Try to run docker without root. Run docker container ls. If it works, then we did it
 
-
-
 ## Starting Containers
 If you have not pulled from master since the last time you ran the `docker-compose` command, you 
 can simply run the following: 
@@ -52,3 +42,31 @@ can simply run the following:
 If something is not working as expected, you can run `docker container ls` to see which containers
 are currently running. If any of the 3 containers are not running you can run `docker logs {container_name}`
 (remove the {}, and replace container_name). Then fix the problem or something idk
+
+# API Endpoints
+We are using nginx as a reverse proxy to route all http requests to the proper microservice that will
+handle them. If you are not familiar with a reverse proxy, it essentially looks at the url for the 
+request you are making, and decides which microservice to forward the request. Currently, nginx is 
+listening on port 8080, so any http request to be made to any of our microservices should be made on port
+8080. Below is a table that goes into more detail for how nginx forwards its requests, as well as better 
+(Change `ip` to be your computer's ip) 
+
+| Url | Microservice | API Endpoint Documentation |
+|-----|--------------| --------------|
+| `ip`/user/* | secret_user_api | [User API](https://docs.google.com/document/d/1CBh3EtYRP9pQcqUtRFken9FF3jxMfvshMlcplv2MuNk/edit#heading=h.ynqi8wk11m12)
+| `ip`/credential/* | secret_user_api |[Credential API](https://docs.google.com/document/d/1CBh3EtYRP9pQcqUtRFken9FF3jxMfvshMlcplv2MuNk/edit#heading=h.ynqi8wk11m12#heading=h.lsbr1b1y099)
+| `ip`/swap/* | secret_user_api |[Swap API](https://docs.google.com/document/d/1CBh3EtYRP9pQcqUtRFken9FF3jxMfvshMlcplv2MuNk/edit#heading=h.ynqi8wk11m12#heading=h.v1uiww4v8q8o)
+| `ip`/auth/* | secret_bouncer | [Bouncer API](https://github.com/secret-passwordmanager/Microservices/tree/Issue11-Bouncer/Microservices/bouncer#api-endpoints)
+
+
+# Docker Containers
+Currently, there are 5 docker containers within the docker-compose file.
+| Name | Port | Description |
+|------|------|-------------|
+|secret_mssql| 1433 | This is the database that the user_api uses |
+|secret_user_api| 80 | This is the user api |
+|secret_mitm| 8001| This is the proxy that we use to replace credentials |
+|secret_bouncer| 80 | This is our auth api |
+| secret_nginx | 8080 | This is our nginx reverse proxy that forwards all requests |
+
+

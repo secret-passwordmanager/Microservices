@@ -14,14 +14,9 @@ Our goal is to create a password manager that can keep a user's credentials unto
 
 ## Repository Outline 
 All of our code can be found within our `Microservices` folder. Currently we are using **Docker** to contain our microservices. Each subfolder contains the code for a single microservice, and also includes the dockerfile. 
-Within each subfolder there should be a README that contains information about the relevant parts of the code, though our core logic is mostly contained in our [API](https://github.com/ECS153/final-project-group-0-/blob/master/microservices/dotnetapi/README.md)
+Within each subfolder there should be a README that contains information about the relevant parts of the code
 
 ### Folder Structure
-  - Microservices: Folder containing all of our microservices.
-  - Documentation: Markdown files describe how Secret works
-  - ReadMe.md: You're reading it
-
-### Root Directory
   - Microservices: Folder containing all of our microservices.
   - Documentation: Files related to documentation for using and testing SECRET
   - ReadMe.md: You're reading it
