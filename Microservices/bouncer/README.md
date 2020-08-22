@@ -32,7 +32,7 @@ that.
 
 | Microservice Name | Require Trusted JWT  | No Authorization Required |
 |-------------------|-------------------------|---------------------------|
-| user_api   | `POST /swap/` | `POST /user/new`|
+| user_api   | `POST /swap/*`, `POST /credential/*`, `POST /user/` | `POST /user/new`|
 
 
 # Bouncer API Endpoints
