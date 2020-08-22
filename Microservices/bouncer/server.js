@@ -15,6 +15,7 @@ const Validate = require('express-validator').validationResult;
 /* JWK/JWT Modules */
 const Crypto = require('crypto');
 const Jose = require('jose');
+const { Console } = require('console');
 //////////////////////////////////////////////
 /////////////////// Config ///////////////////
 //////////////////////////////////////////////
@@ -49,7 +50,9 @@ App.use((req, res, next) => {
     Start Server on port specified 
     in the env file 
 */
-App.listen(process.env.BOUNCER_PORT);
+App.listen(process.env.BOUNCER_PORT, ()=> {
+    console.log('Server listening on port ' + process.env.BOUNCER_PORT);
+});
 //////////////////////////////////////////////
 ///////////////// Routes  ////////////////////
 //////////////////////////////////////////////

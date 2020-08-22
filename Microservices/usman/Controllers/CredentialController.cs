@@ -43,7 +43,7 @@ namespace dotnetapi.Controllers
                 return BadRequest(new {Title = e.Message});
             }
         }
-        [Authorize(Roles="Trusted, Untrusted")]
+        [Authorize(Roles="Trusted,Untrusted")]
         [HttpGet]
         public IActionResult Read([FromQuery]CredentialReadModel model)
         {
@@ -54,7 +54,7 @@ namespace dotnetapi.Controllers
             return Ok(credentials);
         }
         [Authorize(Roles="Trusted")]
-        [HttpPost]
+        [HttpPost("")]
         public IActionResult Update([FromBody]CredentialUpdateModel model)
         {
             int userId = int.Parse(User.Identity.Name);
