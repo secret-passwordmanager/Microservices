@@ -1,47 +1,35 @@
 //////////////////////////////////////////////
 ////////////// Global Variables //////////////
 //////////////////////////////////////////////
-require('dotenv').config({path: '.env'});
 
+/* Basic express/node modules */
+const config = require('../config/config.json');
 const app =  require('express')();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 
-/* Socket.io Namespaces */
-const mitm = io.of('/mitm');
-const untrusted = io.of('/untrusted');
-const trusted = io.of('/trusted');
+/* Socket.io namespaces */
+const mitm = require('./sockets/mitm')(io.of('/mitm'));
+const client = require('./sockets/client')(io.of('/client'));
+
+
 //////////////////////////////////////////////
 /////////////////// Config ///////////////////
 //////////////////////////////////////////////
-http.listen(process.env.SERVER_PORT, () => {
-    console.log('listening on port ' + process.env.SERVER_PORT);
+
+http.listen(config.serverPort, () => {
+    console.log('listening on port ' + config.serverPort);
 });
 
 //////////////////////////////////////////////
 /////////////////// Stubs ////////////////////
 //////////////////////////////////////////////
+
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/stubs/index.html');
-});
-app.get('/mitm', (req, res) => {
-    res.sendFile(__dirname + '/stubs/mitm.html');
-});
-app.get('/trusted', (req, res) => {
-    res.sendFile(__dirname + '/stubs/untrusted.html');
-});
-app.get('/untrusted', (req, res) => {
-    res.sendFile(__dirname + '/stubs/trusted.html');
 });
 
 //////////////////////////////////////////////
 ///////////////// Socket.io //////////////////
 //////////////////////////////////////////////
 
-
-mitm.on('connection', (socket) => {
-    console.log('a user connected');
-    socket.on('disconnect', () => {
-        console.log('user disconnected');
-      });
-});
