@@ -3,8 +3,7 @@
    events for connecting to the mitm
    proxy  
 */
-
-exports = module.exports = function(mitm){
+exports = module.exports = (mitm) => {
    mitm.on('connection', (socket) => {
       console.log('a client connected');
       socket.on('disconnect', () => {

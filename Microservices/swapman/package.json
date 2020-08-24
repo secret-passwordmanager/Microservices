@@ -10,7 +10,12 @@
   "author": "Martin Petrov",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.20.0",
     "express": "^4.17.1",
+    "jose": "^1.28.0",
+    "jwk-to-pem": "^2.0.4",
+    "jwks-rsa": "^1.9.0",
+    "node-jose": "^1.1.4",
     "socket.io": "^2.3.0",
     "socketio-jwt": "^4.6.2"
   }

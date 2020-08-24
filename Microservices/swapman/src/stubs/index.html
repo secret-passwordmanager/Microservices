@@ -21,7 +21,17 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
-      var socket = io('/mitm');
+       console.log('hiidi')
+      var socket = io.connect('http://localhost:8003', {
+         query: { 'Authorization': 'eyJhbGciOiJSUzI1NiIsImtpZCI6ImxnMkg3cmxBMWhxLUtCaldtR3M4ZDdyclM0WGFHYU53TzFmRExqQVZ2cGMifQ.eyJ1bmlxdWVfbmFtZSI6IjE0OCIsInJlZnJlc2hUb2tlbiI6IkRrMm9oYWJTWmpDNnF3M1crbFdPVXNKWjhvVmdidUE0Wko2eW1mV0NHS1R5dlgzKzMzaXV4UmFTNHBxSy9lYXJhZmFuWnJrZG9ISXJsRnNNRmhoNEpBPT0iLCJyb2xlIjoiVHJ1c3RlZCIsInN1YiI6IjE0OCIsImF1ZCI6IkJPVU5DRVIiLCJpc3MiOiJCT1VOQ0VSIiwiaWF0IjoxNTk4MzAxOTI5LCJleHAiOjE1OTgzMDIyMjl9.wE_y0T0s1lxRBPwE5TFrckW1ipCYoIn0TY8zY15_McX1Ag8H5xYSFJZr_zvCuxwcHAVgXsRtwgfemWrn77Q9AKZmlzxmpfYesTKpvPqKR_2mfuLNl2xu1Zpmi4SBqtOPEbc67ohFFXCINB0R0DD3fq4FRmHL2roYQXswjn_gXuGEGmyXfUGdQ8ZGBgf-sYDrz9y0SepsLNFElqQVzL-LdwCq8iXVhs0uMr4jh1jl7NvAlwtH9TJO0OcOAZjlSiWItQ4KVcznC8lBqZYcQkqaPAQ_AqSlQMBam12pOBl_Mn7vzcju-jTOijRUk2OZfz9JF4AlBD7DdaIlPWV-kmF4ng'}
+      });
+      socket.on('connection', (error) => {
+         console.log('connected')
+      });
+      socket.on('unauthorized', (error, callback) => {
+    // redirect user to login page perhaps or execute callback:
+         console.log('User token has expired');
+      });
     </script>
 
   </body>

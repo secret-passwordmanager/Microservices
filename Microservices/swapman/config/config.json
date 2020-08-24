@@ -1,3 +1,8 @@
 {
-    "serverPort":"8001"
+   "serverPort":"8003",
+   "services": {
+      "bouncer": {
+         "jwkUrl": "http://73.66.169.37:8080/auth/jwk"
+      }
+   }
 }

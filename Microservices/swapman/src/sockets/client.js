@@ -3,8 +3,7 @@
    events for all clients connecting to
    swapman (both trusted & untrusted)
 */
-
-exports = module.exports = function(client){
+exports = module.exports = (client) => {
    client.on('connection', (socket) => {
       console.log('a client connected');
       socket.on('disconnect', () => {
