@@ -28,7 +28,7 @@
       socket.on('connection', (error) => {
          console.log('connected')
       });
-      socket.on('unauthorized', (error, callback) => {
+      socket.on('disconnect', (error, callback) => {
     // redirect user to login page perhaps or execute callback:
          console.log('User token has expired');
       });
