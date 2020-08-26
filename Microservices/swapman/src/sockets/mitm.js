@@ -3,11 +3,17 @@
    events for connecting to the mitm
    proxy  
 */
-exports = module.exports = (mitm) => {
-   mitm.on('connection', (socket) => {
-      console.log('a client connected');
-      socket.on('disconnect', () => {
-         console.log('client disconnected');
-      });
-   }); 
-}
+
+const mitmIo = io.of('/mitm');
+const ioAuth = require('../helpers/ioAuth');
+//////////////////////////////////////////////
+/////////////////// Config ///////////////////
+//////////////////////////////////////////////
+
+mitmIo.use(ioAuth.mitmMiddleware);
+
+
+mitmIo.on('connection', (socket) => {
+   console.log('in mitmIo Connection ')
+   socket.emit('he', 'test');
+})

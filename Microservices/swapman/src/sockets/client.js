@@ -3,11 +3,32 @@
    events for all clients connecting to
    swapman (both trusted & untrusted)
 */
-exports = module.exports = (client) => {
-   client.on('connection', (socket) => {
-      console.log('a client connected');
-      socket.on('disconnect', () => {
-         console.log('client disconnected');
-      });
-   }); 
-  }
+
+//////////////////////////////////////////////
+//////////// Module Declarations /////////////
+//////////////////////////////////////////////
+
+const ioAuth = require('../helpers/ioAuth');
+const clientIo = io.of('/client')
+
+//////////////////////////////////////////////
+/////////////////// Config ///////////////////
+//////////////////////////////////////////////
+
+clientIo.use(ioAuth.clientMiddleware);
+
+
+//////////////////////////////////////////////
+///////////// Websocket Routes ///////////////
+//////////////////////////////////////////////
+clientIo.on('connection', (socket) => {
+   console.log('in clientIo Connection ')
+   
+   /* Add to correct room based on userId that can be gotten from handshake query */
+
+   
+   socket.on('')
+
+
+
+});
