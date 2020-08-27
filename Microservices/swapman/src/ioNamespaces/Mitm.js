@@ -1,34 +1,24 @@
 /*
-   This file holds all of the socket.io 
-   events for all clients connecting to
-   swapman (both trusted & untrusted)
+   This file holds all of the socket.io
+   events for connecting to the mitm
+   proxy  
 */
-
 //////////////////////////////////////////////
 //////////// Module Declarations /////////////
 //////////////////////////////////////////////
-
 const ioAuth = require('../helpers/ioAuth');
-const clientIo = io.of('/client')
+const ioHelp = require('../helpers/ioHelpers');
 
 //////////////////////////////////////////////
 /////////////////// Config ///////////////////
 //////////////////////////////////////////////
-
-clientIo.use(ioAuth.clientMiddleware);
-
+const mitmIo = io.of('/Mitm');
+mitmIo.use(ioAuth.middlewareMitm);
 
 //////////////////////////////////////////////
 ///////////// Websocket Routes ///////////////
 //////////////////////////////////////////////
-clientIo.on('connection', (socket) => {
-   console.log('in clientIo Connection ')
-   
-   /* Add to correct room based on userId that can be gotten from handshake query */
-
-   
-   socket.on('')
-
-
-
-});
+mitmIo.on('connection', (socket) => {
+   console.log('in mitmIo Connection ')
+   socket.emit('he', 'test');
+})

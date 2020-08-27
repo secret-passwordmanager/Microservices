@@ -22,7 +22,7 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
       let jwt = 'eyJhbGciOiJSUzI1NiIsImtpZCI6ImxnMkg3cmxBMWhxLUtCaldtR3M4ZDdyclM0WGFHYU53TzFmRExqQVZ2cGMifQ.eyJ1bmlxdWVfbmFtZSI6IjE0OCIsInJlZnJlc2hUb2tlbiI6IkRrMm9oYWJTWmpDNnF3M1crbFdPVXNKWjhvVmdidUE0Wko2eW1mV0NHS1R5dlgzKzMzaXV4UmFTNHBxSy9lYXJhZmFuWnJrZG9ISXJsRnNNRmhoNEpBPT0iLCJyb2xlIjoiVHJ1c3RlZCIsInN1YiI6IjE0OCIsImF1ZCI6IkJPVU5DRVIiLCJpc3MiOiJCT1VOQ0VSIiwiaWF0IjoxNTk4Mzg3NTUxLCJleHAiOjE1OTgzODc4NTF9.WBpPyDswHeOaFj1ZIzSK9AMB3VWFuKrdPFNqPS_0NGcBPhpFk0ZWtQT7uuF5cWZ4uUPBZeirDU6x1DiUW6tA62qTHvTJxxPIN5mXEIrxH1JN0Hy3L0f1KnXuDYwbIT9vtYYKYMt9pEZYxamD4RSlpltF-pF5v6v7s2nEwvJ_WRKagnp924FYTANh5e9_nBz7jBm7ZxkJJFw4zjdzlOfO4iKUhI8BBU97vxA0jXz7tWIgDkdjmBYDssawQA2u7dYr-taqTYzw8jYejcmPw71zGQrBA1Kv9ndSfBTYFq6Z8i2xbHAlBlrXde3Xf0yd7wXe26B0bIQgJDlPmitUGZAr3A';
-      var socket = io.connect('/client', {
+      var socket = io.connect('/mitm', {
          query: { 'jwt': jwt}
       });
       socket.on('connection', (error) => {

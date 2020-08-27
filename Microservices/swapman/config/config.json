@@ -4,5 +4,6 @@
       "bouncer": {
          "jwkUrl": "http://73.66.169.37:8080/auth/jwk"
       }
-   }
+   },
+   "namespaces": ["Trusted", "Untrusted", "Mitm"]
 }

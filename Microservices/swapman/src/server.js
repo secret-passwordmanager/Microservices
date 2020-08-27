@@ -10,8 +10,9 @@ const server = require('http').createServer(app);
 
 /* Socket.io modules */
 global.io = require('socket.io')(server);
-require('./sockets/client');
-require('./sockets/mitm');
+require('./ioNamespaces/Untrusted');
+require('./ioNamespaces/Trusted');
+require('./ioNamespaces/Mitm');
 
 //////////////////////////////////////////////
 /////////////////// Config ///////////////////
@@ -25,9 +26,17 @@ server.listen(config.serverPort, () => {
 /////////////////// Stubs ////////////////////
 //////////////////////////////////////////////
 
-app.get('/', (req, res) => {
-   console.log('made GET request to /');
-   res.sendFile(__dirname + '/stubs/index.html');
+app.get('/mitm', (req, res) => {
+   console.log('made GET request to /Mitm');
+   res.sendFile(__dirname + '/stubs/Mitm.html');
 });
 
-io.of('/client').emit('hello', 'test');
+app.get('/untrusted', (req, res) => {
+   console.log('made GET request to /Untrusted');
+   res.sendFile(__dirname + '/stubs/Untrusted.html');
+});
+
+app.get('/trusted', (req, res) => {
+   console.log('made GET request to /Trusted');
+   res.sendFile(__dirname + '/stubs/Trusted.html');
+});
