@@ -15,7 +15,6 @@ const Validate = require('express-validator').validationResult;
 /* JWK/JWT Modules */
 const Crypto = require('crypto');
 const Jose = require('jose');
-const { Console } = require('console');
 //////////////////////////////////////////////
 /////////////////// Config ///////////////////
 //////////////////////////////////////////////

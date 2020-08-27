@@ -2,11 +2,23 @@
 
 var swaps = new Map();
 
-var tmp = 0;
-
-
-function add (userId, swap) {
+function add(userId, swap) {
   
+   /* Sanitize swap value */
+   swap.approved = false;
+   swap.credentialId = undefined;
+
+
+   
+   var userSwaps = swaps.get(userId);
+   if (userSwaps === undefined) {
+      userSwaps = [];
+   }
+
+   userSwaps.push(swap);
+
+   /* Add swap back into */
+   swaps.set(userId, userSwaps);
 }
 
 function approve(userId, swapId) {
@@ -18,7 +30,7 @@ function remove() {
 
 
 
-function get() {
+function getAll() {
 
 }
 
