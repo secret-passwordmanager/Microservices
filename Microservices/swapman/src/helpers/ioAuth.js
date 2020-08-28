@@ -31,9 +31,9 @@ var jwk = null;
    return next() which will pass the next 
    socketio middleware through.
 */
- function middleware(socket, next, roles) {
-   return async function(socket,next) {
+ async function middleware(socket, next, roles) {
    try {
+      console.log('in ioAuth');
       /* If the jwk was not grabbed yet */
       if (jwk === null) {
          jwk = await getJwk();
@@ -44,7 +44,7 @@ var jwk = null;
          throw 'There was an issue grabbing the jwk'; 
       }
 
-      // /* Grab the jwt from the handshake */ TODO: Add back later
+      // /* Grab the jwt from the handshake */f TODO: Add back later
       // let jwt = socket.handshake.query.jwt;
       // if (jwt === undefined) {
       //    throw new Error('The request contains an invalid jwt');
@@ -60,7 +60,7 @@ var jwk = null;
 
       /* Add role to handshake query to be used in io events */
       // socket.handshake.query.userId = auth.unique_name; //TODO: Add back, and remove next line
-      socket.handshake.query.userId = 1;
+     // socket.handshake.query.userId = 1;
    }
    /* If there is an error, disconnect and don't call next() */
    catch(err) {
@@ -72,14 +72,13 @@ var jwk = null;
    /* If no errors, call next() as normal */
    return next();
 }
-}
 /*
    @description: This function grabs the jwk from bouncer,
    whose url is defined in our config file. 
    @return: returns the jwk on success, -1 on error
 */
 async function getJwk() {
-   return  http.get(config.services.bouncer.jwkUrl)
+   return  http.get(config.services.bouncer.urlJwk)
       .then(resp => {
          return resp.data;
       })
@@ -87,6 +86,13 @@ async function getJwk() {
          console.error('Unable to grab jwk, bouncer may be down');
          return -1;
       });
+}
+/*
+   @description: this function returns the user's userId
+   based on the jwt. 
+*/
+function getUserId(jwt) {
+   return jose.JWT.decode(jwt, {complete: false}).unique_name;
 }
 /* 
    @description: These functions are wrappers over the 
@@ -110,4 +116,4 @@ function middlewareMitm(socket, next) {
 module.exports.middlewareTrusted = middlewareTrusted;
 module.exports.middlewareUntrusted = middlewareUntrusted;
 module.exports.middlewareMitm = middlewareMitm;
-
+module.exports.getUserId = getUserId;

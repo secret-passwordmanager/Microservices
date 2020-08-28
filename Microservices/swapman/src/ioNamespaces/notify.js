@@ -5,6 +5,10 @@
    other place where the global variable
    @io is used throughout the code. 
 */
+//////////////////////////////////////////////
+//////////// Module Declarations /////////////
+//////////////////////////////////////////////
+config = require('../../config/config.json');
 
 /*
    @description: This function notifies all sockets
@@ -12,7 +16,7 @@
    that is of role @newConRole
    @newConRole: The role of the newly created 
 */
-function notifyNewConn(newConRole, notifyRole, roomId) {
+function notifyNewConn(newConRole, notifyRole, userId) {
 
    /* Make sure parameters are valid */
    if (!config.namespaces.includes(newConRole)) {
@@ -22,12 +26,33 @@ function notifyNewConn(newConRole, notifyRole, roomId) {
       throw new Error('Invalid notifying role');
    }
 
-   io.of(notifyRole).to(roomId).emit('newConnection', newConRole);
-
-   
+   io.of(notifyRole).to(userId).emit('connectionNew', newConRole);
 }
 
 
-var trusted = {};
-var untrusted = {};
-trusted.newConn = notifyNewConn()
+var trusted = {
+   newConn: (userId) => {
+      notifyNewConn('Untrusted', 'Trusted', userId);
+   },
+   newDisconn: (userId) => {
+      io.of('Trusted').to(userId).emit('connectionDisconnect');
+   },
+   newSwap: (userId) => {      
+      io.of('Trusted').to(userId).emit('swapNew');
+   }
+};
+
+var untrusted = {
+   newConn: (userId) => {
+      notifyNewConn('Trusted', 'Untrusted', userId);
+   },
+   newDisconn: (userId) => {
+      io.of('Untrusted').to(userId).emit('connectionDisconnect');
+   },
+}
+
+//////////////////////////////////////////////
+//////////// Exported Functions //////////////
+//////////////////////////////////////////////
+module.exports.trusted = trusted;
+module.exports.untrusted = untrusted;

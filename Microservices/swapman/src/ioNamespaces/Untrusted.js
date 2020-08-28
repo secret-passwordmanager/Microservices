@@ -6,7 +6,8 @@
 //////////// Module Declarations /////////////
 //////////////////////////////////////////////
 const ioAuth = require('../helpers/ioAuth');
-const ioHelp = require('../helpers/ioHelpers');
+const ioNotify = require('./notify');
+const swaps = require('../helpers/swaps');
 
 //////////////////////////////////////////////
 /////////////////// Config ///////////////////
@@ -20,21 +21,33 @@ ioUntrusted.use(ioAuth.middlewareUntrusted);
 ioUntrusted.on('connection', (socket) => {
    console.log('in ioUntrusted Connection');
 
-   let userId = socket.handshake.query.userId;
+   let userId = ioAuth.getUserId(socket.handshake.query.jwt);
    socket.join(userId); // Rn userId = 1
+
    try {
-      ioHelp.notifyNewConn('Untrusted', 'Trusted', userId);
+      ioNotify.trusted.newConn(userId);
    }
    catch(error) {
       console.error(error);
    }
 
-   socket.on('newSwap', swapRequest => {
+   socket.on('swapNew', swapRequest => {
       try {
-         ioHelp.validateSwapRequest(swapRequest);
+         console.log('In Untrusted newSwap');
+         swaps.helpers.validateSwapRequest(swapRequest);
+         swaps.add(userId, swapRequest);
+         ioNotify.trusted.newSwap(userId);
       }
       catch(err) {
-         socket.emit('formatError', err.message);
+         socket.emit('err', err.message);
+
       }
    });
+
+   socket.on('disconnect', () => {
+      ioNotify.trusted.newDisconn(userId);
+   // Perhaps good place to delete all pending swaps      
+   });
+
+
 });
