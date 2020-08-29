@@ -8,10 +8,11 @@
 //////////////////////////////////////////////
 //////////// Module Declarations /////////////
 //////////////////////////////////////////////
-config = require('../../config/config.json');
+/*global io*/
+var config = require('../../config/config.json');
 
 /*
-   @description: This function notifies all sockets
+   @Description. This function notifies all sockets
    in the namespace @notifyRole about a new connection
    that is of role @newConRole
    @newConRole: The role of the newly created 
@@ -37,8 +38,11 @@ var trusted = {
    newDisconn: (userId) => {
       io.of('Trusted').to(userId).emit('connectionDisconnect');
    },
-   newSwap: (userId) => {      
+   swapNew: (userId) => {      
       io.of('Trusted').to(userId).emit('swapNew');
+   },
+   swapEmpty: (userId) => {
+      io.of('Trusted').to(userId).emit('swapEmpty');
    }
 };
 
@@ -49,10 +53,20 @@ var untrusted = {
    newDisconn: (userId) => {
       io.of('Untrusted').to(userId).emit('connectionDisconnect');
    },
-}
+   swapEmpty: (userId) => {
+      io.of('Trusted').to(userId).emit('swapEmpty');
+   }
+};
+
+var mitm = {
+   swapApproved: (swap) => {
+      io.of('Mitm').emit('swapApproved', swap);
+   }
+};
 
 //////////////////////////////////////////////
 //////////// Exported Functions //////////////
 //////////////////////////////////////////////
 module.exports.trusted = trusted;
 module.exports.untrusted = untrusted;
+module.exports.mitm = mitm;

@@ -7,12 +7,11 @@ const config = require('../config/config.json');
 const app =  require('express')();
 const server = require('http').createServer(app);
 
-
 /* Socket.io modules */
 global.io = require('socket.io')(server);
-require('./ioNamespaces/Untrusted');
-require('./ioNamespaces/Trusted');
-require('./ioNamespaces/Mitm');
+require('./ioNamespaces/untrusted');
+require('./ioNamespaces/trusted');
+require('./ioNamespaces/mitm');
 
 //////////////////////////////////////////////
 /////////////////// Config ///////////////////

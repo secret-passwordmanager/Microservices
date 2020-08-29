@@ -5,6 +5,7 @@
 //////////////////////////////////////////////
 //////////// Module Declarations /////////////
 //////////////////////////////////////////////
+/*global io*/
 const ioAuth = require('../helpers/ioAuth');
 const ioNotify = require('./notify');
 const swaps = require('../helpers/swaps');
@@ -35,7 +36,9 @@ ioUntrusted.on('connection', (socket) => {
       try {
          console.log('In Untrusted newSwap');
          swaps.helpers.validateSwapRequest(swapRequest);
-         swaps.add(userId, swapRequest);
+         swapRequest.userId = userId;
+
+         swaps.add(swapRequest);
          ioNotify.trusted.newSwap(userId);
       }
       catch(err) {

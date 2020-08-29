@@ -5,6 +5,7 @@
 //////////////////////////////////////////////
 //////////// Module Declarations /////////////
 //////////////////////////////////////////////
+/*global io*/
 const ioAuth = require('../helpers/ioAuth');
 const ioNotify = require('./notify');
 const swaps = require('../helpers/swaps');
@@ -29,23 +30,48 @@ ioTrusted.on('connection', (socket) => {
    catch(err) {
       console.error(err);
    }
-
+   /**
+    * Description. This function is automatically called 
+    * anytime the user closes the connection
+    */
    socket.on('disconnect', () => {
       ioNotify.untrusted.newDisconn(userId);
       //TODO: Perhaps good place to delete all pending swaps      
    });
    
+   /**
+    * Description. By requesting this event, the user can 
+    * get all requests that have yet to be approved
+    */
    socket.on('swapGet', () => {
       socket.emit('swapGot', swaps.getAll(userId));
    });
 
-   socket.on('swapSubmit', async (swap) => {
+   /**
+    * Description. By requesting this event, the user can approve
+    * pending requests that were made by the untrusted device
+    * @param {object} swap The swap that the user wants to 
+    * approve
+    */
+   socket.on('swapApprove', async (swap) => {
       try {
-         await swaps.helpers.validateSwapSubmit(swap, socket.handshake.query.jwt)
+         /* Make sure that swap has all necessary params to be submitted */
+         await swaps.helpers.validateSwapSubmit(swap, socket.handshake.query.jwt);
+
+         /* Make sure that the swap has been requested */
+         if (!swaps.exists(swap))
+            throw Error('This swap has not been requested');
+
+         /* Get the encrypted credential by the id */
+         swap.credVal = swaps.helpers.getCredential(ioAuth.getUserMasterCred(socket.handshake.query.jwt));
+        
       }
       catch(err) {
          //console.error(err);
          socket.emit('err', err.message);
       }
    });
+
+
+
 });

@@ -15,8 +15,9 @@ var jwk = null;
 /////////// Middleware Functions /////////////
 //////////////////////////////////////////////
 /*
-   @description: this function validates the 
-   jwt, and closes the connection if it
+   Description. Validates the
+    jwt, and closes 
+   the connection if it
    is invalid. This function is never directly
    used, rather 3 seperate functions act as a 
    wrapper for each of our namespaces
@@ -60,7 +61,7 @@ var jwk = null;
 
       /* Add role to handshake query to be used in io events */
       // socket.handshake.query.userId = auth.unique_name; //TODO: Add back, and remove next line
-     // socket.handshake.query.userId = 1;
+      // socket.handshake.query.userId = 1;
    }
    /* If there is an error, disconnect and don't call next() */
    catch(err) {
@@ -72,10 +73,10 @@ var jwk = null;
    /* If no errors, call next() as normal */
    return next();
 }
-/*
-   @description: This function grabs the jwk from bouncer,
+/**
+   Description. This function grabs the jwk from bouncer,
    whose url is defined in our config file. 
-   @return: returns the jwk on success, -1 on error
+   @return {number} returns the jwk on success, -1 on error
 */
 async function getJwk() {
    return  http.get(config.services.bouncer.urlJwk)
@@ -87,17 +88,31 @@ async function getJwk() {
          return -1;
       });
 }
-/*
-   @description: this function returns the user's userId
+/**
+   Description. this function returns the user's userId
    based on the jwt. 
+   @param {string} jwt The user's jwt
+   @return {number} The user's userId
 */
 function getUserId(jwt) {
    return jose.JWT.decode(jwt, {complete: false}).unique_name;
 }
-/* 
-   @description: These functions are wrappers over the 
+/**
+ * Description. This function decodes the user's masterCred
+ * from the jwt
+ * @param {string} jwt The user's jwt, found by doing
+ * socket.handshake.query.jwt
+ */
+function getUserMasterCred(jwt) {
+   return jose.JWT.decode(jwt, {complete: false}).masterCred;
+}
+/**
+   Description. These functions are wrappers over the 
    middleware function that allow us to define the roles 
    for each of our namespaces
+   @param {object} socket Required for socket.io middleware
+   @param {function} next The next function to run in the
+   socket.io middleware chain
    @return: void
 */
 function middlewareTrusted(socket, next) {
@@ -117,3 +132,4 @@ module.exports.middlewareTrusted = middlewareTrusted;
 module.exports.middlewareUntrusted = middlewareUntrusted;
 module.exports.middlewareMitm = middlewareMitm;
 module.exports.getUserId = getUserId;
+module.exports.getUserMasterCred = getUserMasterCred;
