@@ -32,6 +32,16 @@ ioUntrusted.on('connection', (socket) => {
       console.error(error);
    }
 
+   /**
+    * Description. This event should be called
+    * by an untrusted device (our browser extension)
+    * to request a new swap. Here, we check that the
+    * @swapRequest had all of the required parameters,
+    * and add it to @swaps
+    * 
+    * @param {object} swapRequest The swap that is being
+    * requested
+    */
    socket.on('swapNew', swapRequest => {
       try {
          console.log('In Untrusted newSwap');
@@ -43,7 +53,6 @@ ioUntrusted.on('connection', (socket) => {
       }
       catch(err) {
          socket.emit('err', err.message);
-
       }
    });
 

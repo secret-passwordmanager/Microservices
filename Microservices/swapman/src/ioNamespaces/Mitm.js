@@ -15,25 +15,23 @@ const swaps = require('../helpers/swaps');
 /////////////////// Config ///////////////////
 //////////////////////////////////////////////
 const mitmIo = io.of('/Mitm');
-mitmIo.use(ioAuth.middlewareMitm);
+//mitmIo.use(ioAuth.middlewareMitm); TODO: Add back later
 
 //////////////////////////////////////////////
 ///////////// Websocket Routes ///////////////
 //////////////////////////////////////////////
 mitmIo.on('connection', (socket) => {
    console.log('in mitmIo Connection ');
-   socket.emit('he', 'test');
-
 
    /**
-    * Description. This event should only be fired by a mitm client.
-    * If the user has no more swaps, it will notify both the trusted 
-    * and untrusted clients that all requests have (seemingly) been
-    * fulfilled
+    * Description. Once the mitm client recieves a swap, it should 
+    * call this event, so that we can delete the swap from @swaps .
+    * Additionally, we check if the user has any more swaps left. 
+    * If they do not, we notify both the trusted and untrusted 
+    * clients that all requests have been fullfilled.
     * @param {object} swap The swap that mitm receieved
     */
    socket.on('swapReceived', (swap) => {
-      
       /* Delete swap from swaps */
       swaps.remove(swap);
 
@@ -42,7 +40,5 @@ mitmIo.on('connection', (socket) => {
          ioNotify.trusted.swapEmpty(swap.userId);
          ioNotify.untrusted.swapEmpty(swap.userId);
       }
-
-
    });
 });

@@ -30,7 +30,6 @@ function notifyNewConn(newConRole, notifyRole, userId) {
    io.of(notifyRole).to(userId).emit('connectionNew', newConRole);
 }
 
-
 var trusted = {
    newConn: (userId) => {
       notifyNewConn('Untrusted', 'Trusted', userId);

@@ -21,27 +21,33 @@ ioTrusted.use(ioAuth.middlewareTrusted);
 //////////////////////////////////////////////
 ioTrusted.on('connection', (socket) => {
    console.log('in Trusted Connection');
+
+   /* Grab the userId, and join a room with that key */
    let userId = ioAuth.getUserId(socket.handshake.query.jwt);
    socket.join(userId); // Rn userId = 1
 
+   /* Notify untrusted devices that a trusted
+   device had connected */
    try {
       ioNotify.untrusted.newConn(userId);
    }
    catch(err) {
       console.error(err);
    }
+
    /**
-    * Description. This function is automatically called 
+    * Description. This event is automatically called 
     * anytime the user closes the connection
     */
    socket.on('disconnect', () => {
       ioNotify.untrusted.newDisconn(userId);
       //TODO: Perhaps good place to delete all pending swaps      
    });
-   
+
    /**
     * Description. By requesting this event, the user can 
     * get all requests that have yet to be approved
+    * @return {object} swaps[]
     */
    socket.on('swapGet', () => {
       socket.emit('swapGot', swaps.getAll(userId));
@@ -65,13 +71,12 @@ ioTrusted.on('connection', (socket) => {
          /* Get the encrypted credential by the id */
          swap.credVal = swaps.helpers.getCredential(ioAuth.getUserMasterCred(socket.handshake.query.jwt));
         
+         /* Let mitm know that the swap was approved */
+         ioNotify.mitm.swapApproved(swap);
       }
       catch(err) {
          //console.error(err);
          socket.emit('err', err.message);
       }
    });
-
-
-
 });
