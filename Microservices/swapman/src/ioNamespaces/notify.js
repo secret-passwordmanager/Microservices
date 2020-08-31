@@ -42,10 +42,10 @@ var mitm = {
       io.of('Mitm').emit('swapApproved', swap);
    }
 };
-
 //////////////////////////////////////////////
 //////////// Exported Functions //////////////
 //////////////////////////////////////////////
+
 module.exports.trusted = trusted;
 module.exports.untrusted = untrusted;
 module.exports.mitm = mitm;

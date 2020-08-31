@@ -1,24 +1,26 @@
-/*
-   This file holds the code for handling the
-   events that may happen on an untrusted client
+/**
+ * Description. This file holds the code for 
+ * handling the events that may happen on an
+ * untrusted client
 */
 //////////////////////////////////////////////
 //////////// Module Declarations /////////////
 //////////////////////////////////////////////
 /*global io*/
+
 const ioAuth = require('../helpers/ioAuth');
 const ioNotify = require('./notify');
 const swaps = require('../helpers/swaps');
-
 //////////////////////////////////////////////
 /////////////////// Config ///////////////////
 //////////////////////////////////////////////
+
 const ioUntrusted = io.of('/Untrusted');
 ioUntrusted.use(ioAuth.middlewareUntrusted);
-
 //////////////////////////////////////////////
 ///////////// Websocket Routes ///////////////
 //////////////////////////////////////////////
+
 ioUntrusted.on('connection', (socket) => {
    console.log('in ioUntrusted Connection');
    console.log('Ip is ' + socket.request.connection.remoteAddress);
@@ -57,10 +59,14 @@ ioUntrusted.on('connection', (socket) => {
       }
    });
 
+   /**
+    * Description. This even is automatically called
+    * when an untrusted client closes the connection
+    * When this occurs, we notify our trusted clients
+    * that an untrusted device has disconnected
+    */
    socket.on('disconnect', () => {
       ioNotify.trusted.newDisconn(userId);
-   // Perhaps good place to delete all pending swaps      
+      // Perhaps good place to delete all pending swaps      
    });
-
-
 });

@@ -1,9 +1,8 @@
 //////////////////////////////////////////////
 //////////// Module Declarations /////////////
 //////////////////////////////////////////////
-const config = require('../../config/config.json');
-const http = require('axios');
 const jose = require('jose');
+const bouncer = require('./services').bouncer;
 
 /* 
    @jwk: Global JWK that is used to validate all 
@@ -14,6 +13,7 @@ var jwk = null;
 //////////////////////////////////////////////
 /////////// Middleware Functions /////////////
 //////////////////////////////////////////////
+
 /*
    Description. Validates the
     jwt, and closes 
@@ -37,7 +37,7 @@ var jwk = null;
       console.log('in ioAuth');
       /* If the jwk was not grabbed yet */
       if (jwk === null) {
-         jwk = await getJwk();
+         jwk = await bouncer.getJwk();
       }
 
       /* Abort connection if there was a problem grabbing jwk */
@@ -69,21 +69,7 @@ var jwk = null;
    /* If no errors, call next() as normal */
    return next();
 }
-/**
-   Description. This function grabs the jwk from bouncer,
-   whose url is defined in our config file. 
-   @return {number} returns the jwk on success, -1 on error
-*/
-async function getJwk() {
-   return  http.get(config.services.bouncer.urlJwk)
-      .then(resp => {
-         return resp.data;
-      })
-      .catch(err => {
-         console.error('Unable to grab jwk, bouncer may be down');
-         return -1;
-      });
-}
+
 /**
    Description. this function returns the user's userId
    based on the jwt. 
@@ -93,6 +79,7 @@ async function getJwk() {
 function getUserId(jwt) {
    return jose.JWT.decode(jwt, {complete: false}).unique_name;
 }
+
 /**
  * Description. This function decodes the user's masterCred
  * from the jwt
@@ -102,6 +89,7 @@ function getUserId(jwt) {
 function getUserMasterCred(jwt) {
    return jose.JWT.decode(jwt, {complete: false}).masterCred;
 }
+
 /**
    Description. These functions are wrappers over the 
    middleware function that allow us to define the roles 

@@ -6,19 +6,21 @@
 //////////// Module Declarations /////////////
 //////////////////////////////////////////////
 /*global io*/
+
 const ioAuth = require('../helpers/ioAuth');
 const ioNotify = require('./notify');
 const swaps = require('../helpers/swaps');
-
+var usman = require('./services').usman;
 //////////////////////////////////////////////
 /////////////////// Config ///////////////////
 //////////////////////////////////////////////
+
 const ioTrusted = io.of('/Trusted');
 ioTrusted.use(ioAuth.middlewareTrusted);
-
 //////////////////////////////////////////////
 ///////////// Websocket Routes ///////////////
 //////////////////////////////////////////////
+
 ioTrusted.on('connection', (socket) => {
    console.log('in Trusted Connection');
 
@@ -69,7 +71,9 @@ ioTrusted.on('connection', (socket) => {
             throw Error('This swap has not been requested');
 
          /* Get the encrypted credential by the id */
-         swap.credVal = swaps.helpers.getCredential(ioAuth.getUserMasterCred(socket.handshake.query.jwt));
+         if(usman.getCredential(swap, socket.handshake.query.jwt) == -1) {
+            throw Error('Swap could not be decrypted');
+         }
         
          /* Let mitm know that the swap was approved */
          ioNotify.mitm.swapApproved(swap);
