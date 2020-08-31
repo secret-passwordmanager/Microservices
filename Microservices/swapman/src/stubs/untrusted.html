@@ -4,6 +4,17 @@
     <title>Untrusted</title>
   </head>
   <body>
+     <input type="text" name="token" value="abcderf" id="credToken">
+     <input type="text" name="domain" value="google.com" id="credDomain">
+     <input type="text" name="authId" value="1568" id="credAuthId">
+     <select name="type" id="credType" id="credType">
+        <option value ="password">
+           Password
+        </option>
+        <option value="username">
+         Username
+        </option>
+     </select>
    <button id="newSwapBtn">New Swap</button>
 
 
@@ -28,9 +39,14 @@
          console.log('There was  a problem: \n');
          console.log(error);
       });
+      console.log(document.getElementById('credDomain').value);
 
       document.getElementById('newSwapBtn').addEventListener("click", () => {
-         socket.emit('swapNew', {'domain': 'google.com', 'token': 'abcdefg', 'authId': 'sa23'});
+         socket.emit('swapNew', {
+            'domain': document.getElementById('credDomain').value,
+            'token': document.getElementById('credToken').value,
+            'authId': document.getElementById('credAuthId').value,
+         });
       });
 
 

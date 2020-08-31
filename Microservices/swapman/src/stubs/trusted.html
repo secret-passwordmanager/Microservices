@@ -7,6 +7,7 @@
   <body>
    <button id="getSwap">Get Swaps </button>
    <button id="submitSwapBtn">Submit Swap</button>
+   <input  id="credId" type="text"> Cred Id>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
@@ -25,29 +26,43 @@
          console.log('Untrusted device disconnected');
       });
 
-      socket.on('swapNew', () => {
+      socket.on('swapNew', (swap) => {
+        
+         console.log('------- New Swap -------------');
+         console.log('Swap User Id: ' + swap.userId);
+         console.log('Swap domain: ' +  swap.domain);
+         console.log('Swap token: ' + swap.token);
+         console.log('Swap AuthId: ' + swap.authId);
+         console.log('-------------------------------');
+
          console.log('New Swap Available');
       })
       socket.on('swapGot', (swaps) => {
-         swaps.forEach(swap => {
-            console.log('Swap id: ' + swaps.indexOf(swap));
-            console.log('Swap domain: ' +  swap.domain);
-            console.log('Swap token: ' + swap.token);
-            console.log('Swap AuthId: ' + swap.authId);
-         });
-         swap = swaps[0];
-         console.log('Swap' + swap);
+         if (swaps.length == 0 ) {
+            console.log('No pending swaps');
+         } else {
+            swaps.forEach(swap => {
+               console.log('-------------------------------');
+               console.log('Swap user Id: ' + swap.userId);
+               console.log('Swap user IP: ' + swap.ip);
+               console.log('Swap domain: ' +  swap.domain);
+               console.log('Swap token: ' + swap.token);
+               console.log('Swap AuthId: ' + swap.authId);
+               console.log('-------------------------------');
+            });
+            swap = swaps[0];
+         }
       })
 
       socket.on('err', (error) => {
-         console.log('There was  a problem: ' + error);
+         console.log('There was a problem: ' + error);
       });
 
       document.getElementById('getSwap').addEventListener('click', () => {
          socket.emit('swapGet');
       });
       document.getElementById('submitSwapBtn').addEventListener('click', () => {
-         swap.credentialId = 1;
+         swap.credentialId = document.getElementById('credId').value;
          socket.emit('swapSubmit', swap);
       });
     </script>

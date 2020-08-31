@@ -8,7 +8,7 @@
 //////////////////////////////////////////////
 const config = require('../../config/config.json');
 var validator = require('validator');
-var http = require('axios');
+var http = require('axios'); 
 
 //////////////////////////////////////////////
 ///////////////// Functions //////////////////
@@ -30,6 +30,7 @@ function add(swap) {
       authId: swap.authId,
       domain: swap.domain,
       token: swap.token,
+      ip: swap.ip,
       credId: null,
       credVal: null
    };
@@ -111,26 +112,28 @@ function getAll(userId) {
    @return {string} credVal The decrypted
    credential in ASCII form.
    @return {number} -1 if the credential was not
-   allowed to be used on this domain
+   allowed to be used on this domain, otherwise 
+   return 0 on success
 */
 async function getCredential(swap, jwt) {
-   // await http.get(config.services.usman.verifyCredUrl, 
-   //    {
-   //       headers: {
-   //          'Authorization': jwt
-   //       },
-   //       params: {
-   //          'Id': swap.credentialId,
-   //          'Domain': swap.domain
-   //       }
-   //    }
-   // )
-   // .then((res) => {
-
-   // })
-   // .catch((err) => {
-   //    throw new Error('Could not verify that credential could be used on this domain');
-   // });
+   return await http.get(config.services.usman.verifyCredUrl, 
+      {
+         headers: {
+            'Authorization': jwt
+         },
+         params: {
+            'Id': swap.credentialId,
+            'Domain': swap.domain
+         }
+      }
+   )
+      .then((res) => {
+         return 0;
+      })
+      .catch((err) => {
+         console.log(err);
+         return -1;
+      });
 
    return 'c0cac0la';
 }
@@ -150,9 +153,6 @@ function validateSwapRequest(swap) {
 
    if (!validator.isAlphanumeric(swap.authId) || swap.authId.length != 4)
       throw new Error('Invalid authId in swap request. authId must be a 4 character alphanumeric.');
-
-   if (!validator.isIp(swap.ip, [4]))
-      throw new Error('Invalid ip in swap request. ip must be a valid ipv4 address');
 }
 /**
  * Description: Validates that the swap has all of the required 

@@ -18,6 +18,8 @@ namespace dotnetapi.Services
         List<Credential> Read(Credential credential);
         void Update(Credential credential);
         void Delete(Credential credential);
+        string Decrypt(Credential cred, User user, string MasterCred);
+
     }
 
     public class CredentialService: ICredentialService
@@ -92,6 +94,15 @@ namespace dotnetapi.Services
             _context.Credentials.Remove(credential);
             _context.Credentials.Update(credential);
             _context.SaveChanges();
+        }
+
+        public string Decrypt(Credential cred, User user, string MasterCred)
+        {  
+           
+            var credential = _context.Credentials.FirstOrDefault(c => c.Id == cred.Id);
+            Console.WriteLine(credential.Id);
+            MasterCredHelper masterCredHelper = new MasterCredHelper();
+            return masterCredHelper.DecryptCredential(user, credential, MasterCred);
         }
 
     }

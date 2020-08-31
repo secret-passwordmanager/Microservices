@@ -54,6 +54,23 @@ namespace dotnetapi.Services
             }
             return cred;
         }
+        public string DecryptCredential(User user, Credential cred, string masterCred) 
+        {
+            byte[] credDecrypt;
+            using (var aes = Aes.Create()) {
+                  aes.Mode = CipherMode.CBC;
+                  aes.Key = DecryptMasterKey(user, masterCred);
+                  aes.IV = cred.AesIV;
+                  System.Console.WriteLine(masterCred);
+                  System.Console.WriteLine("HERERERERERE");
+                  using (var cryptoTransform = aes.CreateDecryptor()) {
+                     credDecrypt = cryptoTransform.TransformFinalBlock(cred.AesValue, 0, cred.AesValue.Length);
+
+            
+                  }
+            }
+            return Encoding.ASCII.GetString(credDecrypt); 
+        }
         public bool VerifyMasterCred(User user, string masterCred) 
         {
             try {
@@ -65,7 +82,6 @@ namespace dotnetapi.Services
                 return false;
             }
         }
-
         private byte[] HashMasterCred(string masterCred, byte[] salt)
         {
             /* Hash masterCred using PBKDF2 */

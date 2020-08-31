@@ -58,10 +58,6 @@ var jwk = null;
       // if (!roles.includes(auth.role)) {
       //    throw new Error('This JWT does not have the correct permissions');
       // }
-
-      /* Add role to handshake query to be used in io events */
-      // socket.handshake.query.userId = auth.unique_name; //TODO: Add back, and remove next line
-      // socket.handshake.query.userId = 1;
    }
    /* If there is an error, disconnect and don't call next() */
    catch(err) {

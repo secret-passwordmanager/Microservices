@@ -33,7 +33,6 @@ namespace dotnetapi
 
             /* These classes will receive a new instance of themselves on each new request */
             services.AddScoped<IUserService, UserService>();
-            services.AddScoped<ISwapService, SwapService>();
             services.AddScoped<ICredentialService, CredentialService>();
             services.AddScoped<IJwtMiddlewareService, JwtMiddlewareService>();
 

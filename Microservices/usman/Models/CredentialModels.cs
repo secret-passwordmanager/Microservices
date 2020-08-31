@@ -31,8 +31,14 @@ namespace dotnetapi.Models.Credentials
         public string Hint { get; set; }
         public string Domain { get; set; }
     }
+    public class CredentialDecryptModel {
+       [Required]
+       public int? Id { get; set; }
+       [Required]
+       public string MasterCred { get; set; }
+    }
     public class CredentialDeleteModel {
         [Required]
-        public int? Id { get; set;}
+        public int? Id { get; set; }
     }
 }

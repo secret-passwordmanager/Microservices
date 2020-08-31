@@ -68,6 +68,23 @@ namespace dotnetapi.Controllers
                 return BadRequest(new {Title = e.Message});
             }
         }
+         [Authorize(Roles="Trusted")]
+         [HttpGet("decrypt")]
+         public IActionResult Decrypt([FromQuery] CredentialDecryptModel model) {
+
+            User user = _userService.Read(int.Parse(User.Identity.Name));   
+            Credential cred = _mapper.Map<Credential>(model);
+            cred.UserId = user.Id;   
+            try {
+                return Ok(new {credVal = _credService.Decrypt(cred, user, model.MasterCred)});
+                
+            }
+            catch (AppException e) {
+                return BadRequest(new {Title = e.Message});
+            }
+         }
+
+
         [Authorize(Roles="Trusted")]
         [HttpDelete]
         public IActionResult Delete([FromBody]CredentialDeleteModel model)
@@ -83,23 +100,6 @@ namespace dotnetapi.Controllers
                 return BadRequest(new {Title = e.Message});
             }
         }
-
-   /*      private static string Encrypt(string textToEncrypt, string publicKeyString)
-        {
-            var bytesToEncrypt = Encoding.UTF8.GetBytes(textToEncrypt);
-
-            using (var rsa = new RSACryptoServiceProvider(2048))
-            {
-                try {               
-                    rsa.FromXmlString(publicKeyString.ToString());
-                    var encryptedData = rsa.Encrypt(bytesToEncrypt, true);
-                    var base64Encrypted = Convert.ToBase64String(encryptedData);
-                    return base64Encrypted;
-                } finally {
-                    rsa.PersistKeyInCsp = false;
-                }
-            }
-        } */
     }
 }
 

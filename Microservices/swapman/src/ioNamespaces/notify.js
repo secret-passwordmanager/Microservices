@@ -9,36 +9,16 @@
 //////////// Module Declarations /////////////
 //////////////////////////////////////////////
 /*global io*/
-var config = require('../../config/config.json');
-
-/*
-   @Description. This function notifies all sockets
-   in the namespace @notifyRole about a new connection
-   that is of role @newConRole
-   @newConRole: The role of the newly created 
-*/
-function notifyNewConn(newConRole, notifyRole, userId) {
-
-   /* Make sure parameters are valid */
-   if (!config.namespaces.includes(newConRole)) {
-      throw new Error('Invalid new connection role');
-   }
-   if (!config.namespaces.includes(notifyRole)) {
-      throw new Error('Invalid notifying role');
-   }
-
-   io.of(notifyRole).to(userId).emit('connectionNew', newConRole);
-}
 
 var trusted = {
    newConn: (userId) => {
-      notifyNewConn('Untrusted', 'Trusted', userId);
+      io.of('Trusted').to(userId).emit('connectionNew', 'Untrusted');
    },
    newDisconn: (userId) => {
       io.of('Trusted').to(userId).emit('connectionDisconnect');
    },
-   swapNew: (userId) => {      
-      io.of('Trusted').to(userId).emit('swapNew');
+   swapNew: (swap) => {      
+      io.of('Trusted').to(swap.userId).emit('swapNew', swap);
    },
    swapEmpty: (userId) => {
       io.of('Trusted').to(userId).emit('swapEmpty');
@@ -47,7 +27,7 @@ var trusted = {
 
 var untrusted = {
    newConn: (userId) => {
-      notifyNewConn('Trusted', 'Untrusted', userId);
+      io.of('Untrusted').to(userId).emit('connectionNew', 'Trusted');
    },
    newDisconn: (userId) => {
       io.of('Untrusted').to(userId).emit('connectionDisconnect');

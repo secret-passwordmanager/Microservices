@@ -5,7 +5,8 @@
          "urlJwk": "http://73.66.169.37:8080/auth/jwk"
       },
       "usman": {
-         "verifyCredUrl": "http://73.66.169.37:8080/credential/"
+         "verifyCredUrl": "http://73.66.169.37:8080/credential/",
+         "masterInfoUrl": "http://73.66.169.37:8080/user/"
       }
    },
    "namespaces": ["Trusted", "Untrusted", "Mitm"]

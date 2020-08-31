@@ -10,7 +10,11 @@ namespace dotnetapi.Models.Users
         public string Password { get; set; }
         public string MasterCred { get; set; }
     }
-
+   public class UserVerifyMasterCredModel //TODO organize better with userVerifyModel
+   {
+      [Required]
+      public string MasterCred { get; set; }
+   }
     public class UserCreateModel
     {
         [Required]
