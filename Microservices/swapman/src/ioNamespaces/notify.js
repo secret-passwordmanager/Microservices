@@ -1,9 +1,9 @@
 /*
    This file contains functions that allow
    all of the namespaces to talk between 
-   eachother. This file should be the only
-   other place where the global variable
-   @io is used throughout the code. 
+   eachother. If one namespace wants to 
+   communicate with another, it should use 
+   the functions within this file. 
 */
 //////////////////////////////////////////////
 //////////// Module Declarations /////////////

@@ -14,7 +14,10 @@
       var swap = null;
       let jwt = 'eyJhbGciOiJSUzI1NiIsImtpZCI6Ik9vQ3VjWEFYTXFIbWZlWnpsbzJNTTdldXIyc3ZVb3V3OVNTRUpONmZJREkifQ.eyJ1bmlxdWVfbmFtZSI6IjI3IiwicmVmcmVzaFRva2VuIjoicW5RczdKaEREdWJDeVNZOWxZNmFBZDE5NFZMQU9EZ2tjeDNqNTJyTW1VeXhTWXhWVFZFYXpwVXVJSEg3RU9HVVo4Z3hoNUI3Y0ZMOGpQWEVtU1BIU1E9PSIsInJvbGUiOiJUcnVzdGVkIiwic3ViIjoiMjciLCJhdWQiOiJCT1VOQ0VSIiwiaXNzIjoiQk9VTkNFUiIsImlhdCI6MTU5ODk3NTI1NCwiZXhwIjoxNTk5MDA1MjU0fQ.HOD3cn6natTXXdC4bk2-nsO9eMHvKx_UOPbmAVOQRV9FdbHLDPduknh_LwEnpTkQxZC0FGE51WmD83mRQRv51Lijx97eZi5eu00nH64KVxkWNptt_MUgIp40gh8dq2MD04iAATrQ10D1yfM4T0l3MyEO6NJOsiXSA2143c8Vb-fkDmCllYfz06OlcL9dHXlMEicwBXtIAQqHptAkIGRRknw3mzXAF6KT70OHDrhnPRCIKoVzvgxQCgrbR3RbbTNtzJqcM_BqgdGzd1auUlS3v_olqFluBaXF5lPs_67N_Rp4HDebLHfJhNSfC3B70neuXQ4Yq-bd0ePuikn0oXecyw';
       var socket = io.connect('/Trusted', {
-         query: { 'jwt': jwt}
+         query: { 
+            'jwt': jwt,
+            'masterCred': 'YopSrbkEPGFmQPW'
+         }
       });
       socket.on('connection', (error) => {
          console.log('connected')

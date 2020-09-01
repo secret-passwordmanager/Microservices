@@ -25,6 +25,7 @@ mitmIo.on('connection', (socket) => {
 
    console.log('in mitmIo Connection ');
    socket.join('Mitm');
+   
    /**
     * Description. Once the mitm client recieves a swap, it should 
     * call this event, so that we can delete the swap from @swaps .

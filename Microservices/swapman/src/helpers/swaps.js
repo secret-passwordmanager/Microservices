@@ -13,8 +13,8 @@ var validator = require('validator');
 //////////////////////////////////////////////
 
 /**
-   Description. This is the global variable that holds
-   all of the user's swaps
+ * Description. This is the global variable that holds
+ * all of the user's swaps
 */
 var swaps = [];
 
@@ -34,9 +34,10 @@ function add(swap) {
       credId: null,
       credVal: null
    };
+   validate.request(swap);
 
    if (swaps.find((curSwap) => curSwap.token === swap.token) != undefined) {
-      throw new Error('This swap already exists. Choose a new token');
+      return new Error('This swap already exists. Choose a new token');
    }
 
    /* Add swap to array */
@@ -103,7 +104,7 @@ function getAll(userId) {
  * that they have all of the necessary fields
  * to be a proper swap
  */
-var validate ={
+var validate = {
 
    /**
     * Description. Validates that the swap has all of the required 
@@ -132,9 +133,9 @@ var validate ={
    submit: (swap) => {
       /* First validate against swapRequest */
       validate.request(swap);
-      console.log(typeof(swap.credId));
+
       /* Then, make sure that a valid credId was given */
-      if (isNaN(swap.credId))
+      if (isNaN(swap.credId) || swap.credId == undefined || swap.credId == null)
          throw new Error('Invalid value for credId. credId must be a number');
    }
 };

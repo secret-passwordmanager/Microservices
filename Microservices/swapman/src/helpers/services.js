@@ -49,7 +49,7 @@ var user = {
 
          })
          .catch((err) => {
-            console.error('Error, failed to connect to usman. Here is the full error response: ' + err.response);
+            console.error('Error, failed to connect to usman. Here is the full error: ' + err.response);
             return -1;
          });
    },
@@ -84,7 +84,8 @@ var user = {
             return 0;
          })
          .catch((err) => {
-            console.log(err.response);
+            console.error('Error, failed decrypt a credential. Here is the full error: ');
+            console.error(err.response);
             return -1; 
          });
    }

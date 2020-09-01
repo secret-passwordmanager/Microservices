@@ -6,9 +6,9 @@
 const jose = require('jose');
 const bouncer = require('./services').bouncer;
 
-/* 
-   @jwk: Global JWK that is used to validate all 
-   requests 
+/**
+* @param {object} jwk : Global JWK that is used to validate 
+* all requests.
 */
 var jwk = null;
 //////////////////////////////////////////////
@@ -39,10 +39,15 @@ var middleware = {
          console.log('Client jwt cannot be verified');
          return -1;
       }
+      
+      if (socket.handshake.query.masterCred == undefined) {
+         console.error('Trusted client did not specify a master cred');
+         return -1;
+      }
 
       /* Refuse to connect if there is no mitm client */
       if(io.of('Mitm').adapter.rooms.Mitm == undefined) {
-         console.log('There is no mitm client connected. Cannot connect clients until mitm has connected');
+         console.error('There is no mitm client connected. Cannot connect clients until mitm has connected');
          return -1;
       }
 
@@ -63,7 +68,7 @@ var middleware = {
 
       /* Refuse to connect if there is no mitm client */
       if(io.of('Mitm').adapter.rooms.Mitm == undefined) {
-         console.log('There is no mitm client connected. Cannot connect clients until mitm has connected');
+         console.error('There is no mitm client connected. Cannot connect clients until mitm has connected');
          return -1;
       }
       
@@ -74,19 +79,27 @@ var middleware = {
       /* Grab jwt */
       let jwt = socket.handshake.query.jwt;
       if(jwt == undefined) {
-         console.error('Client does not have appear to have any jwt in socket.handshake.query');
+         console.log('Client does not have appear to have any jwt in socket.handshake.query');
          return -1;
       }
       
       /* Refuse to connect if there is already an existing client */
       if(io.of('Mitm').adapter.rooms.Mitm != undefined) {
-         console.log('There is already a mitm client connected. Only one mitm client can connect at a time');
+         console.error('There is already a mitm client connected. Only one mitm client can connect at a time');
          return -1;
       }
+
       return next();
    }
 };
 
+/**
+ * Description. Given a jwt and a user role, it will use 
+ * the JWK to authenticate the user
+ * @param {string} jwt The user's jwt
+ * @param {string} role The role to check against
+ * @return {number} Returns 0 on success, and -1 on errors
+ */
 async function verifyJwt(jwt, role) {
    /* If the jwk was not grabbed yet */
    if (jwk === null) {
@@ -101,6 +114,7 @@ async function verifyJwt(jwt, role) {
       console.log('This JWT does not have the correct permissions');
       return -1;
    }
+   return 0;
 }
 
 /**

@@ -22,12 +22,10 @@ ioUntrusted.use(ioAuth.middleware.untrusted);
 //////////////////////////////////////////////
 
 ioUntrusted.on('connection', (socket) => {
-
    console.log('in ioUntrusted Connection');
-   console.log('Ip is ' + socket.request.connection.remoteAddress);
 
    let userId = ioAuth.getUserId(socket.handshake.query.jwt);
-   socket.join(userId); // Rn userId = 1
+   socket.join(userId);
 
    try {
       ioNotify.trusted.newConn(userId);
@@ -49,10 +47,14 @@ ioUntrusted.on('connection', (socket) => {
    socket.on('swapNew', swapRequest => {
       try {
          console.log('In Untrusted newSwap');
-         swaps.validate.request(swapRequest);
+         // swaps.validate.request(swapRequest);
          swapRequest.userId = userId;
          swapRequest.ip = socket.request.connection.remoteAddress;
-         swaps.add(swapRequest);
+
+         let addRtn = swaps.add(swapRequest);
+         if (addRtn instanceof Error)
+            throw addRtn;
+
          ioNotify.trusted.swapNew(swapRequest);
       }
       catch(err) {

@@ -26,6 +26,8 @@ ioTrusted.on('connection', (socket) => {
 
    /* Grab the userId, and join a room with that key */
    let userId = ioAuth.getUserId(socket.handshake.query.jwt);
+   let masterCred = socket.handshake.query.masterCred; //TODO: replace with new usman
+   console.log(masterCred)
    socket.join(userId); // Rn userId = 1
 
    /* Notify untrusted devices that a trusted
@@ -65,7 +67,7 @@ ioTrusted.on('connection', (socket) => {
       try {
          /* Make sure that swap has all necessary params to be submitted */
          await swaps.validate.submit(swap, socket.handshake.query.jwt);
-
+         
          /* Make sure that the swap has been requested */
          if (!swaps.exists(swap))
             throw Error('This swap has not been requested');
@@ -76,7 +78,7 @@ ioTrusted.on('connection', (socket) => {
          }
 
          /* Get the decrypted credential */
-         if (await usman.decryptSwap(swap, socket.handshake.query.jwt, 'YopSrbkEPGFmQPW') == -1) {//TODO: add legit mastercred
+         if (await usman.decryptSwap(swap, socket.handshake.query.jwt, masterCred) == -1) {//TODO: add legit mastercred
             throw Error('Swap could not be decrypted');
          }
 
