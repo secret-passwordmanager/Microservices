@@ -10,13 +10,13 @@
 const ioAuth = require('../helpers/ioAuth');
 const ioNotify = require('./notify');
 const swaps = require('../helpers/swaps');
-var usman = require('./services').usman;
+var usman = require('../helpers/services').usman;
 //////////////////////////////////////////////
 /////////////////// Config ///////////////////
 //////////////////////////////////////////////
 
 const ioTrusted = io.of('/Trusted');
-ioTrusted.use(ioAuth.middlewareTrusted);
+ioTrusted.use(ioAuth.middleware.trusted);
 //////////////////////////////////////////////
 ///////////// Websocket Routes ///////////////
 //////////////////////////////////////////////
@@ -64,23 +64,28 @@ ioTrusted.on('connection', (socket) => {
    socket.on('swapApprove', async (swap) => {
       try {
          /* Make sure that swap has all necessary params to be submitted */
-         await swaps.helpers.validateSwapSubmit(swap, socket.handshake.query.jwt);
+         await swaps.validate.submit(swap, socket.handshake.query.jwt);
 
          /* Make sure that the swap has been requested */
          if (!swaps.exists(swap))
             throw Error('This swap has not been requested');
 
-         /* Get the encrypted credential by the id */
-         if(usman.getCredential(swap, socket.handshake.query.jwt) == -1) {
+         /* Make sure that this credential can be used on this domain */
+         if(await usman.verifySwap(swap, socket.handshake.query.jwt) == -1) {
+            throw Error('Swap could not be approved for this domain');
+         }
+
+         /* Get the decrypted credential */
+         if (await usman.decryptSwap(swap, socket.handshake.query.jwt, 'YopSrbkEPGFmQPW') == -1) {//TODO: add legit mastercred
             throw Error('Swap could not be decrypted');
          }
-        
-         /* Let mitm know that the swap was approved */
+
+         /* Send the swap to the mitm namespace */
          ioNotify.mitm.swapApproved(swap);
       }
       catch(err) {
          //console.error(err);
-         socket.emit('err', err.message);
+         socket.emit('err', 'Error: ' + err.message);
       }
    });
 });

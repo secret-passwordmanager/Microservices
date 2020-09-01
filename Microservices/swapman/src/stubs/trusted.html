@@ -7,12 +7,12 @@
   <body>
    <button id="getSwap">Get Swaps </button>
    <button id="submitSwapBtn">Submit Swap</button>
-   <input  id="credId" type="text"> Cred Id>
-
+   <input  id="credId" type="text" value="credId">
+   <input id="swapId" type="text" value="swapId">
     <script src="/socket.io/socket.io.js"></script>
     <script>
       var swap = null;
-      let jwt = 'eyJhbGciOiJSUzI1NiIsImtpZCI6ImxnMkg3cmxBMWhxLUtCaldtR3M4ZDdyclM0WGFHYU53TzFmRExqQVZ2cGMifQ.eyJ1bmlxdWVfbmFtZSI6IjE0OCIsInJlZnJlc2hUb2tlbiI6IkRrMm9oYWJTWmpDNnF3M1crbFdPVXNKWjhvVmdidUE0Wko2eW1mV0NHS1R5dlgzKzMzaXV4UmFTNHBxSy9lYXJhZmFuWnJrZG9ISXJsRnNNRmhoNEpBPT0iLCJyb2xlIjoiVHJ1c3RlZCIsInN1YiI6IjE0OCIsImF1ZCI6IkJPVU5DRVIiLCJpc3MiOiJCT1VOQ0VSIiwiaWF0IjoxNTk4Mzg3NTUxLCJleHAiOjE1OTgzODc4NTF9.WBpPyDswHeOaFj1ZIzSK9AMB3VWFuKrdPFNqPS_0NGcBPhpFk0ZWtQT7uuF5cWZ4uUPBZeirDU6x1DiUW6tA62qTHvTJxxPIN5mXEIrxH1JN0Hy3L0f1KnXuDYwbIT9vtYYKYMt9pEZYxamD4RSlpltF-pF5v6v7s2nEwvJ_WRKagnp924FYTANh5e9_nBz7jBm7ZxkJJFw4zjdzlOfO4iKUhI8BBU97vxA0jXz7tWIgDkdjmBYDssawQA2u7dYr-taqTYzw8jYejcmPw71zGQrBA1Kv9ndSfBTYFq6Z8i2xbHAlBlrXde3Xf0yd7wXe26B0bIQgJDlPmitUGZAr3A';
+      let jwt = 'eyJhbGciOiJSUzI1NiIsImtpZCI6Ik9vQ3VjWEFYTXFIbWZlWnpsbzJNTTdldXIyc3ZVb3V3OVNTRUpONmZJREkifQ.eyJ1bmlxdWVfbmFtZSI6IjI3IiwicmVmcmVzaFRva2VuIjoicW5RczdKaEREdWJDeVNZOWxZNmFBZDE5NFZMQU9EZ2tjeDNqNTJyTW1VeXhTWXhWVFZFYXpwVXVJSEg3RU9HVVo4Z3hoNUI3Y0ZMOGpQWEVtU1BIU1E9PSIsInJvbGUiOiJUcnVzdGVkIiwic3ViIjoiMjciLCJhdWQiOiJCT1VOQ0VSIiwiaXNzIjoiQk9VTkNFUiIsImlhdCI6MTU5ODk3NTI1NCwiZXhwIjoxNTk5MDA1MjU0fQ.HOD3cn6natTXXdC4bk2-nsO9eMHvKx_UOPbmAVOQRV9FdbHLDPduknh_LwEnpTkQxZC0FGE51WmD83mRQRv51Lijx97eZi5eu00nH64KVxkWNptt_MUgIp40gh8dq2MD04iAATrQ10D1yfM4T0l3MyEO6NJOsiXSA2143c8Vb-fkDmCllYfz06OlcL9dHXlMEicwBXtIAQqHptAkIGRRknw3mzXAF6KT70OHDrhnPRCIKoVzvgxQCgrbR3RbbTNtzJqcM_BqgdGzd1auUlS3v_olqFluBaXF5lPs_67N_Rp4HDebLHfJhNSfC3B70neuXQ4Yq-bd0ePuikn0oXecyw';
       var socket = io.connect('/Trusted', {
          query: { 'jwt': jwt}
       });
@@ -52,7 +52,7 @@
             });
             swap = swaps[0];
          }
-      })
+      });
 
       socket.on('err', (error) => {
          console.log('There was a problem: ' + error);
@@ -62,8 +62,9 @@
          socket.emit('swapGet');
       });
       document.getElementById('submitSwapBtn').addEventListener('click', () => {
-         swap.credentialId = document.getElementById('credId').value;
-         socket.emit('swapSubmit', swap);
+         console.log(swap);
+         swap.credId = parseInt(document.getElementById('credId').value, 10);
+         socket.emit('swapApprove', swap);
       });
     </script>
 

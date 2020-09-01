@@ -1,5 +1,12 @@
+//////////////////////////////////////////////
+//////////// Module Declarations /////////////
+//////////////////////////////////////////////
+
 const config = require('../../config/config.json');
 const http = require('axios');
+//////////////////////////////////////////////
+/////////// Microservice Functions ///////////
+//////////////////////////////////////////////
 
 /**
  * Description. @user holds various functions that allow
@@ -7,23 +14,24 @@ const http = require('axios');
  * (usman) 
 */
 var user = {
-   /**
-      Description. This function will grab the decrypted
-      credential from our user api. 
-      @param {object} swap The swap object that still 
 
-      @param {string} jwt
-      @return {string} credVal The decrypted
-      credential in ASCII form.
-      @return {number} -1 if the credential was not
+   /**
+    * Description. This function can verify if the credential
+    * that is represented in @swap.credId can be used by the
+    * domain, @swap.domain
+    * @param {object} swap This object contains information
+    * pertaining to the swap
+    * @param {string} jwt This is the user's jwt, which
+    * we will use to authorize our request
+    * @return {number} -1 if the credential was not
       allowed to be used on this domain, otherwise 
       return 0 on success
-   */
-   getCredential: async (swap, jwt) => {
-      return await http.get(config.services.usman.verifyCredUrl, 
+    */
+   verifySwap: async (swap, jwt) => {
+      return http.get(config.services.usman.urls.credVerify, 
          {
             headers: {
-               'Authorization': jwt
+               'Authorization': 'Bearer ' + jwt
             },
             params: {
                'Id': swap.credentialId,
@@ -31,11 +39,53 @@ var user = {
             }
          })
          .then((res) => {
-            swap.credVal = res.data.credVal;
+            console.log(res.data);
+            /* This means that the credential could not be used */
+            if (res.data.length == 0) 
+               return -1;
+            else {
+               return 0;
+            }
+
          })
          .catch((err) => {
-            console.log(err);
+            console.error('Error, failed to connect to usman. Here is the full error response: ' + err.response);
             return -1;
+         });
+   },
+
+   /**
+    * Description. This function can verify if the credential
+    * that is represented in @swap.credId can be used by the
+    * domain, @swap.domain
+    * @param {object} swap This object contains information
+    * pertaining to the swap
+    * @param {string} jwt This is the user's jwt, which
+    * we will use to authorize our request
+    * @param {string} masterCred This is the user's masterCred,
+    * which we need to use to decrypt the credential
+    * @return {number} -1 if the credential was not
+      allowed to be used on this domain, otherwise 
+      return 0 on success
+    */
+   decryptSwap: async (swap, jwt, masterCred) => { //TODO: Get mastercred from jwt once we implement the new role types
+      return http.get(config.services.usman.urls.credDecrypt, 
+         {
+            headers: {
+               'Authorization': 'Bearer ' + jwt
+            },
+            params: {
+               'Id': swap.credId,
+               'MasterCred': masterCred
+            }
+         })
+         .then((res) => {
+            swap.credVal = res.data.credVal;
+            return 0;
+         })
+         .catch((err) => {
+            console.log(err.response);
+            return -1; 
          });
    }
 };
@@ -46,6 +96,7 @@ var user = {
  * microservice (bouncer)
  */
 var auth = {
+
    /**
       Description. This function grabs the jwk from bouncer,
       whose url is defined in our config file. 
@@ -57,11 +108,11 @@ var auth = {
             return resp.data;
          })
          .catch(err => {
-            console.error('Unable to grab jwk, bouncer may be down. Here is the complate error' + err);
+            console.error('Unable to grab jwk, bouncer may be down. Here is the complete error' + err);
             return -1;
          });
    }
 };
 
-exports.modules.usman = user;
-exports.modules.bouncer = auth;
+module.exports.usman = user;
+module.exports.bouncer = auth;

@@ -3,36 +3,27 @@
   <head>
     <title>Socket.IO chat</title>
     <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { font: 13px Helvetica, Arial; }
-      form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
-      form input { border: 0; padding: 10px; width: 90%; margin-right: 0.5%; }
-      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
-      #messages { list-style-type: none; margin: 0; padding: 0; }
-      #messages li { padding: 5px 10px; }
-      #messages li:nth-child(odd) { background: #eee; }
+
     </style>
   </head>
   <body>
-    <ul id="messages"></ul>
-    <form action="">
-      <input id="m" autocomplete="off" /><button>Send</button>
-    </form>
-
+   <h1 id="password">Default</h1>
     <script src="/socket.io/socket.io.js"></script>
     <script>
-      let jwt = 'eyJhbGciOiJSUzI1NiIsImtpZCI6ImxnMkg3cmxBMWhxLUtCaldtR3M4ZDdyclM0WGFHYU53TzFmRExqQVZ2cGMifQ.eyJ1bmlxdWVfbmFtZSI6IjE0OCIsInJlZnJlc2hUb2tlbiI6IkRrMm9oYWJTWmpDNnF3M1crbFdPVXNKWjhvVmdidUE0Wko2eW1mV0NHS1R5dlgzKzMzaXV4UmFTNHBxSy9lYXJhZmFuWnJrZG9ISXJsRnNNRmhoNEpBPT0iLCJyb2xlIjoiVHJ1c3RlZCIsInN1YiI6IjE0OCIsImF1ZCI6IkJPVU5DRVIiLCJpc3MiOiJCT1VOQ0VSIiwiaWF0IjoxNTk4Mzg3NTUxLCJleHAiOjE1OTgzODc4NTF9.WBpPyDswHeOaFj1ZIzSK9AMB3VWFuKrdPFNqPS_0NGcBPhpFk0ZWtQT7uuF5cWZ4uUPBZeirDU6x1DiUW6tA62qTHvTJxxPIN5mXEIrxH1JN0Hy3L0f1KnXuDYwbIT9vtYYKYMt9pEZYxamD4RSlpltF-pF5v6v7s2nEwvJ_WRKagnp924FYTANh5e9_nBz7jBm7ZxkJJFw4zjdzlOfO4iKUhI8BBU97vxA0jXz7tWIgDkdjmBYDssawQA2u7dYr-taqTYzw8jYejcmPw71zGQrBA1Kv9ndSfBTYFq6Z8i2xbHAlBlrXde3Xf0yd7wXe26B0bIQgJDlPmitUGZAr3A';
-      var socket = io.connect('/mitm', {
+      let jwt = 'eyJhbGciOiJSUzI1NiIsImtpZCI6IlJRcjBSMmU4dlloM3h5YnJQMGpsbW5sRHB6MTVhdk1fRlBabnduak8zZVUifQ.eyJ1bmlxdWVfbmFtZSI6IjI3IiwicmVmcmVzaFRva2VuIjoiSHVneDRRL1Jhcmx4VzNQT0paeVlCN3pkMWhuSWp4RDNTSFBCSWthaHRMYm84VFZnN3pvdkJWS0J3b0FpUmYybVcvZ3Y2YU9lU2tzNytvZEw2ZnZISEE9PSIsInJvbGUiOiJUcnVzdGVkIiwic3ViIjoiMjciLCJhdWQiOiJCT1VOQ0VSIiwiaXNzIjoiQk9VTkNFUiIsImlhdCI6MTU5ODk3MzA5MSwiZXhwIjoxNTk4OTczMzkxfQ.WjAE2AfRe588s4xBSw1mId0xsxEMNph36oBmyGH7Nz7zng9IbaplovyWTsYV-6j47FTJCVF-oSnCUGBL-Ku2kPkPbCmkIU8idt8iQtwqU4BI2ZdPvW3rG117pRFL8KH4OGFZdell9nmUoeGs4DGnsx8YZh-U-tsStplwgGe97DktrZaKCzVXCRLdyoR70Cdm-jVgsgVH5mitWcTRswdFe3uBB8m45Tb2LFGfXvX4-y0Ax_5LhUGpf3U6GJ0O5TQtt1P3jMF2IGhVj6uZEig-jJjYjTytVGSVB2LCHFMA-SDifQDAcWU_WI8isib4wkI0hXA2Dz3VOdYTMcdJ8h1psw';
+      var socket = io.connect('/Mitm', {
          query: { 'jwt': jwt}
       });
       socket.on('connection', (error) => {
          console.log('connected')
       });
 
-      socket.on('hello', (error, callback) => {
-    // redirect user to login page perhaps or execute callback:
-         console.log('User token has expired');
-      });
+      socket.on('swapApproved', (swap) => {
+         console.log('swap approved')
+         console.log(swap);
+      })
+
+
     </script>
 
   </body>

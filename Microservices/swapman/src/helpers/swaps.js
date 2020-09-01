@@ -94,41 +94,51 @@ function getAll(userId) {
 }
 
 //////////////////////////////////////////////
-////////////// Helper Functions //////////////
+//////////// Validator Functions /////////////
 //////////////////////////////////////////////
 
 /**
- * Description. Validates that the swap has all of the required 
- * parameters on request: domain, token, authId, and ip
- * @param {object} swap 
- * @return {void} n/a
+ * Description. These are some extra functions
+ * that can help validate swaps to make sure
+ * that they have all of the necessary fields
+ * to be a proper swap
  */
-function validateSwapRequest(swap) {
+var validate ={
 
-   if (!validator.isFQDN(swap.domain))
-      throw new Error('Invalid domain in swap request. domain must be a valid website domain.');
-   
-   if (!validator.isAscii(swap.token))
-      throw new Error('Invalid token in swap request. token must be an ascii value.');
+   /**
+    * Description. Validates that the swap has all of the required 
+    * parameters on request: domain, token, authId, and ip
+    * @param {object} swap 
+    * @return {void} n/a
+    */
+   request: (swap) => {
 
-   if (!validator.isAlphanumeric(swap.authId) || swap.authId.length != 4)
-      throw new Error('Invalid authId in swap request. authId must be a 4 character alphanumeric.');
-}
+      if (!validator.isFQDN(swap.domain))
+         throw new Error('Invalid domain in swap request. domain must be a valid website domain.');
+      
+      if (!validator.isAscii(swap.token))
+         throw new Error('Invalid token in swap request. token must be an ascii value.');
 
-/**
- * Description: Validates that the swap has all of the required 
- * parameters on submission: domain, token, authId, and credId
- * @param {object} swap 
- * @return {void} n/a
- */
-function validateSwapSubmit(swap) {
-   /* First validate against swapRequest */
-   validateSwapRequest(swap);
+      if (!validator.isAlphanumeric(swap.authId) || swap.authId.length != 4)
+         throw new Error('Invalid authId in swap request. authId must be a 4 character alphanumeric.');
+   },
 
-   /* Then, make sure that a valid credId was given */
-   if (!NaN(swap.credId))
-      throw new Error('Invalid value for credId. credId must be a number');
-}
+   /**
+    * Description: Validates that the swap has all of the required 
+    * parameters on submission: domain, token, authId, and credId
+    * @param {object} swap 
+    * @return {void} n/a
+    */
+   submit: (swap) => {
+      /* First validate against swapRequest */
+      validate.request(swap);
+      console.log(typeof(swap.credId));
+      /* Then, make sure that a valid credId was given */
+      if (isNaN(swap.credId))
+         throw new Error('Invalid value for credId. credId must be a number');
+   }
+};
+
 //////////////////////////////////////////////
 //////////// Exported Functions //////////////
 //////////////////////////////////////////////
@@ -137,8 +147,4 @@ module.exports.add = add;
 module.exports.exists = exists;
 module.exports.remove = remove;
 module.exports.getAll = getAll;
-module.exports.helpers = {
-   validateSwapRequest: validateSwapRequest,
-   validateSwapSubmit: validateSwapSubmit
-};
-
+module.exports.validate = validate;

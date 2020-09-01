@@ -8,7 +8,7 @@
 //////////////////////////////////////////////
 /*global io*/
 
-//const ioAuth = require('../helpers/ioAuth');
+const ioAuth = require('../helpers/ioAuth');
 const ioNotify = require('./notify');
 const swaps = require('../helpers/swaps');
 //////////////////////////////////////////////
@@ -16,14 +16,15 @@ const swaps = require('../helpers/swaps');
 //////////////////////////////////////////////
 
 const mitmIo = io.of('/Mitm');
-//mitmIo.use(ioAuth.middlewareMitm); TODO: Add back later
+mitmIo.use(ioAuth.middleware.mitm);
 //////////////////////////////////////////////
 ///////////// Websocket Routes ///////////////
 //////////////////////////////////////////////
 
 mitmIo.on('connection', (socket) => {
-   console.log('in mitmIo Connection ');
 
+   console.log('in mitmIo Connection ');
+   socket.join('Mitm');
    /**
     * Description. Once the mitm client recieves a swap, it should 
     * call this event, so that we can delete the swap from @swaps .

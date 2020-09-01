@@ -16,12 +16,13 @@ const swaps = require('../helpers/swaps');
 //////////////////////////////////////////////
 
 const ioUntrusted = io.of('/Untrusted');
-ioUntrusted.use(ioAuth.middlewareUntrusted);
+ioUntrusted.use(ioAuth.middleware.untrusted);
 //////////////////////////////////////////////
 ///////////// Websocket Routes ///////////////
 //////////////////////////////////////////////
 
 ioUntrusted.on('connection', (socket) => {
+
    console.log('in ioUntrusted Connection');
    console.log('Ip is ' + socket.request.connection.remoteAddress);
 
@@ -48,7 +49,7 @@ ioUntrusted.on('connection', (socket) => {
    socket.on('swapNew', swapRequest => {
       try {
          console.log('In Untrusted newSwap');
-         swaps.helpers.validateSwapRequest(swapRequest);
+         swaps.validate.request(swapRequest);
          swapRequest.userId = userId;
          swapRequest.ip = socket.request.connection.remoteAddress;
          swaps.add(swapRequest);

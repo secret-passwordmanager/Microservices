@@ -20,7 +20,7 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
-      let jwt = 'eyJhbGciOiJSUzI1NiIsImtpZCI6ImxnMkg3cmxBMWhxLUtCaldtR3M4ZDdyclM0WGFHYU53TzFmRExqQVZ2cGMifQ.eyJ1bmlxdWVfbmFtZSI6IjE0OCIsInJlZnJlc2hUb2tlbiI6IkRrMm9oYWJTWmpDNnF3M1crbFdPVXNKWjhvVmdidUE0Wko2eW1mV0NHS1R5dlgzKzMzaXV4UmFTNHBxSy9lYXJhZmFuWnJrZG9ISXJsRnNNRmhoNEpBPT0iLCJyb2xlIjoiVHJ1c3RlZCIsInN1YiI6IjE0OCIsImF1ZCI6IkJPVU5DRVIiLCJpc3MiOiJCT1VOQ0VSIiwiaWF0IjoxNTk4Mzg3NTUxLCJleHAiOjE1OTgzODc4NTF9.WBpPyDswHeOaFj1ZIzSK9AMB3VWFuKrdPFNqPS_0NGcBPhpFk0ZWtQT7uuF5cWZ4uUPBZeirDU6x1DiUW6tA62qTHvTJxxPIN5mXEIrxH1JN0Hy3L0f1KnXuDYwbIT9vtYYKYMt9pEZYxamD4RSlpltF-pF5v6v7s2nEwvJ_WRKagnp924FYTANh5e9_nBz7jBm7ZxkJJFw4zjdzlOfO4iKUhI8BBU97vxA0jXz7tWIgDkdjmBYDssawQA2u7dYr-taqTYzw8jYejcmPw71zGQrBA1Kv9ndSfBTYFq6Z8i2xbHAlBlrXde3Xf0yd7wXe26B0bIQgJDlPmitUGZAr3A';
+      let jwt = 'eyJhbGciOiJSUzI1NiIsImtpZCI6Ik9vQ3VjWEFYTXFIbWZlWnpsbzJNTTdldXIyc3ZVb3V3OVNTRUpONmZJREkifQ.eyJ1bmlxdWVfbmFtZSI6IjI3IiwicmVmcmVzaFRva2VuIjoibnYvQnMxdnFuQzJKZ0t6QVlFZ1hqL3JQanlkaXl4bHJ0aTM5c3ltS3BCaWg2QmFGMGVjS1czWWJtVlVaaWR5SWhEdzVDRXFieWNYUEplZUY1ckhhUmc9PSIsInJvbGUiOiJVbnRydXN0ZWQiLCJzdWIiOiIyNyIsImF1ZCI6IkJPVU5DRVIiLCJpc3MiOiJCT1VOQ0VSIiwiaWF0IjoxNTk4OTg3ODU2LCJleHAiOjE1OTkwMTc4NTZ9.ZPROnxuQ9e5GYxXecE5IFJW4tg8UELKA_Q87hJxX6fDM33HS1NiB7Jx6HpusMSH8RPXasrpe6zgfRFpWOZDq2dd1WeTWymjmzbuwklMUxsT9gcFriJaDUH-J9nRpdTSTk_kJXuH129iPolr0uxu4X-N6fQ6U-7uA1nBLVeMucXhfkC8Osj_DilVpKW3swbwq9_PDw1OyuH1-ThKMkab7v43dvyfJu_--FqeT3GsBjCBn3_Jdn0lYvxMvJBStDZkhyHB44xDOYtT6mo2_lJZiLJfJY8z0dyYFH6tqpoEWfkJNtaJsd0RwtnxnWW-Ohh_PSC6j1VT3YztLJy3apj0zYw';
       var socket = io.connect('/Untrusted', {
          query: { 'jwt': jwt}
       });
@@ -28,9 +28,11 @@
       socket.on('connection', (error) => {
          console.log('connected')
       });
+
       socket.on('connectionNew', (role) => {
          console.log('New ' + role + 'device has connected');
-      })
+      });
+
       socket.on('connectionDisconnect', () => {
          console.log('Trusted device disconnected');
       });
@@ -39,6 +41,7 @@
          console.log('There was  a problem: \n');
          console.log(error);
       });
+
       console.log(document.getElementById('credDomain').value);
 
       document.getElementById('newSwapBtn').addEventListener("click", () => {

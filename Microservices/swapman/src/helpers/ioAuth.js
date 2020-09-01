@@ -1,6 +1,8 @@
 //////////////////////////////////////////////
 //////////// Module Declarations /////////////
 //////////////////////////////////////////////
+/*global io */
+
 const jose = require('jose');
 const bouncer = require('./services').bouncer;
 
@@ -9,65 +11,96 @@ const bouncer = require('./services').bouncer;
    requests 
 */
 var jwk = null;
-
 //////////////////////////////////////////////
 /////////// Middleware Functions /////////////
 //////////////////////////////////////////////
 
-/*
-   Description. Validates the
-    jwt, and closes 
-   the connection if it
-   is invalid. This function is never directly
-   used, rather 3 seperate functions act as a 
-   wrapper for each of our namespaces
-   @socket: default arg for socketio middleware
-   @next: default arg for socketio middleware
-   @roles: Array of roles that are authorized.
-   I.e. Each jwt made by our auth server has a
-   payload variable called "role". The jwt will
-   be authorized only if it's role matches one
-   of the roles in the @roles array
-   @return: If there are no errors, it will
-   return next() which will pass the next 
-   socketio middleware through.
+/**
+   Description. @middleware holds 3 socket.io middleware
+   functions, each to be used to verify one of our 
+   custom socket.io namespaces.
+   @param {object} socket Has information about the incoming
+   connection
+   @param {function} next The next function to run in the
+   socket.io middleware chain
+   @return: If there are no errors, it will call the next
+   function, @next. If there are errors, -1 will be returned
 */
- async function middleware(socket, next, roles) {
-   try {
-      console.log('in ioAuth');
-      /* If the jwk was not grabbed yet */
-      if (jwk === null) {
-         jwk = await bouncer.getJwk();
+
+var middleware = {
+   trusted: async (socket, next) => {
+      /* Grab jwt */
+      let jwt = socket.handshake.query.jwt;
+      if(jwt == undefined) {
+         console.error('Client does not have appear to have any jwt in socket.handshake.query');
+         return -1;
+      }
+      if (await verifyJwt(jwt, 'Trusted') == -1) {
+         console.log('Client jwt cannot be verified');
+         return -1;
       }
 
-      /* Abort connection if there was a problem grabbing jwk */
-      if (jwk === -1){
-         throw 'There was an issue grabbing the jwk'; 
+      /* Refuse to connect if there is no mitm client */
+      if(io.of('Mitm').adapter.rooms.Mitm == undefined) {
+         console.log('There is no mitm client connected. Cannot connect clients until mitm has connected');
+         return -1;
       }
 
-      // /* Grab the jwt from the handshake */f TODO: Add back later
-      // let jwt = socket.handshake.query.jwt;
-      // if (jwt === undefined) {
-      //    throw new Error('The request contains an invalid jwt');
-      // }
+      return next();
+   },
+
+   untrusted: async (socket, next) => {
+      /* Grab jwt */
+      let jwt = socket.handshake.query.jwt;
+      if(jwt == undefined) {
+         console.log('Client does not have appear to have any jwt in socket.handshake.query');
+         return -1;
+      }
+      if (await verifyJwt(jwt, 'Untrusted') == -1) {
+         console.log('Client jwt cannot be verified');
+         return -1;
+      }
+
+      /* Refuse to connect if there is no mitm client */
+      if(io.of('Mitm').adapter.rooms.Mitm == undefined) {
+         console.log('There is no mitm client connected. Cannot connect clients until mitm has connected');
+         return -1;
+      }
       
-      // /* Verify the jwt */
-      // let auth = jose.JWT.verify(jwt, jwk);
+      return next();
+   },
 
-      // /* Make sure that the role is an accepted role */
-      // if (!roles.includes(auth.role)) {
-      //    throw new Error('This JWT does not have the correct permissions');
-      // }
+   mitm: async (socket, next) => {
+      /* Grab jwt */
+      let jwt = socket.handshake.query.jwt;
+      if(jwt == undefined) {
+         console.error('Client does not have appear to have any jwt in socket.handshake.query');
+         return -1;
+      }
+      
+      /* Refuse to connect if there is already an existing client */
+      if(io.of('Mitm').adapter.rooms.Mitm != undefined) {
+         console.log('There is already a mitm client connected. Only one mitm client can connect at a time');
+         return -1;
+      }
+      return next();
    }
-   /* If there is an error, disconnect and don't call next() */
-   catch(err) {
-      console.error(err);
-      socket.disconnect();
-      return;
+};
+
+async function verifyJwt(jwt, role) {
+   /* If the jwk was not grabbed yet */
+   if (jwk === null) {
+      jwk = await bouncer.getJwk();
    }
 
-   /* If no errors, call next() as normal */
-   return next();
+   /* Verify the jwt */
+   let auth = jose.JWT.verify(jwt, jwk);
+
+   /* Make sure that the role is an accepted role */
+   if (auth.role != role) {
+      console.log('This JWT does not have the correct permissions');
+      return -1;
+   }
 }
 
 /**
@@ -89,31 +122,10 @@ function getUserId(jwt) {
 function getUserMasterCred(jwt) {
    return jose.JWT.decode(jwt, {complete: false}).masterCred;
 }
-
-/**
-   Description. These functions are wrappers over the 
-   middleware function that allow us to define the roles 
-   for each of our namespaces
-   @param {object} socket Required for socket.io middleware
-   @param {function} next The next function to run in the
-   socket.io middleware chain
-   @return: void
-*/
-function middlewareTrusted(socket, next) {
-   middleware(socket, next, ['Trusted', 'Untrusted']);
-}
-function middlewareUntrusted(socket, next) {
-   middleware(socket, next, ['Untrusted']);
-}
-function middlewareMitm(socket, next) {
-   middleware(socket, next, ['Mitm']);
-}
-
 //////////////////////////////////////////////
 //////////// Exported Functions //////////////
 //////////////////////////////////////////////
-module.exports.middlewareTrusted = middlewareTrusted;
-module.exports.middlewareUntrusted = middlewareUntrusted;
-module.exports.middlewareMitm = middlewareMitm;
+
+module.exports.middleware = middleware;
 module.exports.getUserId = getUserId;
 module.exports.getUserMasterCred = getUserMasterCred;

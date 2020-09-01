@@ -292,7 +292,7 @@ function genJwt(userId, role, refreshToken)
     var signOpts = {
         algorithm: 'RS256',
         audience: process.env.JWT_ISSUER,
-        expiresIn: '5m',
+        expiresIn: '500m',
         iat: true,
         issuer: process.env.JWT_ISSUER,
         subject: userId.toString(),
