@@ -1,13 +1,13 @@
 {
-   "serverPort":"8003",
+   "serverPort":"80",
    "services": {
       "bouncer": {
          "urlJwk": "http://secret_bouncer:80/auth/jwk"
       },
       "usman": {
          "urls": {
-            "credVerify": "http://secret_usman:80/credential/",
-            "credDecrypt": "http://secret_usman:80/credential/decrypt"
+            "credVerify": "http://secret_usman/credential/",
+            "credDecrypt": "http://secret_usman/credential/decrypt"
          }
       }
    }

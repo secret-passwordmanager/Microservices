@@ -73,6 +73,13 @@ services:
             retries: 10
             start_period: 10s
          
+   secret_swapman:
+      container_name: secret_swapman
+      build:
+         context: swapman/
+      networks:
+         - secret_net
+
    # This container routes all other services
    secret_nginx:
       build:

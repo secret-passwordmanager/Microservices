@@ -10,6 +10,5 @@
             "credDecrypt": "http://localhost:8080/credential/decrypt"
          }
       }
-   },
-   "namespaces": ["Trusted", "Untrusted", "Mitm"]
+   }
 }

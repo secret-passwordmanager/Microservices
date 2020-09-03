@@ -23,17 +23,17 @@ server.listen(config.serverPort, () => {
 /////////////////// Stubs ////////////////////
 //////////////////////////////////////////////
 
-app.get('/mitm', (req, res) => {
+app.get('/swap/mitm', (req, res) => {
    console.log('made GET request to /Mitm');
-   res.sendFile(__dirname + '/stubs/Mitm.html');
+   res.sendFile(__dirname + '/stubs/mitm.html');
 });
 
-app.get('/untrusted', (req, res) => {
+app.get('/swap/untrusted', (req, res) => {
    console.log('made GET request to /Untrusted');
-   res.sendFile(__dirname + '/stubs/Untrusted.html');
+   res.sendFile(__dirname + '/stubs/untrusted.html');
 });
 
-app.get('/trusted', (req, res) => {
+app.get('/swap/trusted', (req, res) => {
    console.log('made GET request to /Trusted');
-   res.sendFile(__dirname + '/stubs/Trusted.html');
+   res.sendFile(__dirname + '/stubs/trusted.html');
 });

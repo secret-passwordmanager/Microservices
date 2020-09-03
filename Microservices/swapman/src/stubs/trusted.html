@@ -5,70 +5,80 @@
 
   </head>
   <body>
+   <input type="text" name="trustedJWT" value="trustedJWT" id="jwt">
+   <input type="text" value="masterCred" id="masterCred">
+   <button id="connect">Connect</button>
    <button id="getSwap">Get Swaps </button>
    <button id="submitSwapBtn">Submit Swap</button>
    <input  id="credId" type="text" value="credId">
+   <input id="jwt" type="text">
     <script src="/socket.io/socket.io.js"></script>
     <script>
       var swap = null;
-      let jwt = 'eyJhbGciOiJSUzI1NiIsImtpZCI6IlpqMjB1Y0VBNXRmcl91VmIzRUN5Q2JNTWJZUTZFWjNBem45SXNDcXZrSDgifQ.eyJ1bmlxdWVfbmFtZSI6IjI3IiwicmVmcmVzaFRva2VuIjoiTVN4YzBWT0NzbnJyc2k1M1JVZ25mMnRBNFArUHpZNWNzR1JRYmlScFpWRjh0b3hqd0lLb3JtZmY1Vkc0NVBFMm9GM2s3a1hFdUVRanhiTFpUcTRlNFE9PSIsInJvbGUiOiJUcnVzdGVkIiwic3ViIjoiMjciLCJhdWQiOiJCT1VOQ0VSIiwiaXNzIjoiQk9VTkNFUiIsImlhdCI6MTU5OTE0MTA4NCwiZXhwIjoxNTk5MTcxMDg0fQ.AVFa1bO7f1ZjmnmPY-n75EZc5DAkb9v-YRaNovNnh5GU57U9DhsNkUgzKLAyOlZxXe5T2qYF0LKw1x-try-O9AFaZOeFKiKko5ENa22xUiB8xbHbgmDuDZtg5MILtlHaBYJm-S7qpm2TBY_jkMjzUow5VMFuJfO7Ldl7qiMpOBUkW5Ai87TaqZQB1Om-sDI4PJDhQSvyCj1E1EUIqq2UTEqAgkODpnXhr6eilI6gMp18wbb7PKJA6FvjtHI5NLqolx_bslPCblYtl4feWF4bxurAop7xhMdxbwk-hCMt2L4hb9De-9noh3CXCXPtcL7vVrWEY_QCrtuxTonJK5qosg';
-      var socket = io.connect('/Trusted', {
+
+      document.getElementById('connect').addEventListener('click', () => {
+         var socket = io.connect('/Trusted', {
          query: { 
-            'jwt': jwt,
-            'masterCred': 'YopSrbkEPGFmQPW'
+            'jwt': document.getElementById("jwt").value,
+            'masterCred': document.getElementById("masterCred").value
          }
-      });
-      socket.on('connection', (error) => {
-         console.log('connected')
-      });
-      socket.on('connectionNew', (role) => {
-         console.log(role);
-      });
-      socket.on('connectionDisconnect', () => {
-         console.log('Untrusted device disconnected');
-      });
+         });
+         socket.on('connection', (error) => {
+            console.log('connected')
+         });
+         socket.on('connectionNew', (role) => {
+            console.log(role);
+         });
+         socket.on('connectionDisconnect', () => {
+            console.log('Untrusted device disconnected');
+         });
 
-      socket.on('swapNew', (swap) => {
-        
-         console.log('------- New Swap -------------');
-         console.log('Swap User Id: ' + swap.userId);
-         console.log('Swap domain: ' +  swap.domain);
-         console.log('Swap token: ' + swap.token);
-         console.log('Swap AuthId: ' + swap.authId);
-         console.log('-------------------------------');
+         socket.on('swapNew', (swap) => {
+         
+            console.log('------- New Swap -------------');
+            console.log('Swap User Id: ' + swap.userId);
+            console.log('Swap domain: ' +  swap.domain);
+            console.log('Swap token: ' + swap.token);
+            console.log('Swap AuthId: ' + swap.authId);
+            console.log('-------------------------------');
 
-         console.log('New Swap Available');
+            console.log('New Swap Available');
+         });
+         socket.on('swapGot', (swaps) => {
+            if (swaps.length == 0 ) {
+               console.log('No pending swaps');
+            } else {
+               swaps.forEach(swap => {
+                  console.log('-------------------------------');
+                  console.log('Swap user Id: ' + swap.userId);
+                  console.log('Swap user IP: ' + swap.ip);
+                  console.log('Swap type: ' + swap.type);
+                  console.log('Swap domain: ' +  swap.domain);
+                  console.log('Swap token: ' + swap.token);
+                  console.log('Swap AuthId: ' + swap.authId);
+                  console.log('-------------------------------');
+               });
+               swap = swaps[0];
+            }
+         });
+
+         socket.on('err', (error) => {
+            console.log('There was a problem: ' + error);
+         });
+
+
+         document.getElementById('getSwap').addEventListener('click', () => {
+            socket.emit('swapGet');
+         });
+         document.getElementById('submitSwapBtn').addEventListener('click', () => {
+            console.log(swap);
+            swap.credId = parseInt(document.getElementById('credId').value, 10);
+            socket.emit('swapApprove', swap);
+         });
       })
-      socket.on('swapGot', (swaps) => {
-         if (swaps.length == 0 ) {
-            console.log('No pending swaps');
-         } else {
-            swaps.forEach(swap => {
-               console.log('-------------------------------');
-               console.log('Swap user Id: ' + swap.userId);
-               console.log('Swap user IP: ' + swap.ip);
-               console.log('Swap type: ' + swap.type);
-               console.log('Swap domain: ' +  swap.domain);
-               console.log('Swap token: ' + swap.token);
-               console.log('Swap AuthId: ' + swap.authId);
-               console.log('-------------------------------');
-            });
-            swap = swaps[0];
-         }
-      });
 
-      socket.on('err', (error) => {
-         console.log('There was a problem: ' + error);
-      });
+      
 
-      document.getElementById('getSwap').addEventListener('click', () => {
-         socket.emit('swapGet');
-      });
-      document.getElementById('submitSwapBtn').addEventListener('click', () => {
-         console.log(swap);
-         swap.credId = parseInt(document.getElementById('credId').value, 10);
-         socket.emit('swapApprove', swap);
-      });
     </script>
 
   </body>

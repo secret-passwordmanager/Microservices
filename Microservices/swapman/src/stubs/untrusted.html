@@ -4,9 +4,13 @@
     <title>Untrusted</title>
   </head>
   <body>
+      <input type="text" name="untrustedJWT" value="untrustedJWT" id="jwt">
+      <button id="connect">Connect</button>
      <input type="text" name="token" value="fdsadsfdsnvdsanjkdvsnakdnsakvdsa" id="credToken">
      <input type="text" name="domain" value="google.com" id="credDomain">
      <input type="text" name="authId" value="1568" id="credAuthId">
+     <input type="text" name="untrustedJWT" value="untrustedJWT" id="jwt">
+     <button id="connect">Connect</button>
      <select name="type" id="credType" id="credType">
         <option value ="password">
            Password
@@ -20,12 +24,14 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
-      let jwt = 'eyJhbGciOiJSUzI1NiIsImtpZCI6IlpqMjB1Y0VBNXRmcl91VmIzRUN5Q2JNTWJZUTZFWjNBem45SXNDcXZrSDgifQ.eyJ1bmlxdWVfbmFtZSI6IjI3IiwicmVmcmVzaFRva2VuIjoibEZUbGlWK09JSzN3dlVNejFtenJkR0hOUkpwQWU2b0hKbDdCRk5WbUVwL29UaUlVVk9DYXZCSXZDV2g2ZVZXMWF2L2ZzVjFCaDNWbVhmd0dyMGI5L1E9PSIsInJvbGUiOiJVbnRydXN0ZWQiLCJzdWIiOiIyNyIsImF1ZCI6IkJPVU5DRVIiLCJpc3MiOiJCT1VOQ0VSIiwiaWF0IjoxNTk5MTQ0OTcyLCJleHAiOjE1OTkxNzQ5NzJ9.pBumglWnzBLe28ce1o3OOyJeRHSYA8oQuV9P1l4XqmIzXHI8o1YwKs8fKHvH-O7VqYBTzXuB0M72X1aEBOqzpoGkLVckTyvAxEgT-aVvzkWF-_Oz5DFdzKUQGTT0uUoa-ZZfYNVLaEH2S1FL1dxFT6tR4wfjz53qo3tXJGD3sb7MfT0Qidtm-UcYRbCxnnZCkSg42MsIpA2NW4Go1yRkpdyiQr5M5LxhOhReaa7N1D5tLURTqEFJB-Fl3joOtqwwJgn5fnCh8vD_u42F24wKbaVY_lHDVVSITETP6QYhyk5JvQybOJg-9mGccJ6o92JwN8pdlNkn5i3pzh7xFG-itA';
-      var socket = io.connect('/Untrusted', {
-         query: { 'jwt': jwt}
-      });
+   
+      
+      document.getElementById('connect').addEventListener("click", () => {
+         var socket= io.connect('/Untrusted', {
+            query: { 'jwt': document.getElementById('jwt').value}
+         });
 
-      socket.on('connection', (error) => {
+         socket.on('connection', (error) => {
          console.log('connected')
       });
 
@@ -42,7 +48,7 @@
          console.log(error);
       });
 
-      console.log(document.getElementById('credDomain').value);
+
 
       document.getElementById('newSwapBtn').addEventListener("click", () => {
          socket.emit('swapNew', {
@@ -52,6 +58,11 @@
             'type': document.getElementById('credType').value
          });
       });
+      });
+
+
+     
+
 
 
     </script>
