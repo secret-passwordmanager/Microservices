@@ -2,14 +2,13 @@
    "serverPort":"8003",
    "services": {
       "bouncer": {
-         "urlJwk": "http://localhost:8080/auth/jwk"
+         "urlJwk": "http://secret_bouncer:80/auth/jwk"
       },
       "usman": {
          "urls": {
-            "credVerify": "http://localhost:8080/credential/",
-            "credDecrypt": "http://localhost:8080/credential/decrypt"
+            "credVerify": "http://secret_usman:80/credential/",
+            "credDecrypt": "http://secret_usman:80/credential/decrypt"
          }
       }
-   },
-   "namespaces": ["Trusted", "Untrusted", "Mitm"]
+   }
 }

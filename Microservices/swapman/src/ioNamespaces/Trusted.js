@@ -27,7 +27,6 @@ ioTrusted.on('connection', (socket) => {
    /* Grab the userId, and join a room with that key */
    let userId = ioAuth.getUserId(socket.handshake.query.jwt);
    let masterCred = socket.handshake.query.masterCred; //TODO: replace with new usman
-   console.log(masterCred)
    socket.join(userId); // Rn userId = 1
 
    /* Notify untrusted devices that a trusted
