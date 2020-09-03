@@ -23,9 +23,9 @@ var user = {
     * pertaining to the swap
     * @param {string} jwt This is the user's jwt, which
     * we will use to authorize our request
-    * @return {number} -1 if the credential was not
-      allowed to be used on this domain, otherwise 
-      return 0 on success
+    * @return {number} returns 0 on success
+    * @return {Error} returns an Error object if the response
+    * was not 200
     */
    verifySwap: async (swap, jwt) => {
       return http.get(config.services.usman.urls.credVerify, 
@@ -39,18 +39,15 @@ var user = {
             }
          })
          .then((res) => {
-            console.log(res.data);
             /* This means that the credential could not be used */
             if (res.data.length == 0) 
-               return -1;
-            else {
-               return 0;
-            }
+               return new Error (res);
+            
+            return 0;
 
          })
          .catch((err) => {
-            console.error('Error, failed to connect to usman. Here is the full error: ' + err.response);
-            return -1;
+            return new Error('Error, failed to connect to usman. Here is the full error: ' + err.response);
          });
    },
 
@@ -64,9 +61,9 @@ var user = {
     * we will use to authorize our request
     * @param {string} masterCred This is the user's masterCred,
     * which we need to use to decrypt the credential
-    * @return {number} -1 if the credential was not
-      allowed to be used on this domain, otherwise 
-      return 0 on success
+    * @return {number} return 0 on success
+    * @return {Error} return Error object if response was not
+    * 200
     */
    decryptSwap: async (swap, jwt, masterCred) => { //TODO: Get mastercred from jwt once we implement the new role types
       return http.get(config.services.usman.urls.credDecrypt, 
@@ -84,9 +81,7 @@ var user = {
             return 0;
          })
          .catch((err) => {
-            console.error('Error, failed decrypt a credential. Here is the full error: ');
-            console.error(err.response);
-            return -1; 
+            return new Error('Error, failed decrypt a credential. Here is the full error: ' + err.response);
          });
    }
 };
@@ -101,7 +96,8 @@ var auth = {
    /**
       Description. This function grabs the jwk from bouncer,
       whose url is defined in our config file. 
-      @return {number} returns the jwk on success, -1 on error
+      @return {number} returns the jwk on success
+      @return {Error} returns an error if response was not 200
    */
    getJwk: async () =>  {
       return  http.get(config.services.bouncer.urlJwk)
@@ -109,8 +105,7 @@ var auth = {
             return resp.data;
          })
          .catch(err => {
-            console.error('Unable to grab jwk, bouncer may be down. Here is the complete error' + err);
-            return -1;
+            return new Error('Unable to grab jwk, bouncer may be down. Here is the complete error' + err.response);
          });
    }
 };

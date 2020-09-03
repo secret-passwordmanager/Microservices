@@ -8,11 +8,10 @@
    <button id="getSwap">Get Swaps </button>
    <button id="submitSwapBtn">Submit Swap</button>
    <input  id="credId" type="text" value="credId">
-   <input id="swapId" type="text" value="swapId">
     <script src="/socket.io/socket.io.js"></script>
     <script>
       var swap = null;
-      let jwt = 'eyJhbGciOiJSUzI1NiIsImtpZCI6Ik9vQ3VjWEFYTXFIbWZlWnpsbzJNTTdldXIyc3ZVb3V3OVNTRUpONmZJREkifQ.eyJ1bmlxdWVfbmFtZSI6IjI3IiwicmVmcmVzaFRva2VuIjoicW5RczdKaEREdWJDeVNZOWxZNmFBZDE5NFZMQU9EZ2tjeDNqNTJyTW1VeXhTWXhWVFZFYXpwVXVJSEg3RU9HVVo4Z3hoNUI3Y0ZMOGpQWEVtU1BIU1E9PSIsInJvbGUiOiJUcnVzdGVkIiwic3ViIjoiMjciLCJhdWQiOiJCT1VOQ0VSIiwiaXNzIjoiQk9VTkNFUiIsImlhdCI6MTU5ODk3NTI1NCwiZXhwIjoxNTk5MDA1MjU0fQ.HOD3cn6natTXXdC4bk2-nsO9eMHvKx_UOPbmAVOQRV9FdbHLDPduknh_LwEnpTkQxZC0FGE51WmD83mRQRv51Lijx97eZi5eu00nH64KVxkWNptt_MUgIp40gh8dq2MD04iAATrQ10D1yfM4T0l3MyEO6NJOsiXSA2143c8Vb-fkDmCllYfz06OlcL9dHXlMEicwBXtIAQqHptAkIGRRknw3mzXAF6KT70OHDrhnPRCIKoVzvgxQCgrbR3RbbTNtzJqcM_BqgdGzd1auUlS3v_olqFluBaXF5lPs_67N_Rp4HDebLHfJhNSfC3B70neuXQ4Yq-bd0ePuikn0oXecyw';
+      let jwt = 'eyJhbGciOiJSUzI1NiIsImtpZCI6IlpqMjB1Y0VBNXRmcl91VmIzRUN5Q2JNTWJZUTZFWjNBem45SXNDcXZrSDgifQ.eyJ1bmlxdWVfbmFtZSI6IjI3IiwicmVmcmVzaFRva2VuIjoiTVN4YzBWT0NzbnJyc2k1M1JVZ25mMnRBNFArUHpZNWNzR1JRYmlScFpWRjh0b3hqd0lLb3JtZmY1Vkc0NVBFMm9GM2s3a1hFdUVRanhiTFpUcTRlNFE9PSIsInJvbGUiOiJUcnVzdGVkIiwic3ViIjoiMjciLCJhdWQiOiJCT1VOQ0VSIiwiaXNzIjoiQk9VTkNFUiIsImlhdCI6MTU5OTE0MTA4NCwiZXhwIjoxNTk5MTcxMDg0fQ.AVFa1bO7f1ZjmnmPY-n75EZc5DAkb9v-YRaNovNnh5GU57U9DhsNkUgzKLAyOlZxXe5T2qYF0LKw1x-try-O9AFaZOeFKiKko5ENa22xUiB8xbHbgmDuDZtg5MILtlHaBYJm-S7qpm2TBY_jkMjzUow5VMFuJfO7Ldl7qiMpOBUkW5Ai87TaqZQB1Om-sDI4PJDhQSvyCj1E1EUIqq2UTEqAgkODpnXhr6eilI6gMp18wbb7PKJA6FvjtHI5NLqolx_bslPCblYtl4feWF4bxurAop7xhMdxbwk-hCMt2L4hb9De-9noh3CXCXPtcL7vVrWEY_QCrtuxTonJK5qosg';
       var socket = io.connect('/Trusted', {
          query: { 
             'jwt': jwt,
@@ -48,6 +47,7 @@
                console.log('-------------------------------');
                console.log('Swap user Id: ' + swap.userId);
                console.log('Swap user IP: ' + swap.ip);
+               console.log('Swap type: ' + swap.type);
                console.log('Swap domain: ' +  swap.domain);
                console.log('Swap token: ' + swap.token);
                console.log('Swap AuthId: ' + swap.authId);

@@ -30,6 +30,7 @@ function add(swap) {
       authId: swap.authId,
       domain: swap.domain,
       token: swap.token,
+      type: swap.type,
       ip: swap.ip,
       credId: null,
       credVal: null
@@ -53,7 +54,8 @@ function exists(swap) {
    if (swaps.find(s => 
       s.token == swap.token &&
       s.userId == swap.userId &&
-      s.domain == swap.domain
+      s.domain == swap.domain &&
+      s.type == swap.type
    ) == undefined) {
       return false;
    }
@@ -73,6 +75,7 @@ function remove(swap) {
       && s.token == swap.token
       && s.domain == swap.domain
       && s.authId == swap.authId 
+      && s.type == swap.type
    );
    /* If not found, return -1 */
    if (indx == -1)
@@ -117,11 +120,15 @@ var validate = {
       if (!validator.isFQDN(swap.domain))
          throw new Error('Invalid domain in swap request. domain must be a valid website domain.');
       
-      if (!validator.isAscii(swap.token))
-         throw new Error('Invalid token in swap request. token must be an ascii value.');
+      if (!validator.isAscii(swap.token) || swap.token.length != 32)
+         throw new Error('Invalid token in swap request. token must be an ascii value of length 32');
 
       if (!validator.isAlphanumeric(swap.authId) || swap.authId.length != 4)
          throw new Error('Invalid authId in swap request. authId must be a 4 character alphanumeric.');
+      
+      if (swap.type != 'password' && swap.type != 'username' && swap.type != 'card' && swap.type != 'email') {
+         throw new Error('swap.type must be either password, username, card, or email');
+      }
    },
 
    /**

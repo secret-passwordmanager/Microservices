@@ -73,12 +73,12 @@ ioTrusted.on('connection', (socket) => {
             throw Error('This swap has not been requested');
 
          /* Make sure that this credential can be used on this domain */
-         if(await usman.verifySwap(swap, socket.handshake.query.jwt) == -1) {
+         if(await usman.verifySwap(swap, socket.handshake.query.jwt) instanceof Error) {
             throw Error('Swap could not be approved for this domain');
          }
 
          /* Get the decrypted credential */
-         if (await usman.decryptSwap(swap, socket.handshake.query.jwt, masterCred) == -1) {//TODO: add legit mastercred
+         if (await usman.decryptSwap(swap, socket.handshake.query.jwt, masterCred) instanceof Error) {
             throw Error('Swap could not be decrypted');
          }
 

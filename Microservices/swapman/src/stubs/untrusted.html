@@ -4,7 +4,7 @@
     <title>Untrusted</title>
   </head>
   <body>
-     <input type="text" name="token" value="abcderf" id="credToken">
+     <input type="text" name="token" value="fdsadsfdsnvdsanjkdvsnakdnsakvdsa" id="credToken">
      <input type="text" name="domain" value="google.com" id="credDomain">
      <input type="text" name="authId" value="1568" id="credAuthId">
      <select name="type" id="credType" id="credType">
@@ -20,7 +20,7 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
-      let jwt = 'eyJhbGciOiJSUzI1NiIsImtpZCI6Ik9vQ3VjWEFYTXFIbWZlWnpsbzJNTTdldXIyc3ZVb3V3OVNTRUpONmZJREkifQ.eyJ1bmlxdWVfbmFtZSI6IjI3IiwicmVmcmVzaFRva2VuIjoibnYvQnMxdnFuQzJKZ0t6QVlFZ1hqL3JQanlkaXl4bHJ0aTM5c3ltS3BCaWg2QmFGMGVjS1czWWJtVlVaaWR5SWhEdzVDRXFieWNYUEplZUY1ckhhUmc9PSIsInJvbGUiOiJVbnRydXN0ZWQiLCJzdWIiOiIyNyIsImF1ZCI6IkJPVU5DRVIiLCJpc3MiOiJCT1VOQ0VSIiwiaWF0IjoxNTk4OTg3ODU2LCJleHAiOjE1OTkwMTc4NTZ9.ZPROnxuQ9e5GYxXecE5IFJW4tg8UELKA_Q87hJxX6fDM33HS1NiB7Jx6HpusMSH8RPXasrpe6zgfRFpWOZDq2dd1WeTWymjmzbuwklMUxsT9gcFriJaDUH-J9nRpdTSTk_kJXuH129iPolr0uxu4X-N6fQ6U-7uA1nBLVeMucXhfkC8Osj_DilVpKW3swbwq9_PDw1OyuH1-ThKMkab7v43dvyfJu_--FqeT3GsBjCBn3_Jdn0lYvxMvJBStDZkhyHB44xDOYtT6mo2_lJZiLJfJY8z0dyYFH6tqpoEWfkJNtaJsd0RwtnxnWW-Ohh_PSC6j1VT3YztLJy3apj0zYw';
+      let jwt = 'eyJhbGciOiJSUzI1NiIsImtpZCI6IlpqMjB1Y0VBNXRmcl91VmIzRUN5Q2JNTWJZUTZFWjNBem45SXNDcXZrSDgifQ.eyJ1bmlxdWVfbmFtZSI6IjI3IiwicmVmcmVzaFRva2VuIjoibEZUbGlWK09JSzN3dlVNejFtenJkR0hOUkpwQWU2b0hKbDdCRk5WbUVwL29UaUlVVk9DYXZCSXZDV2g2ZVZXMWF2L2ZzVjFCaDNWbVhmd0dyMGI5L1E9PSIsInJvbGUiOiJVbnRydXN0ZWQiLCJzdWIiOiIyNyIsImF1ZCI6IkJPVU5DRVIiLCJpc3MiOiJCT1VOQ0VSIiwiaWF0IjoxNTk5MTQ0OTcyLCJleHAiOjE1OTkxNzQ5NzJ9.pBumglWnzBLe28ce1o3OOyJeRHSYA8oQuV9P1l4XqmIzXHI8o1YwKs8fKHvH-O7VqYBTzXuB0M72X1aEBOqzpoGkLVckTyvAxEgT-aVvzkWF-_Oz5DFdzKUQGTT0uUoa-ZZfYNVLaEH2S1FL1dxFT6tR4wfjz53qo3tXJGD3sb7MfT0Qidtm-UcYRbCxnnZCkSg42MsIpA2NW4Go1yRkpdyiQr5M5LxhOhReaa7N1D5tLURTqEFJB-Fl3joOtqwwJgn5fnCh8vD_u42F24wKbaVY_lHDVVSITETP6QYhyk5JvQybOJg-9mGccJ6o92JwN8pdlNkn5i3pzh7xFG-itA';
       var socket = io.connect('/Untrusted', {
          query: { 'jwt': jwt}
       });
@@ -49,6 +49,7 @@
             'domain': document.getElementById('credDomain').value,
             'token': document.getElementById('credToken').value,
             'authId': document.getElementById('credAuthId').value,
+            'type': document.getElementById('credType').value
          });
       });
 
