@@ -1,0 +1,23 @@
+{
+   "serverPort":"8002",
+   "auth": {
+      "alg": "RS256",
+      "issuer":"BOUNCER",
+      "audience":"BOUNCER",
+      "expiresIn":"500m",
+      "iat": true
+   },
+   "services": {
+      "bouncer": {
+         "urlJwk": "http://localhost:8080/auth/jwk"
+      },
+      "usman": {
+         "urls": {
+            "credVerify": "http://localhost:8080/credential/",
+            "credDecrypt": "http://localhost:8080/credential/decrypt",
+            "jwtBlacklist": "http://localhost:8080/internal/blacklistjwt",
+            "userVerify": "http://localhost:8080/user/verify"
+         }
+      }
+   }
+}
