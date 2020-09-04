@@ -35,18 +35,23 @@ var user = {
     * response was not 200
     */
    getUserId: async (username, password) => {
+
+      if (typeof username != 'string') {
+         throw new Error('Username must be a string');
+      }
+      if (typeof password != 'string') {
+         throw new Error('Password must be a string');
+      }
       return http.post(config.services.usman.urls.userVerify, 
          {
-            body: {
-               'username': username,
-               'password': password
-            }
+            'username': username,
+            'password': password  
          })
          .then((res) => {
             return res.data.id;
          })
          .catch((err) => {
-            return new Error('Error, failed to verify user through usman. Here is the full error: ' + err.response);
+            return new Error('Error, failed to verify user through usman. Here is the full error: ' + err.message);
          });
    },
 

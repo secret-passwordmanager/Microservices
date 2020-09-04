@@ -77,5 +77,9 @@ namespace dotnetapi.Controllers
                 return BadRequest(new { Error = e.Message});
             }
         }
+
+        [AllowAnonymous]
+        [HttpPost("verifyMasterCred")]
+        public IActionResult VerifyMasterCred([FromBody] )
     }
 }

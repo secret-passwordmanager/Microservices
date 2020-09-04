@@ -1,6 +1,7 @@
 {
    "serverPort":"8002",
    "auth": {
+      "keyType": "RSA",
       "alg": "RS256",
       "issuer":"BOUNCER",
       "audience":"BOUNCER",
