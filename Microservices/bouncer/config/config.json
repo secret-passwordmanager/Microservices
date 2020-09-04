@@ -5,7 +5,8 @@
       "alg": "RS256",
       "issuer":"BOUNCER",
       "audience":"BOUNCER",
-      "expiresIn":"500m",
+      "expiresInTrusted":"500m",
+      "expiredInUntrusted":"1000m",
       "iat": true
    },
    "services": {

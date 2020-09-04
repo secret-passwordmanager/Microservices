@@ -6,6 +6,7 @@
       },
       "usman": {
          "urls": {
+            "masterCredVerify":"http://localhost:8080/user/masterCredVerify",
             "credVerify": "http://localhost:8080/credential/",
             "credDecrypt": "http://localhost:8080/credential/decrypt"
          }

@@ -8,6 +8,7 @@ const ev = require('express-validator');
 
 const config = require('../config/config.json');
 const services = require('./helpers/services');
+const auth = require('./helpers/auth');
 const tokenStore = require('./helpers/refreshTokenStore');
 //////////////////////////////////////////////
 /////////////////// Config ///////////////////
@@ -79,6 +80,7 @@ app.post('/auth/refresh',
          return res.status(422).json({ 'errors': errors.array() });
       }
       try {
+         /* Make sure token exists on the server */
          let token = tokenStore.get(req.body.refreshToken);
          if (token instanceof Error) {
             throw token;
@@ -87,7 +89,16 @@ app.post('/auth/refresh',
             throw new Error('This refresh token was not found on the server');
          }
 
-      
+         /* If masterCred was specified, check that it is correct */
+         if (req.body.masterCred != undefined) {
+            let verify = services.usman.masterCredVerify(token.userId, req.body.masterCred);
+            /* If verify isn't instance of error, masterCred is valid */
+            if (verify instanceof Error) {
+               throw verify;
+            }
+         }
+         /* Generate jwt and return */
+         return res.json({'jwt': auth.jwt.gen(token, req.body.masterCred)});
          
       }
       /* If any exceptions are thrown, return with status 500 */

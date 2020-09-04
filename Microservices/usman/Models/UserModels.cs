@@ -14,6 +14,8 @@ namespace dotnetapi.Models.Users
    {
       [Required]
       public string MasterCred { get; set; }
+      [Required]
+      public int Id { get; set; }
    }
     public class UserCreateModel
     {

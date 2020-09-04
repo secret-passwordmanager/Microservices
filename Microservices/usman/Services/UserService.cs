@@ -14,6 +14,7 @@ namespace dotnetapi.Services
         void Update(User model, string password);
         void Delete(int id);
         int Verify(UserVerifyModel model);
+        bool VerifyMasterCred(UserVerifyMasterCredModel model);
     }
 
     public class UserService : IUserService
@@ -129,7 +130,20 @@ namespace dotnetapi.Services
             }
             return user.Id;
         }
+      public bool VerifyMasterCred(UserVerifyMasterCredModel model)
+      {
+         var user = _context.Users.SingleOrDefault(x => x.Id == model.Id);   
+            if (user == null)
+                throw new AppException("Username not found");
 
+         MasterCredHelper masterCredHelper = new MasterCredHelper();
+
+         if (!masterCredHelper.VerifyMasterCred(user, model.MasterCred)) {
+            throw new AppException("Invalid master credential");
+         }
+         return true;  
+         
+      }
         ////////////////////////////////////////////////////////////////////////////////
         //////////////////////// Private Helper Functions //////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////

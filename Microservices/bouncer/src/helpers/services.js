@@ -48,11 +48,38 @@ var user = {
             'password': password  
          })
          .then((res) => {
+            console.log(res.data.id);
             return res.data.id;
          })
          .catch((err) => {
             return new Error('Error, failed to verify user through usman. Here is the full error: ' + err.message);
          });
+   },
+
+   masterCredVerify: async (userId, masterCred) => {
+
+      if (typeof userId != 'number') {
+         throw new Error('userId must be a number');
+      }
+      if (typeof masterCred != 'string') {
+         throw new Error('masterCred must be a string');
+      }
+      return http.post(config.services.usman.urls.masterCredVerify, 
+         {
+            'UserId': userId,
+            'masterCred': masterCred
+         })
+         .then((res) => {
+            if (res.data.length == 0) {
+               return;
+            } else {
+               return new Error('Error, failed to verify masterCred through usman.');
+            }
+         })
+         .catch((err) => {
+            return new Error('Error, failed to verify masterCred through usman. Here is the full error: ' + err.message);
+         });
+
    },
 
    /**
@@ -87,7 +114,7 @@ var user = {
 
          })
          .catch((err) => {
-            return new Error('Error, failed to connect to usman. Here is the full error: ' + err.response);
+            return new Error('Error, failed to connect to usman. Here is the full error: ' + err.message);
          });
    },
 

@@ -80,6 +80,15 @@ namespace dotnetapi.Controllers
 
         [AllowAnonymous]
         [HttpPost("verifyMasterCred")]
-        public IActionResult VerifyMasterCred([FromBody] )
+        public IActionResult VerifyMasterCred([FromBody] UserVerifyMasterCredModel model)
+        {
+           try {
+              _userService.VerifyMasterCred(model);
+              return Ok();
+           }
+           catch(AppException e) {
+              return BadRequest(new  {Error = e.Message} );
+           }
+        }
     }
 }

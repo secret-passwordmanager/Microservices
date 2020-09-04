@@ -36,10 +36,7 @@ function get(tokenVal) {
    if (typeof tokenVal != 'string' || tokenVal.length != 128) {
       throw new Error('Invalid tokenVal parameter. tokenVal must be a string of size 128');
    }
-
-   return tokens.find((t) => {
-      t.val == tokenVal;
-   });
+   return tokens.find((t) => t.val == tokenVal);
 }
 
 function remove(tokenVal) {

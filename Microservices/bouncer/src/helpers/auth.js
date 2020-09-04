@@ -14,27 +14,37 @@ var jwt = {
     * @param {number} userId The user's userId
     * @param {number} loginId This device's loginId. Will be a
     * unique number that can be used to identify this device
-    * @param {string} role The device's role. Either trusted 
-    * or untrusted
+    * @param {string} masterCred The user's masterCred. If set
+    * to be undefined, the JWT's role will be untr
     * @return {string} Returns a jwt
     */
-   gen: (userId, loginId, role) => {
-      if (jwk.get() == null)
-         throw new Error('JWK is null. Check why it has not yet been grabbed');
+   gen: (refreshToken, masterCred) => {
 
+      if (typeof refreshToken.userId != 'number' ) {
+         throw new Error('refreshToken does not have a valid userId. userId must be a number');
+      }
+      if (typeof refreshToken.loginId != 'string') {
+         throw new Error('refreshToken does not have a valid loginId. loginId must be a string');
+      }
+      /* If masterCred isn't undefined, it must be a string */
+      if (masterCred != undefined && typeof masterCred != 'string') {
+         throw new Error('masterCred must be a string');
+      }
+       
       return jose.JWT.sign({
          /* payload */
-         'unique_name': userId.toString(),
-         'loginId': loginId,
-         'role': role
-      }, jwk.get(), {
+         'unique_name': refreshToken.userId.toString(),
+         'loginId': refreshToken.loginId,
+         'role': masterCred == undefined ? 'Untrusted' : 'Trusted',
+         'masterCred': masterCred
+      }, jwk.get().toJWK(true), {
          /* signOpts */
          algorithm: config.auth.alg,
          audience: config.auth.issuer,
-         expiresIn: config.auth.expiresIn,
+         expiresIn: masterCred == undefined ? config.auth.expiresInUntrsted : config.auth.expiresInTrusted,
          iat: config.auth.iat,
          issuer: config.auth.issuer,
-         subject: userId.toString(),  
+         subject: refreshToken.userId.toString(),  
       });
    }
 };
@@ -53,7 +63,7 @@ var jwk = {
     * something went wrong so maybe use a try catch block
     */
    gen: () => {
-      return jose.JWK.generateSync(config.auth.keyType, 2048, {
+      jwk.val = jose.JWK.generateSync(config.auth.keyType, 2048, {
          alg: config.auth.alg,
          use: 'sig'
       });
@@ -67,10 +77,10 @@ var jwk = {
     * been created 
     */
    get: () => {
-      if (this.val == null) {
-         this.gen();
+      if (jwk.val == null) {
+         jwk.gen();
       }
-      return this.val;
+      return jwk.val;
    }
 };
 
