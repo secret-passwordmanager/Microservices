@@ -67,6 +67,46 @@ app.post('/auth/login',
    }
 );
 
+/**
+ * This endpoint can log out a user.
+ * @param {string} refreshToken The user's refreshToken
+ * that was given to them when they login.
+ * @param {boolean} global Optional, but if set to true,
+ * will log the user out of all of their devices 
+*/
+app.post('/auth/logout', 
+   [
+      ev.check('refreshToken').isHexadecimal(),
+      ev.check('global').optional().isBoolean()
+   ],
+   async (req,res) => {
+      /* Make sure request body is valid */
+      const errors = ev.validationResult(req);
+      if (!errors.isEmpty()) {
+         return res.status(422).json({ 'errors': errors.array() });
+      }
+      if (req.body.global != true) {
+         req.body.global = false;
+      }
+
+      try {
+         let loginIdList = tokenStore.remove(req.body.refreshToken, req.body.global);
+         if (loginIdList instanceof Error) {
+            throw loginIdList;
+         }
+
+         let usmanResp = await auth.logout(loginIdList);
+         if (usmanResp instanceof Error) {
+            throw usmanResp;
+         }
+         return res.status(200).end();
+      }
+      catch(err) {
+         console.log(err.message);
+         return res.status(500).json({'Error': err.message});
+      }
+   });
+
 app.post('/auth/refresh',
    [
       ev.check('refreshToken').isHexadecimal(),
@@ -106,7 +146,12 @@ app.post('/auth/refresh',
          console.log(err.message);
          return res.status(500).json({'Error': err.message});
       }
-   
-   
+   }
+);
+
+app.get('/auth/jwk', 
+   [],
+   (req, res) => {
+      res.send(auth.jwk.get());
    }
 );

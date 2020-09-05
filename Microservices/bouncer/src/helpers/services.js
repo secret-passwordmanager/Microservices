@@ -48,7 +48,6 @@ var user = {
             'password': password  
          })
          .then((res) => {
-            console.log(res.data.id);
             return res.data.id;
          })
          .catch((err) => {

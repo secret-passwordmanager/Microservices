@@ -5,7 +5,31 @@
  */
 const jose = require('jose');
 const crypto = require('crypto');
+const http = require('axios');
 const config = require('../../config/config.json');
+
+async function logout(loginIdList) {
+   let resp = null;
+   console.log(loginIdList);
+   for await (let loginId of loginIdList) {
+
+      await http.post(config.services.usman.urls.jwtBlacklist,
+         {
+            'loginId': loginId
+         })
+         .catch((err) => {
+            console.log('problemo')
+            resp = err;
+         });
+      
+   }
+   if (resp instanceof Error) {
+      return resp;
+   }
+   return 0;
+
+}
+
 
 var jwt = {
 
@@ -112,3 +136,4 @@ var refreshToken = {
 module.exports.jwt = jwt;
 module.exports.jwk = jwk;
 module.exports.refreshToken = refreshToken;
+module.exports.logout = logout;
