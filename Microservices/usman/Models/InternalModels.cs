@@ -5,6 +5,7 @@ namespace dotnetapi.Models.Internal
     public class BlacklistJwtModel
     {
         [Required]
-        public string RefreshToken { get; set; }
+        public string LoginId { get; set; }
+        public int UserId { get; set; }
     }
 }

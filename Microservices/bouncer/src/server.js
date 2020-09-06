@@ -85,17 +85,30 @@ app.post('/auth/logout',
       if (!errors.isEmpty()) {
          return res.status(422).json({ 'errors': errors.array() });
       }
+
       if (req.body.global != true) {
          req.body.global = false;
       }
 
+      let user = null;
       try {
-         let loginIdList = tokenStore.remove(req.body.refreshToken, req.body.global);
+         user = auth.jwt.verify(req.get('Authorization').slice(7, req.get('Authorization').length));
+         if (user instanceof Error) {
+            throw user;
+         }
+      }
+      catch (err) {
+         return res.status(401).json({'Error': 'JWT is missing or is invalid'});
+      }
+
+      try {            
+         /* Don't worry about global logout for now */
+         let loginIdList = tokenStore.remove(req.body.refreshToken, false);
          if (loginIdList instanceof Error) {
             throw loginIdList;
          }
 
-         let usmanResp = await auth.logout(loginIdList);
+         let usmanResp = await auth.logout(parseInt(user.unique_name), loginIdList);
          if (usmanResp instanceof Error) {
             throw usmanResp;
          }

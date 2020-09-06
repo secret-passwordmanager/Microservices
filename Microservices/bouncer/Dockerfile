@@ -14,7 +14,7 @@ RUN npm install
 
 # Bundle app source
 COPY . .
-COPY .env-rel  .env
+COPY ./config/config-rel.json  ./config/config.json
 
-EXPOSE ${BOUNCER_PORT}
-CMD [ "node", "server.js" ]
+EXPOSE 80
+CMD [ "node", "src/server.js" ]

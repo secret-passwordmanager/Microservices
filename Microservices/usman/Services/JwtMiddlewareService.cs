@@ -7,8 +7,8 @@ namespace dotnetapi.Services
 {
     public interface IJwtMiddlewareService
     {
-        public void Create(string token);
-        public bool Read(string token);
+        public void Create(int userId, string loginId);
+        public bool Read(int userId, string loginId);
     }
     public class JwtMiddlewareService : IJwtMiddlewareService
     {
@@ -19,17 +19,18 @@ namespace dotnetapi.Services
             _context = context;
         }
         
-        public void Create(string token)
+        public void Create(int userId, string loginId)
         {
             JwtBlacklist jwt = new JwtBlacklist();
-            jwt.RefreshToken = token;
+            jwt.UserId = userId;
+            jwt.LoginId = loginId;
             jwt.TimeBlacklisted = DateTime.Now;
             _context.BlacklistJwts.Add(jwt);
             _context.SaveChanges();
         }
-        public bool Read(string token) 
+        public bool Read(int userId, string loginId) 
         {
-            return (_context.BlacklistJwts.Any(t => t.RefreshToken == token));
+            return (_context.BlacklistJwts.Any(t => t.UserId == userId && t.LoginId == loginId));
         }
     }
 }

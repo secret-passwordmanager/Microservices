@@ -28,8 +28,7 @@ namespace WebApi.Controllers
         [HttpPost("blacklistjwt")]
         public IActionResult BlacklistJwt([FromBody] BlacklistJwtModel model)
         {
-            string refreshToken = model.RefreshToken;
-            _jwtService.Create(refreshToken);
+            _jwtService.Create(model.UserId, model.LoginId);
             return Ok();
         }
     }

@@ -1,0 +1,25 @@
+{
+   "serverPort":"80",
+   "auth": {
+      "keyType": "RSA",
+      "alg": "RS256",
+      "issuer":"BOUNCER",
+      "audience":"BOUNCER",
+      "expiresInTrusted":"500m",
+      "expiredInUntrusted":"1000m",
+      "iat": true
+   },
+   "services": {
+      "bouncer": {
+         "urlJwk": "http://secret_bouncer/auth/jwk"
+      },
+      "usman": {
+         "urls": {
+            "credVerify": "http://secret_usman/credential/",
+            "credDecrypt": "http://secret_usman/credential/decrypt",
+            "jwtBlacklist": "http://secret_usman/internal/blacklistjwt",
+            "userVerify": "http://secret_usman/user/verify"
+         }
+      }
+   }
+}

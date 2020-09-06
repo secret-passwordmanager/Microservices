@@ -8,17 +8,28 @@ const crypto = require('crypto');
 const http = require('axios');
 const config = require('../../config/config.json');
 
-async function logout(loginIdList) {
+async function logout(userId, loginIdList) {
+
+   if (typeof userId != 'number') {
+      throw new Error('userId must be a number');
+   }
+   if (typeof loginIdList != 'object') {
+      throw new Error('loginIdList must be an array');
+   }
+
+
    let resp = null;
    console.log(loginIdList);
    for await (let loginId of loginIdList) {
 
       await http.post(config.services.usman.urls.jwtBlacklist,
          {
+            'userId': userId,
             'loginId': loginId
          })
          .catch((err) => {
-            console.log('problemo')
+            console.log(err.response.config);
+            console.log('problemo');
             resp = err;
          });
       
@@ -70,7 +81,16 @@ var jwt = {
          issuer: config.auth.issuer,
          subject: refreshToken.userId.toString(),  
       });
+   },
+
+   verify: (jwt) => {
+      if (typeof jwt != 'string') {
+         throw new Error('Authorization is required for this endpoint. Missing jwt in header');
+      }
+      return jose.JWT.verify(jwt, jwk.get().toJWK());
    }
+
+
 };
 
 var jwk = {

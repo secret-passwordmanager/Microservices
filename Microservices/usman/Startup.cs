@@ -76,10 +76,9 @@ namespace dotnetapi
                             context.Fail("Unauthorized");
                         }
                         /* Check if token has been blacklisted */
-                        var refreshToken = context.Principal.FindFirstValue("refreshToken");
                         
                         var jwtService = context.HttpContext.RequestServices.GetRequiredService<IJwtMiddlewareService>();
-                        if (jwtService.Read(refreshToken)) {
+                        if (jwtService.Read(userId, context.Principal.FindFirstValue("loginId"))) {
                             context.Fail("Unauthorized");
                         }
                         return Task.CompletedTask;
