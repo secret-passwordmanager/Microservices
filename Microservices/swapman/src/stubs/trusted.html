@@ -11,17 +11,15 @@
    <button id="getSwap">Get Swaps </button>
    <button id="submitSwapBtn">Submit Swap</button>
    <input  id="credId" type="text" value="credId">
-   <input id="jwt" type="text">
     <script src="/socket.io/socket.io.js"></script>
     <script>
       var swap = null;
 
       document.getElementById('connect').addEventListener('click', () => {
          var socket = io.connect('/Trusted', {
-         query: { 
-            'jwt': document.getElementById("jwt").value,
-            'masterCred': document.getElementById("masterCred").value
-         }
+            query: { 
+               'jwt': document.getElementById("jwt").value
+            }
          });
          socket.on('connection', (error) => {
             console.log('connected')

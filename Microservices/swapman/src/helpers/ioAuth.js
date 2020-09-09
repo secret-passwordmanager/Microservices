@@ -38,12 +38,6 @@ var middleware = {
          console.log(error);
          return new Error(error);
       }
-      /* Grab masterCred */
-      if (socket.handshake.query.masterCred == undefined) {
-         let error = 'No masterCred was specified in handshake query';
-         console.log(error);
-         return new Error(error);
-      }
       /* Verify jwt */
       if (await verifyJwt(jwt, 'Trusted') instanceof Error) {
          let error = 'Client jwt cannot be verified';

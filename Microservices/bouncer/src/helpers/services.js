@@ -51,6 +51,11 @@ var user = {
             return res.data.id;
          })
          .catch((err) => {
+            /* If the user was not found on usman, just return -1 */
+            if (err.response.data.status == 400) {
+               return -1;
+            }
+
             return new Error('Error, failed to verify user through usman. Here is the full error: ' + err.message);
          });
    },

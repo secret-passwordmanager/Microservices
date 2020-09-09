@@ -20,7 +20,11 @@ app.listen(config.serverPort, () => {
 });
 
 app.use(bodyParser.json());
-
+app.use(function(req, res, next) {
+   res.header('Access-Control-Allow-Origin', '*'); // update to match the domain you will make the request from
+   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+   next();
+});
 
 //////////////////////////////////////////////
 ///////////////// Routes  ////////////////////
@@ -48,7 +52,10 @@ app.post('/auth/login',
          let userId = await services.usman.getUserId(req.body.username, req.body.password);
          if (userId instanceof Error) {
             throw userId;
+         } else if (userId == -1){
+            return res.status(401).json({'Error': 'Incorrect username or password'});
          }
+
 
          /* Create and store new refresh token */
          let tokenVal = tokenStore.create(userId);
