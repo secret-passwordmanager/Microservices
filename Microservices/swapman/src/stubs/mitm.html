@@ -15,13 +15,13 @@
          query: { 'jwt': jwt}
       });
       socket.on('connection', (error) => {
-         console.log('connected')
+         console.log('connected');
       });
 
       socket.on('swapApproved', (swap) => {
-         console.log('swap approved')
+         console.log('swap approved');
          console.log(swap);
-      })
+      });
 
 
     </script>
