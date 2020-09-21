@@ -63,6 +63,15 @@ ioUntrusted.on('connection', (socket) => {
    });
 
    /**
+    * Description. By requesting this event, the user can 
+    * get all requests that have yet to be approved
+    * @return {object} swaps[]
+    */
+   socket.on('swapsNumPending', () => {
+      socket.emit('swapGot', swaps.getAll(userId).length);
+   });
+
+   /**
     * Description. This even is automatically called
     * when an untrusted client closes the connection
     * When this occurs, we notify our trusted clients

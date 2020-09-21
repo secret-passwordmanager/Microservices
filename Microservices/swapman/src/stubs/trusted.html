@@ -5,11 +5,13 @@
 
   </head>
   <body>
-   <input type="text" name="trustedJWT" value="trustedJWT" id="jwt">
+   <input type="text" name="trustedJWT" value="eyJhbGciOiJSUzI1NiIsImtpZCI6IlNUZ29iWnRlM09jMmVRYUgyS2RBbXdXSFhsTFVXcXNzdXpMZXRrMjRLU1EifQ.eyJ1bmlxdWVfbmFtZSI6IjE2IiwibG9naW5JZCI6IjViYzQ4ZDQzZTAwZGQ3Yjc2NThkOGRiMTczZmFiZjAwIiwicm9sZSI6IlRydXN0ZWQiLCJtYXN0ZXJDcmVkIjoidERscVduZ1FaMWM3N3ZRIiwic3ViIjoiMTYiLCJhdWQiOiJCT1VOQ0VSIiwiaXNzIjoiQk9VTkNFUiIsImlhdCI6MTYwMDcyNDY2OCwiZXhwIjoxNjAwNzU0NjY4fQ.ZTP5ompcXnalqgIfiO5L_6lJ5PrqJeQ_B9IfyJIiriO80tT5NfszqGXnk8Wuvj0POOyRTQJZ6PUBRgptQF9iz8jMEzrZZahucQbYk1NYL5Wt5bzxsjQoZ35EyHyAaqgelI5Qjj_3it-p-vw-_feeTeFe3YjPOAeP0oPTpl53NpzwUkCRF8rygpMtNgoWNgy6BHzOTEhdGfJMdmKdK5glJtne0UZnnosBEOB5-GU1kxH75yTvkZDUIu04mwKSdiVSGDsByKJi9DRzDuzsUVozMfNOKWO9L0r4p9xZeVnBLARFkK11bihrs2RaAPykhmUsiLthbYr-50p4S96OV2Lrrw" id="jwt">
    <button id="connect">Connect</button>
    <button id="getSwap">Get Swaps </button>
-   <button id="submitSwapBtn">Submit Swap</button>
+
    <input  id="credId" type="text" value="credId">
+   <button id="submitSwapBtn">Submit Swap</button>
+   <button id="deleteSwapBtn">Delete Swap</button>
     <script src="/socket.io/socket.io.js"></script>
     <script>
       var swap = null;
@@ -72,6 +74,11 @@
             swap.credId = parseInt(document.getElementById('credId').value, 10);
             socket.emit('swapApprove', swap);
          });
+
+
+         document.getElementById('deleteSwapBtn').addEventListener('click', () => {
+            socket.emit('swapDelete', swap);
+         })
       })
 
       

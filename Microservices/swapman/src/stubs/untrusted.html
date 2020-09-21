@@ -4,7 +4,7 @@
     <title>Untrusted</title>
   </head>
   <body>
-      <input type="text" name="untrustedJWT" value="untrustedJWT" id="jwt">
+      <input type="text" name="untrustedJWT" value="eyJhbGciOiJSUzI1NiIsImtpZCI6IlNUZ29iWnRlM09jMmVRYUgyS2RBbXdXSFhsTFVXcXNzdXpMZXRrMjRLU1EifQ.eyJ1bmlxdWVfbmFtZSI6IjE2IiwibG9naW5JZCI6IjViYzQ4ZDQzZTAwZGQ3Yjc2NThkOGRiMTczZmFiZjAwIiwicm9sZSI6IlVudHJ1c3RlZCIsInN1YiI6IjE2IiwiYXVkIjoiQk9VTkNFUiIsImlzcyI6IkJPVU5DRVIiLCJpYXQiOjE2MDA3MjQ2NjN9.EIsGURZMzdcPFZcYOC47BtxYh1xeR7lRR0WyD1b8SwzEPVFXSh9F669v7-vZlcwX5l9j9b5YVtluq4p7GyzFkpGunzxosoT-kO16jjlg817MXzmzAkojGnDYZey9sR9xOl0xHoSSiOnbQKnFL___6VCqFnPtrNZHUKPT05YCYJgRlrIjEUrmcnTwP_7miiqp7dpge8c2Pxhdk_uyLuemPuAyrUgzHFUl3218zhlOTuRcGUpiovJBMl5YMEEPTwxDE-Hxio9732HAaiAt1aCVI3sdA-QH2niW7X03nCoA28FrgkceQJoRW7KfptVL6iRs_TDWxpjInoZ54l3gTiwlLQ" id="jwt">
       <button id="connect">Connect</button>
      <input type="text" name="token" value="fdsadsfdsnvdsanjkdvsnakdnsakvdsa" id="credToken">
      <input type="text" name="domain" value="google.com" id="credDomain">
@@ -18,7 +18,7 @@
         </option>
      </select>
    <button id="newSwapBtn">New Swap</button>
-
+   <button id="swapStatusBtn">Check num Swaps</button>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
@@ -46,7 +46,9 @@
          console.log(error);
       });
 
-
+      socket.on('swapGot', (num) => {
+         console.log('Swaps: ' + num);
+      })
 
       document.getElementById('newSwapBtn').addEventListener("click", () => {
          socket.emit('swapNew', {
@@ -56,6 +58,10 @@
             'type': document.getElementById('credType').value
          });
       });
+
+      document.getElementById('swapStatusBtn').addEventListener('click', () => {
+         socket.emit('swapsNumPending');
+      })
       });
 
 

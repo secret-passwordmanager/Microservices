@@ -70,12 +70,11 @@ function exists(swap) {
  */
 function remove(swap) {
 
+   validate.delete(swap);
+
    let indx = swaps.findIndex(s => 
       s.userId == swap.userId
       && s.token == swap.token
-      && s.domain == swap.domain
-      && s.authId == swap.authId 
-      && s.type == swap.type
    );
    /* If not found, return -1 */
    if (indx == -1)
@@ -108,6 +107,18 @@ function getAll(userId) {
  * to be a proper swap
  */
 var validate = {
+
+
+   delete: (swap) => {
+
+      console.log(swap.userId)
+      if (!validator.isAscii(swap.token))
+         throw new Error('Invalid token in swap delete. token must be an ascii string');
+
+      if (isNaN(swap.userId)) {
+         throw new Error('Invalid userId in swap delete. userId must be a number')
+      }
+   },
 
    /**
     * Description. Validates that the swap has all of the required 

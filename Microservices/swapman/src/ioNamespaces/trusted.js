@@ -57,6 +57,18 @@ ioTrusted.on('connection', (socket) => {
       socket.emit('swapGot', swaps.getAll(userId));
    });
 
+   socket.on('swapDelete', (swap) => {
+      try {
+         swap.userId = userId;
+         if (swaps.remove(swap) instanceof Error) {
+            throw Error('This swap could not be deleted');
+         }
+      }
+      catch(err) {
+         socket.emit('err', 'Error: ' + err.message);
+      }
+   });
+
    /**
     * Description. By requesting this event, the user can approve
     * pending requests that were made by the untrusted device
