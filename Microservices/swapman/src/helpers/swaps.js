@@ -120,8 +120,8 @@ var validate = {
       if (!validator.isFQDN(swap.domain))
          throw new Error('Invalid domain in swap request. domain must be a valid website domain.');
       
-      if (!validator.isAscii(swap.token) || swap.token.length != 32)
-         throw new Error('Invalid token in swap request. token must be an ascii value of length 32');
+      if (!validator.isAscii(swap.token))
+         throw new Error('Invalid token in swap request. token must be an ascii string');
 
       if (!validator.isAlphanumeric(swap.authId) || swap.authId.length != 4)
          throw new Error('Invalid authId in swap request. authId must be a 4 character alphanumeric.');
