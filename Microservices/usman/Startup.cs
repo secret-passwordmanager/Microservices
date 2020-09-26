@@ -73,12 +73,14 @@ namespace dotnetapi
                         var user = userService.Read(userId);
                         if (user == null)
                         {
+                            Console.WriteLine("or fail here");
                             context.Fail("Unauthorized");
                         }
                         /* Check if token has been blacklisted */
                         
                         var jwtService = context.HttpContext.RequestServices.GetRequiredService<IJwtMiddlewareService>();
                         if (jwtService.Read(userId, context.Principal.FindFirstValue("loginId"))) {
+                            Console.WriteLine("fail here");
                             context.Fail("Unauthorized");
                         }
                         return Task.CompletedTask;
