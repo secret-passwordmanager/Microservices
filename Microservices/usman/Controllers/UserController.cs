@@ -40,7 +40,7 @@ namespace dotnetapi.Controllers
                 return BadRequest(new { Error = e.Message });
             }
         }
-        [Authorize]
+        [Authorize(Roles="Trusted", "Untrusted")]
         [HttpGet]
         public IActionResult Read()
         {
