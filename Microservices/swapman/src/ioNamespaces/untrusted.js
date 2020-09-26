@@ -44,13 +44,12 @@ ioUntrusted.on('connection', (socket) => {
     * @param {object} swapRequest The swap that is being
     * requested
     */
-   socket.on('swapNew', swapRequest => {
+   socket.on('swapNew', (swapRequest) => {
       try {
          console.log('In Untrusted newSwap');
          // swaps.validate.request(swapRequest);
          swapRequest.userId = userId;
-         swapRequest.ip = socket.request.connection.remoteAddress;
-
+         swapRequest.ip = socket.handshake.headers['x-forwarded-for'];
          let addRtn = swaps.add(swapRequest);
          if (addRtn instanceof Error)
             throw addRtn;
