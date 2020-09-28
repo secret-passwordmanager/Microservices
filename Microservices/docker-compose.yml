@@ -48,7 +48,9 @@ services:
          secret_usman:
             condition: service_healthy
       container_name: secret_mitm
-      image: patricka3125/secret-repo:mitm-latest
+      build:
+         context: mitm/
+      #image: patricka3125/secret-repo:mitm-latest
       environment: 
          - PUID=1000
          - PGID=1000
@@ -56,6 +58,7 @@ services:
          - secret_net
       ports: 
          - 8001:8080 
+         - 8002:8081
       stdin_open: true # docker run -i
       tty: true # docker run -t
 

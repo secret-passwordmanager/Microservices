@@ -38,9 +38,10 @@ RUN pipx install mitmproxy \
 RUN pipx inject mitmproxy pyodbc \
  && pipx inject mitmproxy tldextract \
  && pipx inject mitmproxy regex \
- && pipx inject mitmproxy requests
+ && pipx inject mitmproxy requests \
+ && pipx inject mitmproxy python-socketio
 
-VOLUME /home/mitmproxy/.mitmproxy
+#VOLUME /home/mitmproxy/.mitmproxy
 
 # Copy the mitm script
 COPY mitm_script.py /home/mitmproxy/.mitmproxy/
@@ -50,6 +51,7 @@ COPY docker-entrypoint.sh /usr/local/bin/
 
 ENTRYPOINT ["bash","docker-entrypoint.sh"]
 
-EXPOSE 8080 8081
+EXPOSE 8080
+EXPOSE 8081
 
 #CMD ["mitmproxy"]
