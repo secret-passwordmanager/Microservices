@@ -60,6 +60,15 @@ ioUntrusted.on('connection', (socket) => {
          socket.emit('err', err.message);
       }
    });
+   
+   /**
+    * Description. By requesting this event, the user can 
+    * get all requests that have yet to be approved
+    * @return {object} swaps[]
+    */
+   socket.on('swapsGet', () => {
+      socket.emit('swapsGot', swaps.getAll(userId));
+   });
 
    /**
     * Description. By requesting this event, the user can 

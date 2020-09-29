@@ -76,7 +76,7 @@ var jwt = {
          /* signOpts */
          algorithm: config.auth.alg,
          audience: config.auth.issuer,
-         expiresIn: masterCred == undefined ? config.auth.expiresInUntrsted : config.auth.expiresInTrusted,
+         expiresIn: masterCred == undefined ? config.auth.expiresInUntrusted : config.auth.expiresInTrusted,
          iat: config.auth.iat,
          issuer: config.auth.issuer,
          subject: refreshToken.userId.toString(),  

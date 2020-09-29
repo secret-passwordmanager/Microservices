@@ -10,7 +10,7 @@ using dotnetapi.Helpers;
 
 namespace dotnetapi.Controllers
 {
-    [Authorize(Roles="Trusted, Untrusted")]
+    [Authorize(Roles="Trusted,Untrusted")]
     [ApiController]
     [Route("[controller]")]
     public class UserController : ControllerBase

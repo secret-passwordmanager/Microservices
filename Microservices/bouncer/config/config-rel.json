@@ -6,7 +6,7 @@
       "issuer":"BOUNCER",
       "audience":"BOUNCER",
       "expiresInTrusted":"500m",
-      "expiredInUntrusted":"1000m",
+      "expiresInUntrusted":"1000m",
       "iat": true
    },
    "services": {

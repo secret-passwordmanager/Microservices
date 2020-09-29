@@ -61,15 +61,17 @@ namespace dotnetapi
                     ValidIssuer = "BOUNCER",
                     ValidateAudience = false
                 };
+
                 x.Events = new JwtBearerEvents
                 {
-
+           
                     
                     OnTokenValidated = context =>
                     {
                         // return unauthorized if user no longer exists
                         var userService = context.HttpContext.RequestServices.GetRequiredService<IUserService>();
                         var userId = int.Parse(context.Principal.Identity.Name);
+                        Console.WriteLine(userId);
                         var user = userService.Read(userId);
                         if (user == null)
                         {
@@ -78,15 +80,23 @@ namespace dotnetapi
                         }
                         /* Check if token has been blacklisted */
                         
-                        var jwtService = context.HttpContext.RequestServices.GetRequiredService<IJwtMiddlewareService>();
+                      /*   var jwtService = context.HttpContext.RequestServices.GetRequiredService<IJwtMiddlewareService>();
                         if (jwtService.Read(userId, context.Principal.FindFirstValue("loginId"))) {
                             Console.WriteLine("fail here");
                             context.Fail("Unauthorized");
-                        }
+                        } */
+                        return Task.CompletedTask;
+                    },
+                    OnAuthenticationFailed = context => {
+                        Console.WriteLine("do u get to hereeee");
+                        Console.WriteLine(context.Result);
+                        Console.WriteLine(context.Exception.ToString());
+
                         return Task.CompletedTask;
                     }
                 };
             });
+            services.AddAuthorization();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -104,16 +114,18 @@ namespace dotnetapi
                     System.Threading.Thread.Sleep(2000);
                 }
             }
-
-            app.UseRouting();
-            app.UseAuthentication();
-            app.UseAuthorization();
-            app.UseEndpoints(endpoints => endpoints.MapControllers());
             // global cors policy
             app.UseCors(x => x
                 .AllowAnyOrigin()
                 .AllowAnyMethod()
                 .AllowAnyHeader());
+
+
+            app.UseRouting();
+            app.UseAuthentication();
+            app.UseAuthorization();
+            app.UseEndpoints(endpoints => endpoints.MapControllers());
+
 
             
         }
