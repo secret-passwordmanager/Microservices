@@ -51,7 +51,7 @@ def request(flow: http.HTTPFlow) -> None:
         ext = tldextract.extract(host)
         domain = ext.domain + "." + ext.suffix
 
-        swaps = userSwaps[swap[ip]]
+        swaps = userSwaps[ip]
 
         form = flow.request.urlencoded_form
         

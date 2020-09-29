@@ -47,9 +47,9 @@ services:
       depends_on:
          secret_usman:
             condition: service_healthy
-      container_name: secret_mitm
+      container_name: secret_middleman
       build:
-         context: mitm/
+         context: middleman/
       #image: patricka3125/secret-repo:mitm-latest
       environment: 
          - PUID=1000
